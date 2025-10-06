@@ -1,0 +1,34 @@
+{
+  "name": "nuxt-ui-template-landing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "update-caniuse": "node scripts/download-caniuse.mjs"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.68",
+    "@iconify-json/simple-icons": "^1.2.54",
+    "@nuxt/content": "^3.7.1",
+    "@nuxt/image": "^1.11.0",
+    "@nuxt/ui": "^4.0.1",
+    "better-sqlite3": "^12.4.1",
+    "nuxt": "^4.1.2"
+  },
+  "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@nuxt/eslint": "^1.9.0",
+    "eslint": "^9.37.0",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.1.0"
+  },
+  "resolutions": {
+    "unimport": "4.1.1"
+  },
+  "packageManager": "pnpm@10.18.0"
+}

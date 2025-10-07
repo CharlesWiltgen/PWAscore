@@ -403,16 +403,17 @@ async function loadMdnBcdData(): Promise<unknown> {
  */
 function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
   const parts = path.split('.')
-  let current: any = data
+  let current = data as Record<string, unknown>
 
   for (const part of parts) {
-    current = current?.[part]
-    if (!current) {
+    const next = current?.[part]
+    if (!next) {
       return null
     }
+    current = next as Record<string, unknown>
   }
 
-  return current as MdnBcdFeature | null
+  return current as unknown as MdnBcdFeature | null
 }
 
 /**

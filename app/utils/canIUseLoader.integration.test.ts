@@ -95,18 +95,19 @@ describe('canIUseId integration', () => {
     for (const path of mdnBcdPaths) {
       // Navigate the BCD structure
       const parts = path.split('.')
-      let current: any = bcdData
+      let current = bcdData as unknown as Record<string, unknown>
 
       let found = true
       for (const part of parts) {
-        current = current?.[part]
-        if (!current) {
+        const next = current?.[part]
+        if (!next) {
           found = false
           break
         }
+        current = next as Record<string, unknown>
       }
 
-      if (found && current?.__compat) {
+      if (found && (current as Record<string, unknown> & { __compat?: unknown })?.__compat) {
         validPaths.push(path)
       } else {
         invalidPaths.push(path)

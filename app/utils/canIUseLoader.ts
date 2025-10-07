@@ -59,7 +59,9 @@ async function loadCanIUseData(): Promise<CanIUseData> {
   loadingPromise = (async (): Promise<CanIUseData> => {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
+      // @ts-expect-error - Cloudflare Workers specific properties
       if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+        // @ts-expect-error - Cloudflare Workers cache API
         const cache = caches.default
         const cacheKey = new Request(`https://pwascore-cache/caniuse/${CACHE_VERSION}`)
 
@@ -241,7 +243,7 @@ function findBrowserVersion(
     for (const [versionKey, support] of Object.entries(stats)) {
       if (versionKey.includes('-')) {
         const [rangeStart, rangeEnd] = versionKey.split('-').map(v => Number.parseFloat(v))
-        if (!Number.isNaN(rangeStart) && !Number.isNaN(rangeEnd)) {
+        if (rangeStart !== undefined && rangeEnd !== undefined && !Number.isNaN(rangeStart) && !Number.isNaN(rangeEnd)) {
           // Check if target version is within or close to the range
           // Allow matching if target is within ±1 major version of the range
           if (targetMajor >= rangeStart - 1 && targetMajor <= rangeEnd + 1) {
@@ -378,7 +380,6 @@ async function loadMdnBcdData(): Promise<unknown> {
   mdnBcdLoadingPromise = (async () => {
     try {
       // Dynamic import of MDN BCD data
-      // @ts-expect-error - dynamic import
       const bcd = await import('@mdn/browser-compat-data')
       mdnBcdData = bcd.default || bcd
       return mdnBcdData
@@ -402,7 +403,7 @@ async function loadMdnBcdData(): Promise<unknown> {
  */
 function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
   const parts = path.split('.')
-  let current = data
+  let current: any = data
 
   for (const part of parts) {
     current = current?.[part]
@@ -411,7 +412,7 @@ function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
     }
   }
 
-  return current
+  return current as MdnBcdFeature | null
 }
 
 /**

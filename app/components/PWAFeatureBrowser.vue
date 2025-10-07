@@ -247,7 +247,6 @@ const groupItems = createGroupItems(pwaFeatures)
             v-model="openGroups"
             :items="groupItems"
             type="multiple"
-            :ui="{ item: { label: 'font-semibold' } }"
           >
             <template
               v-for="group in pwaFeatures"

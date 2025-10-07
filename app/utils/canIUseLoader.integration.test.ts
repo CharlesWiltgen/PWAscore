@@ -64,7 +64,6 @@ describe('canIUseId integration', () => {
 
   test('all mdnBcdPaths in pwa-features.ts should be valid', { timeout: 30000 }, async () => {
     // Load MDN BCD data
-    // @ts-expect-error - dynamic import
     const bcd = await import('@mdn/browser-compat-data')
     const bcdData = bcd.default || bcd
 
@@ -96,7 +95,7 @@ describe('canIUseId integration', () => {
     for (const path of mdnBcdPaths) {
       // Navigate the BCD structure
       const parts = path.split('.')
-      let current = bcdData
+      let current: any = bcdData
 
       let found = true
       for (const part of parts) {
@@ -107,7 +106,7 @@ describe('canIUseId integration', () => {
         }
       }
 
-      if (found && current.__compat) {
+      if (found && current?.__compat) {
         validPaths.push(path)
       } else {
         invalidPaths.push(path)

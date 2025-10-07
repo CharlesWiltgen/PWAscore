@@ -4,7 +4,7 @@
  */
 
 import { ref } from 'vue'
-import { getCanIUseSupport } from '../utils/canIUseLoader'
+import { getCanIUseSupport, getBrowserVersions, type BrowserVersions } from '../utils/canIUseLoader'
 
 export type SupportLevel
   = | 'supported'
@@ -19,15 +19,6 @@ export interface BrowserSupport {
 }
 
 /**
- * Browser versions to check support for
- */
-const BROWSER_VERSIONS = {
-  chrome: '131',
-  firefox: '138',
-  safari: '18.4'
-}
-
-/**
  * Unknown support fallback
  */
 const UNKNOWN_SUPPORT: BrowserSupport = {
@@ -37,11 +28,37 @@ const UNKNOWN_SUPPORT: BrowserSupport = {
 }
 
 /**
+ * Default browser versions (used as fallback)
+ */
+const DEFAULT_BROWSER_VERSIONS: BrowserVersions = {
+  chrome: '141',
+  firefox: '143',
+  safari: '18.4'
+}
+
+/**
  * Get browser support status for PWA features
  */
 export function useBrowserSupport() {
   const supportCache = ref<Map<string, BrowserSupport>>(new Map())
+  const browserVersions = ref<BrowserVersions>(DEFAULT_BROWSER_VERSIONS)
   const isLoading = ref(false)
+  const versionsLoaded = ref(false)
+
+  /**
+   * Load browser versions from CanIUse data
+   */
+  const loadBrowserVersions = async (): Promise<void> => {
+    if (versionsLoaded.value) return
+
+    try {
+      browserVersions.value = await getBrowserVersions()
+      versionsLoaded.value = true
+    } catch (error) {
+      console.error('Failed to load browser versions:', error)
+      browserVersions.value = DEFAULT_BROWSER_VERSIONS
+    }
+  }
 
   /**
    * Get support data for a feature
@@ -85,9 +102,12 @@ export function useBrowserSupport() {
       return UNKNOWN_SUPPORT
     }
 
+    // Ensure browser versions are loaded
+    await loadBrowserVersions()
+
     // Load from CanIUse
     try {
-      const support = await getCanIUseSupport(canIUseId, BROWSER_VERSIONS)
+      const support = await getCanIUseSupport(canIUseId, browserVersions.value)
       supportCache.value.set(cacheKey, support)
       return support
     } catch (error) {
@@ -117,6 +137,8 @@ export function useBrowserSupport() {
     getSupport,
     loadSupport,
     loadMultipleSupport,
+    loadBrowserVersions,
+    browserVersions,
     isLoading
   }
 }

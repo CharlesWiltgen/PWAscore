@@ -8,11 +8,18 @@ import type { SupportLevel } from '../composables/useBrowserSupport'
 interface CanIUseData {
   agents: Record<string, {
     browser: string
+    current_version?: string
     version_list: Array<{ version: string }>
   }>
   data: Record<string, {
     stats: Record<string, Record<string, string>>
   }>
+}
+
+export interface BrowserVersions {
+  chrome: string
+  firefox: string
+  safari: string
 }
 
 // GitHub URL for CanIUse data
@@ -98,6 +105,52 @@ async function loadCanIUseData(): Promise<CanIUseData> {
 }
 
 /**
+ * Extract current browser versions from CanIUse data
+ * Returns the latest version for each mobile browser
+ */
+export async function getBrowserVersions(): Promise<BrowserVersions> {
+  try {
+    const data = await loadCanIUseData()
+
+    // Get Chrome and Firefox versions directly from agents
+    const chromeVersion = data.agents.and_chr?.current_version || '141'
+    const firefoxVersion = data.agents.and_ff?.current_version || '143'
+
+    // For iOS Safari, find the highest iOS version from version_list
+    // iOS Safari uses iOS version numbers (18.x) not Safari version numbers (26.x)
+    let safariVersion = '18.4' // Fallback
+    const safariAgent = data.agents.ios_saf
+    if (safariAgent?.version_list) {
+      // Find all iOS versions (not ranges, just single versions like "18.0")
+      const versions = safariAgent.version_list
+        .map(v => v.version)
+        .filter(v => !v.includes('-') && Number.parseFloat(v) < 20) // Filter out Safari versions (26.x)
+        .map(v => Number.parseFloat(v))
+        .filter(v => !Number.isNaN(v))
+
+      if (versions.length > 0) {
+        const maxVersion = Math.max(...versions)
+        safariVersion = maxVersion.toString()
+      }
+    }
+
+    return {
+      chrome: chromeVersion,
+      firefox: firefoxVersion,
+      safari: safariVersion
+    }
+  } catch (error) {
+    console.error('[CanIUse] Error getting browser versions:', error)
+    // Return fallback versions
+    return {
+      chrome: '141',
+      firefox: '143',
+      safari: '18.4'
+    }
+  }
+}
+
+/**
  * Parse CanIUse status code to SupportLevel
  * y = supported
  * a = partial (alternative implementation)
@@ -135,7 +188,7 @@ function parseStatus(status: string | undefined): SupportLevel {
 
 /**
  * Find best matching browser version
- * For Safari 18.4, try: 18.4, then 18, then TP (tech preview)
+ * For Safari 18.4, try: 18.4, then 18, then version ranges (18.5-18.6), then TP (tech preview)
  */
 function findBrowserVersion(
   stats: Record<string, string> | undefined,
@@ -158,6 +211,22 @@ function findBrowserVersion(
     if (majorMatch) {
       return majorMatch
     }
+
+    // Try to find a version range that contains the target version
+    // iOS Safari uses ranges like "18.5-18.6"
+    const targetMajor = Number.parseFloat(targetVersion)
+    for (const [versionKey, support] of Object.entries(stats)) {
+      if (versionKey.includes('-')) {
+        const [rangeStart, rangeEnd] = versionKey.split('-').map(v => Number.parseFloat(v))
+        if (!Number.isNaN(rangeStart) && !Number.isNaN(rangeEnd)) {
+          // Check if target version is within or close to the range
+          // Allow matching if target is within ±1 major version of the range
+          if (targetMajor >= rangeStart - 1 && targetMajor <= rangeEnd + 1) {
+            return support
+          }
+        }
+      }
+    }
   }
 
   // Try TP (technology preview) as fallback for Safari
@@ -171,6 +240,7 @@ function findBrowserVersion(
 
 /**
  * Get browser support for a specific feature from CanIUse data
+ * Queries mobile browser agents: Chrome for Android, Firefox for Android, Safari on iOS
  */
 export async function getCanIUseSupport(
   canIUseId: string,
@@ -198,17 +268,20 @@ export async function getCanIUseSupport(
       }
     }
 
-    // Get support for each browser
+    // Query mobile browser agents
+    // and_chr = Chrome for Android
+    // and_ff = Firefox for Android
+    // ios_saf = Safari on iOS
     const chromeStatus = findBrowserVersion(
-      featureData.stats?.chrome,
+      featureData.stats?.and_chr,
       browserVersions.chrome
     )
     const firefoxStatus = findBrowserVersion(
-      featureData.stats?.firefox,
+      featureData.stats?.and_ff,
       browserVersions.firefox
     )
     const safariStatus = findBrowserVersion(
-      featureData.stats?.safari,
+      featureData.stats?.ios_saf,
       browserVersions.safari
     )
 

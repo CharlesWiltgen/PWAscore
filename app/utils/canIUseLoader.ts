@@ -1,6 +1,6 @@
 /**
  * CanIUse data loader and parser
- * Loads browser compatibility data from /data/caniuse-data.json
+ * Loads browser compatibility data from GitHub with edge caching
  */
 
 import type { SupportLevel } from '../composables/useBrowserSupport'
@@ -15,25 +15,84 @@ interface CanIUseData {
   }>
 }
 
+// GitHub URL for CanIUse data
+const CANIUSE_URL = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
+
+// Cache version - update this to force cache refresh
+const CACHE_VERSION = '2025-10-06'
+
+// In-memory cache
 let canIUseData: CanIUseData | null = null
 
 /**
- * Load CanIUse data from static JSON file
+ * Load CanIUse data from GitHub with Cache API
+ * Uses Cloudflare Cache API to store compressed data at the edge
+ * Cache TTL: 1 day (86400 seconds)
  */
 async function loadCanIUseData(): Promise<CanIUseData> {
+  // Return cached data if available in memory
   if (canIUseData) {
     return canIUseData
   }
 
   try {
-    const response = await fetch('/data/caniuse-data.json')
+    // Use Cache API on server-side in production (Cloudflare Workers)
+    if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+      const cache = caches.default
+      const cacheKey = new Request(`https://pwascore-cache/caniuse/${CACHE_VERSION}`)
+
+      let response = await cache.match(cacheKey)
+
+      if (!response) {
+        console.log('[CanIUse] Cache miss - fetching from GitHub')
+
+        // Fetch from GitHub (already compressed via gzip)
+        response = await fetch(CANIUSE_URL, {
+          headers: {
+            'Accept-Encoding': 'gzip, br'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to load CanIUse data: ${response.status}`)
+        }
+
+        // Cache for 1 day
+        const headers = new Headers(response.headers)
+        headers.set('Cache-Control', 'public, max-age=86400')
+
+        const cachedResponse = new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers
+        })
+
+        // Store in cache
+        await cache.put(cacheKey, cachedResponse.clone())
+        response = cachedResponse
+
+        console.log('[CanIUse] Data cached at edge')
+      } else {
+        console.log('[CanIUse] Cache hit - using cached data')
+      }
+
+      canIUseData = await response.json()
+      return canIUseData!
+    }
+
+    // Development or client-side fallback - fetch directly from GitHub
+    console.log('[CanIUse] Development/client-side fetch from GitHub')
+    const response = await fetch(CANIUSE_URL)
+
     if (!response.ok) {
       throw new Error(`Failed to load CanIUse data: ${response.status}`)
     }
+
     canIUseData = await response.json()
     return canIUseData!
+
   } catch (error) {
-    console.error('Error loading CanIUse data:', error)
+    console.error('[CanIUse] Error loading data:', error)
     throw error
   }
 }

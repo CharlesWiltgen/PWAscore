@@ -26,5 +26,5 @@ logs
 #VSC
 .history
 
-# CanIUse data (downloaded via script)
+# CanIUse data (now fetched from GitHub and cached at edge - no longer bundled)
 public/data/caniuse-data.json

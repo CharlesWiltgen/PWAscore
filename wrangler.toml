@@ -1,0 +1,13 @@
+name = "pwascore"
+compatibility_date = "2025-01-15"
+main = ".output/server/index.mjs"
+
+# Workers configuration
+workers_dev = true
+
+# Compatibility flags
+compatibility_flags = ["nodejs_compat"]
+
+# Assets configuration
+[assets]
+directory = ".output/public"

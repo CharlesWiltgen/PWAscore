@@ -119,6 +119,32 @@ function getCanIUseUrl(canIUseId?: string): string | undefined {
 }
 
 /**
+ * Handle Meta-click (⌘ on Mac, ⊞ on Windows) on group accordions
+ * to expand group + all its categories
+ */
+function handleGroupMetaClick(event: MouseEvent): void {
+  // Only process Meta-clicks
+  if (!event.metaKey) return
+
+  // Find the clicked accordion button
+  const target = event.target as HTMLElement
+  const button = target.closest('button')
+  if (!button) return
+
+  // Find the group ID by matching button text with group names
+  const buttonText = button.textContent?.trim()
+  const group = pwaFeatures.find(g => g.name === buttonText)
+  if (!group) return
+
+  // Add all category IDs to openCategories array
+  const categoryIds = group.categories.map(c => c.id)
+  openCategories.value = [
+    ...openCategories.value.filter(id => !categoryIds.includes(id)),
+    ...categoryIds
+  ]
+}
+
+/**
  * Create accordion items for feature groups
  */
 function createGroupItems(groups: PWAFeatureGroup[]) {
@@ -127,18 +153,21 @@ function createGroupItems(groups: PWAFeatureGroup[]) {
     description: group.description,
     icon: group.icon,
     slot: group.id,
+    value: group.id,
     defaultOpen: false
   }))
 }
 
 /**
  * Create accordion items for categories within a group
+ * This function is called reactively from the template
  */
 function createCategoryItems(group: PWAFeatureGroup) {
   return group.categories.map(category => ({
     label: category.name,
     description: category.description,
     slot: category.id,
+    value: category.id,
     defaultOpen: false
   }))
 }
@@ -182,12 +211,13 @@ const groupItems = createGroupItems(pwaFeatures)
         </UCard>
 
         <!-- Feature Groups Accordion -->
-        <UAccordion
-          v-model="openGroups"
-          :items="groupItems"
-          :multiple="true"
-          :ui="{ item: { label: 'font-semibold' } }"
-        >
+        <div @click.capture="handleGroupMetaClick">
+          <UAccordion
+            v-model="openGroups"
+            :items="groupItems"
+            type="multiple"
+            :ui="{ item: { label: 'font-semibold' } }"
+          >
           <template
             v-for="group in pwaFeatures"
             :key="group.id"
@@ -198,7 +228,7 @@ const groupItems = createGroupItems(pwaFeatures)
               <UAccordion
                 v-model="openCategories"
                 :items="createCategoryItems(group)"
-                :multiple="true"
+                type="multiple"
               >
                 <template
                   v-for="category in group.categories"
@@ -271,6 +301,7 @@ const groupItems = createGroupItems(pwaFeatures)
             </div>
           </template>
         </UAccordion>
+        </div>
       </div>
     </div>
   </div>

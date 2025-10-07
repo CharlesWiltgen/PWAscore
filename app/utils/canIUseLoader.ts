@@ -57,66 +57,65 @@ async function loadCanIUseData(): Promise<CanIUseData> {
 
   // Create the loading promise
   loadingPromise = (async (): Promise<CanIUseData> => {
+    try {
+      // Use Cache API on server-side in production (Cloudflare Workers)
+      if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+        const cache = caches.default
+        const cacheKey = new Request(`https://pwascore-cache/caniuse/${CACHE_VERSION}`)
 
-  try {
-    // Use Cache API on server-side in production (Cloudflare Workers)
-    if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
-      const cache = caches.default
-      const cacheKey = new Request(`https://pwascore-cache/caniuse/${CACHE_VERSION}`)
+        let response = await cache.match(cacheKey)
 
-      let response = await cache.match(cacheKey)
+        if (!response) {
+          console.log('[CanIUse] Cache miss - fetching from GitHub')
 
-      if (!response) {
-        console.log('[CanIUse] Cache miss - fetching from GitHub')
+          // Fetch from GitHub (already compressed via gzip)
+          response = await fetch(CANIUSE_URL, {
+            headers: {
+              'Accept-Encoding': 'gzip, br'
+            }
+          })
 
-        // Fetch from GitHub (already compressed via gzip)
-        response = await fetch(CANIUSE_URL, {
-          headers: {
-            'Accept-Encoding': 'gzip, br'
+          if (!response.ok) {
+            throw new Error(`Failed to load CanIUse data: ${response.status}`)
           }
-        })
 
-        if (!response.ok) {
-          throw new Error(`Failed to load CanIUse data: ${response.status}`)
+          // Cache for 1 day
+          const headers = new Headers(response.headers)
+          headers.set('Cache-Control', 'public, max-age=86400')
+
+          const cachedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers
+          })
+
+          // Store in cache
+          await cache.put(cacheKey, cachedResponse.clone())
+          response = cachedResponse
+
+          console.log('[CanIUse] Data cached at edge')
+        } else {
+          console.log('[CanIUse] Cache hit - using cached data')
         }
 
-        // Cache for 1 day
-        const headers = new Headers(response.headers)
-        headers.set('Cache-Control', 'public, max-age=86400')
+        canIUseData = await response.json()
+        return canIUseData!
+      }
 
-        const cachedResponse = new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers
-        })
+      // Development or client-side fallback - fetch directly from GitHub
+      const response = await fetch(CANIUSE_URL)
 
-        // Store in cache
-        await cache.put(cacheKey, cachedResponse.clone())
-        response = cachedResponse
-
-        console.log('[CanIUse] Data cached at edge')
-      } else {
-        console.log('[CanIUse] Cache hit - using cached data')
+      if (!response.ok) {
+        throw new Error(`Failed to load CanIUse data: ${response.status}`)
       }
 
       canIUseData = await response.json()
       return canIUseData!
+    } catch (error) {
+      console.error('[CanIUse] Error loading data:', error)
+      loadingPromise = null // Reset on error so it can be retried
+      throw error
     }
-
-    // Development or client-side fallback - fetch directly from GitHub
-    const response = await fetch(CANIUSE_URL)
-
-    if (!response.ok) {
-      throw new Error(`Failed to load CanIUse data: ${response.status}`)
-    }
-
-    canIUseData = await response.json()
-    return canIUseData!
-  } catch (error) {
-    console.error('[CanIUse] Error loading data:', error)
-    loadingPromise = null // Reset on error so it can be retried
-    throw error
-  }
   })()
 
   try {
@@ -354,19 +353,19 @@ interface MdnBcdFeature {
   __compat?: {
     support?: Record<string, MdnBcdSupport | MdnBcdSupport[]>
   }
-  [key: string]: any
+  [key: string]: unknown
 }
 
 // In-memory cache for MDN BCD data
-let mdnBcdData: any = null
-let mdnBcdLoadingPromise: Promise<any> | null = null
+let mdnBcdData: unknown = null
+let mdnBcdLoadingPromise: Promise<unknown> | null = null
 
 /**
  * Load MDN Browser Compatibility Data
  * Loads from the installed npm package
  * Prevents concurrent loads by using a loading promise
  */
-async function loadMdnBcdData(): Promise<any> {
+async function loadMdnBcdData(): Promise<unknown> {
   if (mdnBcdData) {
     return mdnBcdData
   }
@@ -379,7 +378,7 @@ async function loadMdnBcdData(): Promise<any> {
   mdnBcdLoadingPromise = (async () => {
     try {
       // Dynamic import of MDN BCD data
-      // @ts-ignore - dynamic import
+      // @ts-expect-error - dynamic import
       const bcd = await import('@mdn/browser-compat-data')
       mdnBcdData = bcd.default || bcd
       return mdnBcdData
@@ -401,7 +400,7 @@ async function loadMdnBcdData(): Promise<any> {
  * Navigate MDN BCD data structure using dot-notation path
  * Example: "api.Navigator.setAppBadge" -> bcd.api.Navigator.setAppBadge
  */
-function navigateMdnBcdPath(data: any, path: string): MdnBcdFeature | null {
+function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
   const parts = path.split('.')
   let current = data
 

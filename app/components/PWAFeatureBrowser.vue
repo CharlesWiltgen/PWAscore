@@ -216,9 +216,15 @@ const groupItems = createGroupItems(pwaFeatures)
                 <div>
                   <div class="text-lg flex items-center gap-1">
                     <span class="font-semibold">{{ browser.name }}</span>
-                    <span class="font-normal text-gray-500 dark:text-gray-400 flex items-center" :class="browser.platformIcon === 'i-simple-icons-android' ? 'gap-[5px]' : 'gap-1'">
+                    <span
+                      class="font-normal text-gray-500 dark:text-gray-400 flex items-center"
+                      :class="browser.platformIcon === 'i-simple-icons-android' ? 'gap-[5px]' : 'gap-1'"
+                    >
                       for
-                      <UIcon :name="browser.platformIcon" :class="browser.platformIcon === 'i-simple-icons-android' ? 'w-[18px] h-[18px]' : 'w-4 h-4'" />
+                      <UIcon
+                        :name="browser.platformIcon"
+                        :class="browser.platformIcon === 'i-simple-icons-android' ? 'w-[18px] h-[18px]' : 'w-4 h-4'"
+                      />
                     </span>
                   </div>
                   <div class="text-sm text-gray-500 dark:text-gray-400">

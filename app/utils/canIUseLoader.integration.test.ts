@@ -64,7 +64,7 @@ describe('canIUseId integration', () => {
 
   test('all mdnBcdPaths in pwa-features.ts should be valid', { timeout: 30000 }, async () => {
     // Load MDN BCD data
-    // @ts-ignore - dynamic import
+    // @ts-expect-error - dynamic import
     const bcd = await import('@mdn/browser-compat-data')
     const bcdData = bcd.default || bcd
 
@@ -73,7 +73,7 @@ describe('canIUseId integration', () => {
     const pwaFeaturesContent = readFileSync(pwaFeaturesPath, 'utf-8')
 
     // Extract mdnBcdPath values using regex
-    const mdnBcdPathRegex = /mdnBcdPath:\s*['\"]([^'\"]+)['\"]/g
+    const mdnBcdPathRegex = /mdnBcdPath:\s*['"]([^'"]+)['"]/g
     const mdnBcdPaths = new Set<string>()
     let match
 

@@ -10,7 +10,11 @@
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "update-caniuse": "node scripts/download-caniuse.mjs",
-    "deploy": "pnpm build && wrangler deploy"
+    "deploy": "pnpm build && wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.68",
@@ -23,9 +27,14 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
     "@iconify-json/heroicons": "^1.2.3",
+    "@mdn/browser-compat-data": "^7.1.11",
     "@nuxt/eslint": "^1.9.0",
+    "@nuxt/test-utils": "^3.19.2",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.37.0",
+    "happy-dom": "^19.0.2",
     "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
     "vue-tsc": "^3.1.0",
     "wrangler": "^4.42.0"
   },

@@ -1,6 +1,5 @@
 /**
  * Comprehensive hierarchical list of PWA features
- * Inspired by whatpwacando.today and other PWA resources
  */
 
 export interface PWAFeature {
@@ -10,6 +9,15 @@ export interface PWAFeature {
   apiName?: string
   specification?: string
   canIUseId?: string
+  mdnBcdPath?: string
+  /**
+   * Feature importance weight (multiplier for support score)
+   * - 3.0: Core PWA features (e.g., Service Workers, Web App Manifest)
+   * - 2.0: Important features (e.g., Push Notifications, Background Sync)
+   * - 1.0: Standard features (default)
+   * - 0.5: Nice-to-have/experimental features
+   */
+  weight?: number
 }
 
 export interface PWAFeatureCategory {
@@ -45,21 +53,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'beforeinstallprompt API',
             description: 'Prompt users to install the PWA',
             apiName: 'beforeinstallprompt',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 2.0
           },
           {
             id: 'add-to-home-screen',
             name: 'Add to Home Screen',
             description: 'Add app icon to device home screen',
             apiName: 'Add to Home Screen',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 2.0
           },
           {
             id: 'web-app-manifest',
             name: 'Web App Manifest',
             description: 'JSON file describing app metadata and behavior',
             apiName: 'Manifest',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 3.0
           },
           {
             id: 'display-modes',
@@ -67,7 +78,8 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description:
               'Control how the app is displayed (standalone, fullscreen, minimal-ui, browser)',
             apiName: 'display',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 2.0
           },
           {
             id: 'app-icons',
@@ -75,42 +87,48 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description:
               'Multiple icon sizes for different devices and contexts',
             apiName: 'icons',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 2.0
           },
           {
             id: 'theme-color',
             name: 'Theme Color',
             description: 'Customize browser UI color',
             apiName: 'theme_color',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1.0
           },
           {
             id: 'background-color',
             name: 'Background Color',
             description: 'Splash screen background color',
             apiName: 'background_color',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1.0
           },
           {
             id: 'orientation',
             name: 'Orientation Preferences',
             description: 'Specify preferred screen orientation',
             apiName: 'orientation',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1.0
           },
           {
             id: 'scope',
             name: 'Scope Definition',
             description: 'Define navigation scope of the PWA',
             apiName: 'scope',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1.0
           },
           {
             id: 'start-url',
             name: 'Start URL',
             description: 'URL to load when app is launched',
             apiName: 'start_url',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 2.0
           }
         ]
       },
@@ -125,35 +143,40 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Service Worker Registration',
             description: 'Register and manage service workers',
             apiName: 'ServiceWorkerRegistration',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 3.0
           },
           {
             id: 'caching-strategies',
             name: 'Caching Strategies',
             description: 'Implement various caching patterns',
             apiName: 'Cache',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 3.0
           },
           {
             id: 'cache-management',
             name: 'Cache Management',
             description: 'Manage cached resources',
             apiName: 'CacheStorage',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 3.0
           },
           {
             id: 'request-interception',
             name: 'Request Interception',
             description: 'Intercept and handle network requests',
             apiName: 'fetch event',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 3.0
           },
           {
             id: 'update-handling',
             name: 'Update Handling',
             description: 'Manage service worker updates',
             apiName: 'updatefound',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 2.0
           }
         ]
       },
@@ -167,35 +190,40 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Offline Page',
             description: 'Display custom page when offline',
             apiName: 'offline fallback',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 2.0
           },
           {
             id: 'cache-first',
             name: 'Cache-First Strategy',
             description: 'Serve from cache first, fall back to network',
             apiName: 'cache-first',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 2.0
           },
           {
             id: 'network-first',
             name: 'Network-First Strategy',
             description: 'Try network first, fall back to cache',
             apiName: 'network-first',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 2.0
           },
           {
             id: 'stale-while-revalidate',
             name: 'Stale-While-Revalidate',
             description: 'Serve from cache while updating in background',
             apiName: 'stale-while-revalidate',
-            canIUseId: 'serviceworkers'
+            canIUseId: 'serviceworkers',
+            weight: 2.0
           },
           {
             id: 'indexeddb',
             name: 'IndexedDB',
             description: 'Client-side structured data storage',
             apiName: 'IndexedDB',
-            canIUseId: 'indexeddb'
+            canIUseId: 'indexeddb',
+            weight: 2.0
           }
         ]
       }
@@ -217,41 +245,47 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Push API',
             description: 'Receive push messages from server',
             apiName: 'Push API',
-            canIUseId: 'push-api'
+            canIUseId: 'push-api',
+            weight: 2.0
           },
           {
             id: 'declarative-web-push',
             name: 'Declarative Web Push',
             description: 'Simplified push notifications without service worker',
-            apiName: 'Declarative Web Push'
+            apiName: 'Declarative Web Push',
+            weight: 0.5
           },
           {
             id: 'notification-api',
             name: 'Notification API',
             description: 'Display system notifications',
             apiName: 'Notification',
-            canIUseId: 'notifications'
+            canIUseId: 'notifications',
+            weight: 2.0
           },
           {
             id: 'notification-actions',
             name: 'Notification Actions',
             description: 'Add action buttons to notifications',
             apiName: 'actions',
-            canIUseId: 'notifications'
+            canIUseId: 'notifications',
+            weight: 1.0
           },
           {
             id: 'notification-badges',
             name: 'Notification Badges',
             description: 'Show badges on notifications',
             apiName: 'badge',
-            canIUseId: 'notifications'
+            canIUseId: 'notifications',
+            weight: 1.0
           },
           {
             id: 'silent-push',
             name: 'Silent Push',
             description: 'Receive push without displaying notification',
             apiName: 'silent push',
-            canIUseId: 'push-api'
+            canIUseId: 'push-api',
+            weight: 1.0
           }
         ]
       },
@@ -265,14 +299,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'App Icon Badges',
             description: 'Show badge on app icon',
             apiName: 'Badge API',
-            canIUseId: 'badge'
+            mdnBcdPath: 'api.Navigator.setAppBadge',
+            weight: 1.0
           },
           {
             id: 'notification-count',
             name: 'Notification Count Display',
             description: 'Display count of unread notifications',
             apiName: 'setAppBadge',
-            canIUseId: 'badge'
+            mdnBcdPath: 'api.Navigator.setAppBadge',
+            weight: 1.0
           }
         ]
       }
@@ -294,21 +330,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Background Sync API',
             description: 'Defer actions until user has connectivity',
             apiName: 'Background Sync',
-            canIUseId: 'background-sync'
+            canIUseId: 'background-sync',
+            weight: 2.0
           },
           {
             id: 'periodic-background-sync',
             name: 'Periodic Background Sync',
             description: 'Periodically sync data in background',
             apiName: 'Periodic Background Sync',
-            canIUseId: 'periodic-background-sync'
+            canIUseId: 'background-sync',
+            weight: 1.0
           },
           {
             id: 'deferred-actions',
             name: 'Deferred Actions',
             description: 'Queue actions to execute when online',
             apiName: 'sync event',
-            canIUseId: 'background-sync'
+            canIUseId: 'background-sync',
+            weight: 2.0
           }
         ]
       },
@@ -322,21 +361,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Background Fetch API',
             description: 'Handle large downloads/uploads in background',
             apiName: 'Background Fetch',
-            canIUseId: 'background-fetch'
+            mdnBcdPath: 'api.BackgroundFetchManager',
+            weight: 1
           },
           {
             id: 'upload-resilience',
             name: 'Upload Resilience',
             description: 'Resume interrupted uploads',
             apiName: 'Background Fetch',
-            canIUseId: 'background-fetch'
+            mdnBcdPath: 'api.BackgroundFetchManager',
+            weight: 1
           },
           {
             id: 'progress-tracking',
             name: 'Progress Tracking',
             description: 'Track download/upload progress',
             apiName: 'BackgroundFetchRegistration',
-            canIUseId: 'background-fetch'
+            mdnBcdPath: 'api.BackgroundFetchManager',
+            weight: 1
           }
         ]
       }
@@ -358,42 +400,48 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Geolocation API',
             description: 'Access device location',
             apiName: 'Geolocation',
-            canIUseId: 'geolocation'
+            canIUseId: 'geolocation',
+            weight: 1
           },
           {
             id: 'device-orientation',
             name: 'Device Orientation',
             description: 'Detect device orientation',
             apiName: 'DeviceOrientationEvent',
-            canIUseId: 'deviceorientation'
+            canIUseId: 'deviceorientation',
+            weight: 1
           },
           {
             id: 'device-motion',
             name: 'Device Motion',
             description: 'Detect device acceleration and rotation',
             apiName: 'DeviceMotionEvent',
-            canIUseId: 'deviceorientation'
+            canIUseId: 'deviceorientation',
+            weight: 1
           },
           {
             id: 'accelerometer',
             name: 'Accelerometer',
             description: 'Access accelerometer sensor',
             apiName: 'Accelerometer',
-            canIUseId: 'accelerometer'
+            canIUseId: 'accelerometer',
+            weight: 0.5
           },
           {
             id: 'gyroscope',
             name: 'Gyroscope',
             description: 'Access gyroscope sensor',
             apiName: 'Gyroscope',
-            canIUseId: 'gyroscope'
+            canIUseId: 'gyroscope',
+            weight: 0.5
           },
           {
             id: 'magnetometer',
             name: 'Magnetometer',
             description: 'Access magnetometer sensor',
             apiName: 'Magnetometer',
-            canIUseId: 'magnetometer'
+            canIUseId: 'magnetometer',
+            weight: 0.5
           }
         ]
       },
@@ -407,13 +455,15 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Ambient Light Sensor',
             description: 'Detect ambient light levels',
             apiName: 'AmbientLightSensor',
-            canIUseId: 'ambient-light'
+            canIUseId: 'ambient-light',
+            weight: 0.5
           },
           {
             id: 'proximity',
             name: 'Proximity Sensor',
             description: 'Detect proximity to device',
-            apiName: 'ProximitySensor'
+            apiName: 'ProximitySensor',
+            weight: 0.5
           }
         ]
       },
@@ -427,28 +477,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Bluetooth API',
             description: 'Connect to Bluetooth devices',
             apiName: 'Web Bluetooth',
-            canIUseId: 'web-bluetooth'
+            canIUseId: 'web-bluetooth',
+            weight: 0.5
           },
           {
             id: 'web-nfc',
             name: 'NFC',
             description: 'Read and write NFC tags',
             apiName: 'Web NFC',
-            canIUseId: 'webnfc'
+            canIUseId: 'webnfc',
+            weight: 0.5
           },
           {
             id: 'web-usb',
             name: 'USB',
             description: 'Access USB devices',
             apiName: 'WebUSB',
-            canIUseId: 'webusb'
+            canIUseId: 'webusb',
+            weight: 0.5
           },
           {
             id: 'web-serial',
             name: 'Serial API',
             description: 'Communicate with serial devices',
             apiName: 'Web Serial',
-            canIUseId: 'web-serial'
+            canIUseId: 'web-serial',
+            weight: 0.5
           }
         ]
       },
@@ -462,21 +516,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'WebAuthn',
             description: 'Biometric and hardware authentication',
             apiName: 'WebAuthn',
-            canIUseId: 'webauthn'
+            canIUseId: 'webauthn',
+            weight: 1
           },
           {
             id: 'credential-management',
             name: 'Credential Management API',
             description: 'Store and retrieve credentials',
             apiName: 'Credential Management',
-            canIUseId: 'credential-management'
+            canIUseId: 'credential-management',
+            weight: 1
           },
           {
             id: 'biometric-integration',
             name: 'Face ID / Touch ID Integration',
             description: 'Native biometric authentication',
             apiName: 'PublicKeyCredential',
-            canIUseId: 'webauthn'
+            canIUseId: 'webauthn',
+            weight: 1
           }
         ]
       }
@@ -498,35 +555,40 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Media Capture API',
             description: 'Capture photo and video',
             apiName: 'MediaDevices',
-            canIUseId: 'stream'
+            canIUseId: 'stream',
+            weight: 1
           },
           {
             id: 'getusermedia',
             name: 'getUserMedia',
             description: 'Access camera and microphone',
             apiName: 'getUserMedia',
-            canIUseId: 'stream'
+            canIUseId: 'stream',
+            weight: 1
           },
           {
             id: 'video-recording',
             name: 'Video Recording',
             description: 'Record video from camera',
             apiName: 'MediaRecorder',
-            canIUseId: 'mediarecorder'
+            canIUseId: 'mediarecorder',
+            weight: 1
           },
           {
             id: 'audio-recording',
             name: 'Audio Recording',
             description: 'Record audio from microphone',
             apiName: 'MediaRecorder',
-            canIUseId: 'mediarecorder'
+            canIUseId: 'mediarecorder',
+            weight: 1
           },
           {
             id: 'photo-capture',
             name: 'Photo Capture',
             description: 'Capture still images',
             apiName: 'ImageCapture',
-            canIUseId: 'imagecapture'
+            canIUseId: 'imagecapture',
+            weight: 1
           }
         ]
       },
@@ -540,19 +602,21 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Screen Capture API',
             description: 'Capture screen, window, or tab',
             apiName: 'getDisplayMedia',
-            canIUseId: 'mdn-api_mediadevices_getdisplaymedia'
+            weight: 1
           },
           {
             id: 'element-capture',
             name: 'Element Capture',
             description: 'Capture specific DOM elements',
-            apiName: 'Element Capture'
+            apiName: 'Element Capture',
+            weight: 0.5
           },
           {
             id: 'region-capture',
             name: 'Region Capture',
             description: 'Capture specific screen regions',
-            apiName: 'Region Capture'
+            apiName: 'Region Capture',
+            weight: 0.5
           }
         ]
       },
@@ -566,39 +630,45 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Media Source Extensions',
             description: 'Adaptive streaming and media buffering control',
             apiName: 'MediaSource',
-            canIUseId: 'mediasource'
+            canIUseId: 'mediasource',
+            weight: 1
           },
           {
             id: 'audio-playback',
             name: 'Audio Playback',
             description: 'Play audio files',
-            apiName: 'HTMLAudioElement'
+            apiName: 'HTMLAudioElement',
+            weight: 1
           },
           {
             id: 'video-playback',
             name: 'Video Playback',
             description: 'Play video files',
-            apiName: 'HTMLVideoElement'
+            apiName: 'HTMLVideoElement',
+            weight: 1
           },
           {
             id: 'media-session',
             name: 'Media Session API',
             description: 'Control media playback from system UI',
             apiName: 'MediaSession',
-            canIUseId: 'mediasession'
+            mdnBcdPath: 'api.MediaSession',
+            weight: 1
           },
           {
             id: 'picture-in-picture',
             name: 'Picture-in-Picture',
             description: 'Float video in small window',
             apiName: 'Picture-in-Picture',
-            canIUseId: 'picture-in-picture'
+            canIUseId: 'picture-in-picture',
+            weight: 1
           },
           {
             id: 'background-audio',
             name: 'Background Audio',
             description: 'Continue audio playback in background',
-            apiName: 'Audio Focus'
+            apiName: 'Audio Focus',
+            weight: 1
           }
         ]
       },
@@ -612,35 +682,37 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Barcode Detection',
             description: 'Detect barcodes in images',
             apiName: 'BarcodeDetector',
-            canIUseId: 'barcode-detection'
+            mdnBcdPath: 'api.BarcodeDetector',
+            weight: 0.5
           },
           {
             id: 'qr-code',
             name: 'QR Code Scanning',
             description: 'Scan QR codes',
             apiName: 'BarcodeDetector',
-            canIUseId: 'barcode-detection'
+            mdnBcdPath: 'api.BarcodeDetector',
+            weight: 0.5
           },
           {
             id: 'face-detection',
             name: 'Face Detection',
             description: 'Detect faces in images',
             apiName: 'FaceDetector',
-            canIUseId: 'shape-detection'
+            weight: 0.5
           },
           {
             id: 'text-detection',
             name: 'Text Detection',
             description: 'Detect text in images (OCR)',
             apiName: 'TextDetector',
-            canIUseId: 'shape-detection'
+            weight: 0.5
           },
           {
             id: 'shape-detection',
             name: 'Shape Detection API',
             description: 'Detect shapes in images',
             apiName: 'Shape Detection',
-            canIUseId: 'shape-detection'
+            weight: 0.5
           }
         ]
       }
@@ -662,56 +734,64 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'FileReader API',
             description: 'Read file contents asynchronously',
             apiName: 'FileReader',
-            canIUseId: 'filereader'
+            canIUseId: 'filereader',
+            weight: 1
           },
           {
             id: 'blob-urls',
             name: 'Blob URLs',
             description: 'Create object URLs for blobs and files',
             apiName: 'URL.createObjectURL',
-            canIUseId: 'bloburls'
+            canIUseId: 'bloburls',
+            weight: 1
           },
           {
             id: 'file-system-access',
             name: 'File System Access API',
             description: 'Read and write files on device',
             apiName: 'File System Access',
-            canIUseId: 'native-filesystem-api'
+            canIUseId: 'native-filesystem-api',
+            weight: 1
           },
           {
             id: 'file-handling',
             name: 'File Handling API',
             description: 'Register as handler for file types',
             apiName: 'File Handling',
-            canIUseId: 'web-share'
+            canIUseId: 'web-share',
+            weight: 0.5
           },
           {
             id: 'drag-drop',
             name: 'Drag and Drop',
             description: 'Drag and drop files',
             apiName: 'DataTransfer',
-            canIUseId: 'dragndrop'
+            canIUseId: 'dragndrop',
+            weight: 1
           },
           {
             id: 'file-picker',
             name: 'File Picker',
             description: 'Select files from device',
             apiName: 'showOpenFilePicker',
-            canIUseId: 'native-filesystem-api'
+            canIUseId: 'native-filesystem-api',
+            weight: 1
           },
           {
             id: 'directory-access',
             name: 'Directory Access',
             description: 'Access entire directories',
             apiName: 'showDirectoryPicker',
-            canIUseId: 'native-filesystem-api'
+            canIUseId: 'native-filesystem-api',
+            weight: 0.5
           },
           {
             id: 'opfs',
             name: 'Origin Private File System',
             description: 'Private file system for app data',
             apiName: 'OPFS',
-            canIUseId: 'native-filesystem-api'
+            canIUseId: 'native-filesystem-api',
+            weight: 0.5
           }
         ]
       },
@@ -725,49 +805,52 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'IndexedDB',
             description: 'Large-scale structured data storage',
             apiName: 'IndexedDB',
-            canIUseId: 'indexeddb'
+            canIUseId: 'indexeddb',
+            weight: 2
           },
           {
             id: 'localstorage',
             name: 'localStorage',
             description: 'Simple key-value storage',
             apiName: 'localStorage',
-            canIUseId: 'namevalue-storage'
+            canIUseId: 'namevalue-storage',
+            weight: 1
           },
           {
             id: 'sessionstorage',
             name: 'sessionStorage',
             description: 'Session-scoped storage',
             apiName: 'sessionStorage',
-            canIUseId: 'namevalue-storage'
+            canIUseId: 'namevalue-storage',
+            weight: 1
           },
           {
             id: 'cache-api',
             name: 'Cache API',
             description: 'Cache HTTP responses',
             apiName: 'Cache',
-            canIUseId: 'mdn-api_cache'
+            weight: 2
           },
           {
             id: 'storage-manager',
             name: 'Storage Manager API',
             description: 'Manage storage quota and persistence',
             apiName: 'StorageManager',
-            canIUseId: 'mdn-api_storagemanager'
+            weight: 1
           },
           {
             id: 'storage-quota',
             name: 'Storage Quota Management',
             description: 'Check and request storage quota',
             apiName: 'estimate',
-            canIUseId: 'mdn-api_storagemanager'
+            weight: 1
           },
           {
             id: 'persistent-storage',
             name: 'Persistent Storage',
             description: 'Request persistent storage permission',
             apiName: 'persist',
-            canIUseId: 'mdn-api_storagemanager_persist'
+            weight: 1
           }
         ]
       },
@@ -781,21 +864,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Clipboard API',
             description: 'Read from and write to clipboard',
             apiName: 'Clipboard',
-            canIUseId: 'mdn-api_clipboard'
+            canIUseId: 'async-clipboard',
+            weight: 1
           },
           {
             id: 'copy-paste',
             name: 'Copy/Paste Functionality',
             description: 'Copy and paste text and images',
             apiName: 'clipboard.write',
-            canIUseId: 'async-clipboard'
+            canIUseId: 'async-clipboard',
+            weight: 1
           },
           {
             id: 'async-clipboard',
             name: 'Async Clipboard Access',
             description: 'Asynchronous clipboard operations',
             apiName: 'navigator.clipboard',
-            canIUseId: 'async-clipboard'
+            canIUseId: 'async-clipboard',
+            weight: 1
           }
         ]
       }
@@ -816,27 +902,31 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             id: 'viewport-control',
             name: 'Viewport Control',
             description: 'Control viewport properties',
-            apiName: 'viewport meta tag'
+            apiName: 'viewport meta tag',
+            weight: 1
           },
           {
             id: 'fullscreen',
             name: 'Fullscreen API',
             description: 'Enter and exit fullscreen mode',
             apiName: 'Fullscreen',
-            canIUseId: 'fullscreen'
+            canIUseId: 'fullscreen',
+            weight: 1
           },
           {
             id: 'screen-orientation',
             name: 'Screen Orientation API',
             description: 'Lock and detect screen orientation',
             apiName: 'ScreenOrientation',
-            canIUseId: 'screen-orientation'
+            canIUseId: 'screen-orientation',
+            weight: 1
           },
           {
             id: 'display-modes-ux',
             name: 'Display Modes',
             description: 'Different app display modes',
-            apiName: 'display-mode'
+            apiName: 'display-mode',
+            weight: 1
           }
         ]
       },
@@ -850,14 +940,15 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'View Transitions API',
             description: 'Smooth transitions between views',
             apiName: 'View Transitions',
-            canIUseId: 'mdn-api_viewtransition'
+            weight: 0.5
           },
           {
             id: 'web-animations',
             name: 'Web Animations API',
             description: 'Programmatic animations',
             apiName: 'Animation',
-            canIUseId: 'web-animation'
+            canIUseId: 'web-animation',
+            weight: 1
           }
         ]
       },
@@ -871,28 +962,30 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Multi-touch Support',
             description: 'Handle multi-touch gestures',
             apiName: 'TouchEvent',
-            canIUseId: 'touch'
+            canIUseId: 'touch',
+            weight: 1
           },
           {
             id: 'pointer-events',
             name: 'Pointer Events',
             description: 'Unified input event handling',
             apiName: 'PointerEvent',
-            canIUseId: 'pointer'
+            canIUseId: 'pointer',
+            weight: 1
           },
           {
             id: 'keyboard-api',
             name: 'Keyboard API',
             description: 'Advanced keyboard input handling',
             apiName: 'Keyboard',
-            canIUseId: 'mdn-api_keyboard'
+            weight: 1
           },
           {
             id: 'virtual-keyboard',
             name: 'Virtual Keyboard API',
             description: 'Control virtual keyboard behavior',
             apiName: 'VirtualKeyboard',
-            canIUseId: 'mdn-api_virtualkeyboard'
+            weight: 0.5
           }
         ]
       },
@@ -906,14 +999,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Vibration API',
             description: 'Trigger device vibration',
             apiName: 'Vibration',
-            canIUseId: 'vibration'
+            canIUseId: 'vibration',
+            weight: 1
           },
           {
             id: 'haptic-patterns',
             name: 'Haptic Feedback Patterns',
             description: 'Create complex vibration patterns',
             apiName: 'navigator.vibrate',
-            canIUseId: 'vibration'
+            canIUseId: 'vibration',
+            weight: 1
           }
         ]
       }
@@ -935,14 +1030,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Web Share API',
             description: 'Share content to other apps',
             apiName: 'Web Share',
-            canIUseId: 'web-share'
+            canIUseId: 'web-share',
+            weight: 1
           },
           {
             id: 'web-share-target',
             name: 'Web Share Target API',
             description: 'Receive shared content from other apps',
             apiName: 'Web Share Target',
-            canIUseId: 'web-share'
+            canIUseId: 'web-share',
+            weight: 1
           }
         ]
       },
@@ -956,7 +1053,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Contact Picker API',
             description: 'Select contacts from device',
             apiName: 'Contact Picker',
-            canIUseId: 'mdn-api_contactsmanager'
+            weight: 0.5
           }
         ]
       },
@@ -970,13 +1067,15 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Custom Protocol Handlers',
             description: 'Register custom URL protocol handlers',
             apiName: 'registerProtocolHandler',
-            canIUseId: 'registerprotocolhandler'
+            canIUseId: 'registerprotocolhandler',
+            weight: 1
           },
           {
             id: 'url-scheme-handling',
             name: 'URL Scheme Handling',
             description: 'Handle custom URL schemes',
-            apiName: 'protocol_handlers'
+            apiName: 'protocol_handlers',
+            weight: 1
           }
         ]
       },
@@ -989,13 +1088,15 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             id: 'file-type-associations',
             name: 'File Type Associations',
             description: 'Register as handler for file types',
-            apiName: 'file_handlers'
+            apiName: 'file_handlers',
+            weight: 0.5
           },
           {
             id: 'open-with-pwa',
             name: 'Open with PWA',
             description: 'Open files with PWA from system',
-            apiName: 'LaunchQueue'
+            apiName: 'LaunchQueue',
+            weight: 0.5
           }
         ]
       },
@@ -1009,19 +1110,22 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'App Shortcuts in Manifest',
             description: 'Define shortcuts in manifest',
             apiName: 'shortcuts',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1
           },
           {
             id: 'jump-list',
             name: 'Jump List Items',
             description: 'Windows jump list integration',
-            apiName: 'shortcuts'
+            apiName: 'shortcuts',
+            weight: 0.5
           },
           {
             id: 'quick-actions',
             name: 'Quick Actions',
             description: 'Context menu quick actions',
-            apiName: 'shortcuts'
+            apiName: 'shortcuts',
+            weight: 0.5
           }
         ]
       }
@@ -1043,21 +1147,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Text-to-Speech API',
             description: 'Convert text to speech',
             apiName: 'SpeechSynthesis',
-            canIUseId: 'speech-synthesis'
+            canIUseId: 'speech-synthesis',
+            weight: 1
           },
           {
             id: 'voice-selection',
             name: 'Voice Selection',
             description: 'Choose different voices',
             apiName: 'SpeechSynthesisVoice',
-            canIUseId: 'speech-synthesis'
+            canIUseId: 'speech-synthesis',
+            weight: 1
           },
           {
             id: 'speech-control',
             name: 'Speech Rate/Pitch/Volume Control',
             description: 'Control speech parameters',
             apiName: 'SpeechSynthesisUtterance',
-            canIUseId: 'speech-synthesis'
+            canIUseId: 'speech-synthesis',
+            weight: 1
           }
         ]
       },
@@ -1071,21 +1178,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Speech-to-Text API',
             description: 'Convert speech to text',
             apiName: 'SpeechRecognition',
-            canIUseId: 'speech-recognition'
+            canIUseId: 'speech-recognition',
+            weight: 0.5
           },
           {
             id: 'continuous-recognition',
             name: 'Continuous Recognition',
             description: 'Continuous speech recognition',
             apiName: 'continuous',
-            canIUseId: 'speech-recognition'
+            canIUseId: 'speech-recognition',
+            weight: 0.5
           },
           {
             id: 'interim-results',
             name: 'Interim Results',
             description: 'Get intermediate recognition results',
             apiName: 'interimResults',
-            canIUseId: 'speech-recognition'
+            canIUseId: 'speech-recognition',
+            weight: 0.5
           }
         ]
       },
@@ -1099,21 +1209,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Web Audio API',
             description: 'Process and synthesize audio',
             apiName: 'Web Audio',
-            canIUseId: 'audio-api'
+            canIUseId: 'audio-api',
+            weight: 1
           },
           {
             id: 'audio-context',
             name: 'Audio Context',
             description: 'Audio processing graph',
             apiName: 'AudioContext',
-            canIUseId: 'audio-api'
+            canIUseId: 'audio-api',
+            weight: 1
           },
           {
             id: 'audio-processing',
             name: 'Audio Processing',
             description: 'Real-time audio effects',
             apiName: 'AudioWorklet',
-            canIUseId: 'audio-api'
+            canIUseId: 'audio-api',
+            weight: 1
           }
         ]
       }
@@ -1135,28 +1248,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Network Information API',
             description: 'Access network connection information',
             apiName: 'NetworkInformation',
-            canIUseId: 'netinfo'
+            canIUseId: 'netinfo',
+            weight: 1
           },
           {
             id: 'connection-type',
             name: 'Connection Type Detection',
             description: 'Detect connection type (wifi, cellular, etc.)',
             apiName: 'effectiveType',
-            canIUseId: 'netinfo'
+            canIUseId: 'netinfo',
+            weight: 1
           },
           {
             id: 'bandwidth',
             name: 'Effective Bandwidth',
             description: 'Estimate network bandwidth',
             apiName: 'downlink',
-            canIUseId: 'netinfo'
+            canIUseId: 'netinfo',
+            weight: 1
           },
           {
             id: 'save-data',
             name: 'Save-Data Header',
             description: 'Detect data saver mode',
             apiName: 'saveData',
-            canIUseId: 'netinfo'
+            canIUseId: 'netinfo',
+            weight: 1
           }
         ]
       },
@@ -1170,14 +1287,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Online/Offline Events',
             description: 'Listen for connectivity changes',
             apiName: 'online/offline events',
-            canIUseId: 'online-status'
+            canIUseId: 'online-status',
+            weight: 1
           },
           {
             id: 'connection-status',
             name: 'Connection Status',
             description: 'Check if device is online',
             apiName: 'navigator.onLine',
-            canIUseId: 'online-status'
+            canIUseId: 'online-status',
+            weight: 1
           }
         ]
       },
@@ -1191,14 +1310,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'BroadcastChannel API',
             description: 'Communicate between tabs and workers',
             apiName: 'BroadcastChannel',
-            canIUseId: 'broadcastchannel'
+            canIUseId: 'broadcastchannel',
+            weight: 1
           },
           {
             id: 'message-channel',
             name: 'MessageChannel API',
             description: 'Structured message passing between contexts',
             apiName: 'MessageChannel',
-            canIUseId: 'channel-messaging'
+            canIUseId: 'channel-messaging',
+            weight: 1
           }
         ]
       },
@@ -1212,28 +1333,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Beacon API',
             description: 'Send analytics data on page unload',
             apiName: 'navigator.sendBeacon',
-            canIUseId: 'beacon'
+            canIUseId: 'beacon',
+            weight: 1
           },
           {
             id: 'fetch-api',
             name: 'Fetch API',
             description: 'Modern HTTP request API',
             apiName: 'fetch',
-            canIUseId: 'fetch'
+            canIUseId: 'fetch',
+            weight: 1
           },
           {
             id: 'request-response',
             name: 'Request/Response Objects',
             description: 'HTTP request and response objects',
             apiName: 'Request/Response',
-            canIUseId: 'fetch'
+            canIUseId: 'fetch',
+            weight: 1
           },
           {
             id: 'streaming',
             name: 'Streaming',
             description: 'Stream request and response bodies',
             apiName: 'ReadableStream',
-            canIUseId: 'streams'
+            canIUseId: 'streams',
+            weight: 1
           }
         ]
       }
@@ -1255,33 +1380,38 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Payment Request API',
             description: 'Request payment from user',
             apiName: 'Payment Request',
-            canIUseId: 'payment-request'
+            canIUseId: 'payment-request',
+            weight: 0.5
           },
           {
             id: 'payment-handler',
             name: 'Payment Handler API',
             description: 'Implement payment methods',
             apiName: 'Payment Handler',
-            canIUseId: 'payment-request'
+            canIUseId: 'payment-request',
+            weight: 0.5
           },
           {
             id: 'apple-pay',
             name: 'Apple Pay',
             description: 'Apple Pay integration',
-            apiName: 'ApplePaySession'
+            apiName: 'ApplePaySession',
+            weight: 0.5
           },
           {
             id: 'google-pay',
             name: 'Google Pay',
             description: 'Google Pay integration',
-            apiName: 'Google Pay API'
+            apiName: 'Google Pay API',
+            weight: 0.5
           },
           {
             id: 'digital-wallets',
             name: 'Digital Wallets',
             description: 'Digital wallet integration',
             apiName: 'PaymentRequest',
-            canIUseId: 'payment-request'
+            canIUseId: 'payment-request',
+            weight: 0.5
           }
         ]
       }
@@ -1303,28 +1433,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'WebXR Device API',
             description: 'VR and AR experiences',
             apiName: 'WebXR',
-            canIUseId: 'webxr'
+            canIUseId: 'webxr',
+            weight: 0.5
           },
           {
             id: 'augmented-reality',
             name: 'Augmented Reality',
             description: 'AR features and tracking',
             apiName: 'XRSession',
-            canIUseId: 'webxr'
+            canIUseId: 'webxr',
+            weight: 0.5
           },
           {
             id: 'virtual-reality',
             name: 'Virtual Reality',
             description: 'VR headset support',
             apiName: 'XRSession',
-            canIUseId: 'webxr'
+            canIUseId: 'webxr',
+            weight: 0.5
           },
           {
             id: 'immersive-experiences',
             name: 'Immersive Experiences',
             description: 'Immersive VR/AR sessions',
             apiName: 'immersive-vr',
-            canIUseId: 'webxr'
+            canIUseId: 'webxr',
+            weight: 0.5
           }
         ]
       },
@@ -1338,35 +1472,39 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'RequestIdleCallback',
             description: 'Run low-priority work during browser idle time',
             apiName: 'requestIdleCallback',
-            canIUseId: 'requestidlecallback'
+            canIUseId: 'requestidlecallback',
+            weight: 1
           },
           {
             id: 'wake-lock',
             name: 'Wake Lock API',
             description: 'Prevent screen from sleeping',
             apiName: 'Wake Lock',
-            canIUseId: 'wake-lock'
+            canIUseId: 'wake-lock',
+            weight: 1
           },
           {
             id: 'idle-detection',
             name: 'Idle Detection API',
             description: 'Detect user idle state',
             apiName: 'Idle Detection',
-            canIUseId: 'mdn-api_idledetector'
+            weight: 0.5
           },
           {
             id: 'performance-apis',
             name: 'Performance APIs',
             description: 'Measure and optimize performance',
             apiName: 'Performance',
-            canIUseId: 'performance-timeline'
+            canIUseId: 'user-timing',
+            weight: 1
           },
           {
             id: 'web-vitals',
             name: 'Web Vitals Tracking',
             description: 'Track Core Web Vitals',
             apiName: 'PerformanceObserver',
-            canIUseId: 'performance-timeline'
+            canIUseId: 'user-timing',
+            weight: 1
           }
         ]
       },
@@ -1380,14 +1518,16 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'WASM Support',
             description: 'Run WebAssembly modules',
             apiName: 'WebAssembly',
-            canIUseId: 'wasm'
+            canIUseId: 'wasm',
+            weight: 1
           },
           {
             id: 'high-performance-computing',
             name: 'High-Performance Computing',
             description: 'CPU-intensive computations',
             apiName: 'WebAssembly.instantiate',
-            canIUseId: 'wasm'
+            canIUseId: 'wasm',
+            weight: 1
           }
         ]
       },
@@ -1401,28 +1541,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'OffscreenCanvas',
             description: 'Canvas rendering in workers',
             apiName: 'OffscreenCanvas',
-            canIUseId: 'offscreencanvas'
+            canIUseId: 'offscreencanvas',
+            weight: 1
           },
           {
             id: 'background-processing',
             name: 'Background Processing',
             description: 'Run code in background thread',
             apiName: 'Worker',
-            canIUseId: 'webworkers'
+            canIUseId: 'webworkers',
+            weight: 1
           },
           {
             id: 'dedicated-workers',
             name: 'Dedicated Workers',
             description: 'Single-page background workers',
             apiName: 'Worker',
-            canIUseId: 'webworkers'
+            canIUseId: 'webworkers',
+            weight: 1
           },
           {
             id: 'shared-workers',
             name: 'Shared Workers',
             description: 'Shared across multiple pages',
             apiName: 'SharedWorker',
-            canIUseId: 'sharedworkers'
+            canIUseId: 'sharedworkers',
+            weight: 0.5
           }
         ]
       },
@@ -1436,28 +1580,32 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Streams API',
             description: 'Process streaming data',
             apiName: 'Streams',
-            canIUseId: 'streams'
+            canIUseId: 'streams',
+            weight: 1
           },
           {
             id: 'readable-streams',
             name: 'Readable Streams',
             description: 'Read streaming data',
             apiName: 'ReadableStream',
-            canIUseId: 'streams'
+            canIUseId: 'streams',
+            weight: 1
           },
           {
             id: 'writable-streams',
             name: 'Writable Streams',
             description: 'Write streaming data',
             apiName: 'WritableStream',
-            canIUseId: 'streams'
+            canIUseId: 'streams',
+            weight: 1
           },
           {
             id: 'transform-streams',
             name: 'Transform Streams',
             description: 'Transform streaming data',
             apiName: 'TransformStream',
-            canIUseId: 'streams'
+            canIUseId: 'streams',
+            weight: 1
           }
         ]
       }
@@ -1479,21 +1627,24 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Permissions API',
             description: 'Query and request permissions',
             apiName: 'Permissions',
-            canIUseId: 'permissions-api'
+            canIUseId: 'permissions-api',
+            weight: 1
           },
           {
             id: 'permission-prompts',
             name: 'Permission Prompts',
             description: 'Request user permissions',
             apiName: 'requestPermission',
-            canIUseId: 'permissions-api'
+            canIUseId: 'permissions-api',
+            weight: 1
           },
           {
             id: 'permission-states',
             name: 'Permission States',
             description: 'Check permission status',
             apiName: 'query',
-            canIUseId: 'permissions-api'
+            canIUseId: 'permissions-api',
+            weight: 1
           }
         ]
       },
@@ -1506,26 +1657,30 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             id: 'https-requirement',
             name: 'HTTPS Requirement',
             description: 'PWAs require HTTPS',
-            apiName: 'Secure Context'
+            apiName: 'Secure Context',
+            weight: 3
           },
           {
             id: 'csp',
             name: 'Content Security Policy',
             description: 'Control resource loading',
             apiName: 'CSP',
-            canIUseId: 'contentsecuritypolicy'
+            canIUseId: 'contentsecuritypolicy',
+            weight: 1
           },
           {
             id: 'secure-contexts',
             name: 'Secure Contexts',
             description: 'APIs restricted to secure contexts',
-            apiName: 'isSecureContext'
+            apiName: 'isSecureContext',
+            weight: 2
           },
           {
             id: 'same-origin-policy',
             name: 'Same-Origin Policy',
             description: 'Cross-origin security',
-            apiName: 'CORS'
+            apiName: 'CORS',
+            weight: 1
           }
         ]
       }
@@ -1547,21 +1702,23 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Window Controls Overlay',
             description: 'Customize title bar area',
             apiName: 'Window Controls Overlay',
-            canIUseId: 'mdn-api_windowcontrolsoverlay'
+            weight: 0.5
           },
           {
             id: 'display-mode-override',
             name: 'Display Mode Override',
             description: 'Override display mode',
             apiName: 'display_override',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 1
           },
           {
             id: 'tabbed-mode',
             name: 'Tabbed Application Mode',
             description: 'Multiple app windows as tabs',
             apiName: 'tabbed',
-            canIUseId: 'web-app-manifest'
+            canIUseId: 'web-app-manifest',
+            weight: 0.5
           }
         ]
       }

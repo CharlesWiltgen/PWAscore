@@ -5,6 +5,12 @@
 
 import type { SupportLevel } from '../composables/useBrowserSupport'
 
+/**
+ * Features that are universally supported but not in CanIUse data-2.0.json
+ * These features exist in features-json but are missing from the main data file
+ */
+const UNIVERSALLY_SUPPORTED_FEATURES = ['web-app-manifest'] as const
+
 interface CanIUseData {
   agents: Record<string, {
     browser: string
@@ -30,17 +36,27 @@ const CACHE_VERSION = '2025-10-06'
 
 // In-memory cache
 let canIUseData: CanIUseData | null = null
+let loadingPromise: Promise<CanIUseData> | null = null
 
 /**
  * Load CanIUse data from GitHub with Cache API
  * Uses Cloudflare Cache API to store compressed data at the edge
  * Cache TTL: 1 day (86400 seconds)
+ * Prevents concurrent fetches by using a loading promise
  */
 async function loadCanIUseData(): Promise<CanIUseData> {
   // Return cached data if available in memory
   if (canIUseData) {
     return canIUseData
   }
+
+  // If already loading, wait for that promise instead of starting another fetch
+  if (loadingPromise) {
+    return loadingPromise
+  }
+
+  // Create the loading promise
+  loadingPromise = (async (): Promise<CanIUseData> => {
 
   try {
     // Use Cache API on server-side in production (Cloudflare Workers)
@@ -88,7 +104,6 @@ async function loadCanIUseData(): Promise<CanIUseData> {
     }
 
     // Development or client-side fallback - fetch directly from GitHub
-    console.log('[CanIUse] Development/client-side fetch from GitHub')
     const response = await fetch(CANIUSE_URL)
 
     if (!response.ok) {
@@ -97,10 +112,19 @@ async function loadCanIUseData(): Promise<CanIUseData> {
 
     canIUseData = await response.json()
     return canIUseData!
-
   } catch (error) {
     console.error('[CanIUse] Error loading data:', error)
+    loadingPromise = null // Reset on error so it can be retried
     throw error
+  }
+  })()
+
+  try {
+    const result = await loadingPromise
+    return result
+  } finally {
+    // Clear the loading promise once complete
+    loadingPromise = null
   }
 }
 
@@ -255,12 +279,24 @@ export async function getCanIUseSupport(
   safari: SupportLevel
 }> {
   try {
+    // Special case: Some features are universally supported but not in data-2.0.json
+    if ((UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)) {
+      return {
+        chrome: 'supported',
+        firefox: 'supported',
+        safari: 'supported'
+      }
+    }
+
     const data = await loadCanIUseData()
 
     // Check if feature exists
     const featureData = data.data[canIUseId]
     if (!featureData) {
-      console.log(`CanIUse feature not found: ${canIUseId}`)
+      // Only log if not a known special case (to reduce console noise)
+      if (!(UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)) {
+        console.log(`CanIUse feature not found: ${canIUseId}`)
+      }
       return {
         chrome: 'unknown',
         firefox: 'unknown',
@@ -292,6 +328,192 @@ export async function getCanIUseSupport(
     }
   } catch (error) {
     console.error(`Error getting CanIUse support for ${canIUseId}:`, error)
+    return {
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
+    }
+  }
+}
+
+/**
+ * MDN Browser Compatibility Data types
+ */
+interface MdnBcdSupport {
+  version_added: string | boolean | null
+  version_removed?: string
+  partial_implementation?: boolean
+  flags?: Array<{
+    name: string
+    type: string
+    value_to_set?: string
+  }>
+}
+
+interface MdnBcdFeature {
+  __compat?: {
+    support?: Record<string, MdnBcdSupport | MdnBcdSupport[]>
+  }
+  [key: string]: any
+}
+
+// In-memory cache for MDN BCD data
+let mdnBcdData: any = null
+let mdnBcdLoadingPromise: Promise<any> | null = null
+
+/**
+ * Load MDN Browser Compatibility Data
+ * Loads from the installed npm package
+ * Prevents concurrent loads by using a loading promise
+ */
+async function loadMdnBcdData(): Promise<any> {
+  if (mdnBcdData) {
+    return mdnBcdData
+  }
+
+  // If already loading, wait for that promise
+  if (mdnBcdLoadingPromise) {
+    return mdnBcdLoadingPromise
+  }
+
+  mdnBcdLoadingPromise = (async () => {
+    try {
+      // Dynamic import of MDN BCD data
+      // @ts-ignore - dynamic import
+      const bcd = await import('@mdn/browser-compat-data')
+      mdnBcdData = bcd.default || bcd
+      return mdnBcdData
+    } catch (error) {
+      console.error('[MDN BCD] Error loading data:', error)
+      mdnBcdLoadingPromise = null // Reset on error
+      throw error
+    }
+  })()
+
+  try {
+    return await mdnBcdLoadingPromise
+  } finally {
+    mdnBcdLoadingPromise = null
+  }
+}
+
+/**
+ * Navigate MDN BCD data structure using dot-notation path
+ * Example: "api.Navigator.setAppBadge" -> bcd.api.Navigator.setAppBadge
+ */
+function navigateMdnBcdPath(data: any, path: string): MdnBcdFeature | null {
+  const parts = path.split('.')
+  let current = data
+
+  for (const part of parts) {
+    current = current?.[part]
+    if (!current) {
+      return null
+    }
+  }
+
+  return current
+}
+
+/**
+ * Compare browser version with MDN BCD support data
+ * Returns true if the current version supports the feature
+ */
+function isVersionSupported(
+  support: MdnBcdSupport | MdnBcdSupport[],
+  currentVersion: string
+): { level: SupportLevel, partial: boolean } {
+  // Handle array of support objects (multiple implementation attempts)
+  const supportData = Array.isArray(support) ? support[0] : support
+
+  if (!supportData) {
+    return { level: 'unknown', partial: false }
+  }
+
+  // Handle flags (feature behind flag = not supported for users)
+  if (supportData.flags && supportData.flags.length > 0) {
+    return { level: 'not-supported', partial: false }
+  }
+
+  // Handle version_added
+  if (supportData.version_added === false) {
+    return { level: 'not-supported', partial: false }
+  }
+
+  if (supportData.version_added === true) {
+    return {
+      level: 'supported',
+      partial: supportData.partial_implementation || false
+    }
+  }
+
+  if (supportData.version_added === null) {
+    return { level: 'unknown', partial: false }
+  }
+
+  // Compare versions (simple string comparison works for most cases)
+  // Safari uses iOS versions like "16.4", Chrome uses "83", etc.
+  const requiredVersion = supportData.version_added as string
+  const current = parseFloat(currentVersion)
+  const required = parseFloat(requiredVersion)
+
+  if (!isNaN(current) && !isNaN(required)) {
+    if (current >= required) {
+      return {
+        level: 'supported',
+        partial: supportData.partial_implementation || false
+      }
+    } else {
+      return { level: 'not-supported', partial: false }
+    }
+  }
+
+  return { level: 'unknown', partial: false }
+}
+
+/**
+ * Get browser support from MDN BCD for a specific API path
+ * Queries mobile browser support: chrome_android, firefox_android, safari_ios
+ */
+export async function getMdnBcdSupport(
+  mdnBcdPath: string,
+  browserVersions: BrowserVersions
+): Promise<{
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
+}> {
+  try {
+    const bcdData = await loadMdnBcdData()
+    const feature = navigateMdnBcdPath(bcdData, mdnBcdPath)
+
+    if (!feature || !feature.__compat?.support) {
+      console.log(`MDN BCD feature not found: ${mdnBcdPath}`)
+      return {
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown'
+      }
+    }
+
+    const support = feature.__compat.support
+
+    // Check mobile browser support
+    const chromeSupport = support.chrome_android
+    const firefoxSupport = support.firefox_android
+    const safariSupport = support.safari_ios
+
+    const chrome = chromeSupport ? isVersionSupported(chromeSupport, browserVersions.chrome) : { level: 'unknown' as const, partial: false }
+    const firefox = firefoxSupport ? isVersionSupported(firefoxSupport, browserVersions.firefox) : { level: 'unknown' as const, partial: false }
+    const safari = safariSupport ? isVersionSupported(safariSupport, browserVersions.safari) : { level: 'unknown' as const, partial: false }
+
+    return {
+      chrome: chrome.partial ? 'partial' : chrome.level,
+      firefox: firefox.partial ? 'partial' : firefox.level,
+      safari: safari.partial ? 'partial' : safari.level
+    }
+  } catch (error) {
+    console.error(`Error getting MDN BCD support for ${mdnBcdPath}:`, error)
     return {
       chrome: 'unknown',
       firefox: 'unknown',

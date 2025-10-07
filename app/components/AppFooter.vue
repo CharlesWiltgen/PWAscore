@@ -8,7 +8,11 @@
           href="https://caniuse.com"
           target="_blank"
           class="underline"
-        >Can I Use</a> (CC BY 4.0) • © {{ new Date().getFullYear() }}
+        >Can I Use</a> (CC BY 4.0) and <a
+          href="https://github.com/mdn/browser-compat-data"
+          target="_blank"
+          class="underline"
+        >MDN BCD</a> (CC0) • © {{ new Date().getFullYear() }}
       </p>
     </template>
 

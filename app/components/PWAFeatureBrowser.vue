@@ -13,14 +13,15 @@ const openCategories = ref<string[]>([])
 
 // Load support data for all features on mount
 onMounted(async () => {
-  const allFeatures: Array<{ id: string, canIUseId?: string }> = []
+  const allFeatures: Array<{ id: string, canIUseId?: string, mdnBcdPath?: string }> = []
 
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
       for (const feature of category.features) {
         allFeatures.push({
           id: feature.id,
-          canIUseId: feature.canIUseId
+          canIUseId: feature.canIUseId,
+          mdnBcdPath: feature.mdnBcdPath
         })
       }
     }
@@ -35,6 +36,7 @@ interface BrowserColumn {
   icon: string
   version: string
   color: string
+  platformIcon: string
 }
 
 const browserConfig: BrowserColumn[] = [
@@ -43,36 +45,39 @@ const browserConfig: BrowserColumn[] = [
     name: 'Chrome',
     icon: 'i-simple-icons-googlechrome',
     version: '131',
-    color: 'text-green-600 dark:text-green-400'
+    color: 'text-green-600 dark:text-green-400',
+    platformIcon: 'i-simple-icons-android'
   },
   {
     id: 'firefox',
     name: 'Firefox',
     icon: 'i-simple-icons-firefox',
     version: '138',
-    color: 'text-orange-600 dark:text-orange-400'
+    color: 'text-orange-600 dark:text-orange-400',
+    platformIcon: 'i-simple-icons-android'
   },
   {
     id: 'safari',
     name: 'Safari',
     icon: 'i-simple-icons-safari',
     version: '26',
-    color: 'text-blue-600 dark:text-blue-400'
+    color: 'text-blue-600 dark:text-blue-400',
+    platformIcon: 'i-simple-icons-apple'
   }
 ]
 
 const browsers = computed(() =>
   browserConfig.map(browser => ({
     ...browser,
-    score: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
+    scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
 )
 
 /**
  * Get support data for a feature across all browsers
  */
-function getFeatureSupport(featureId: string, canIUseId?: string): BrowserSupport {
-  return getSupport(featureId, canIUseId)
+function getFeatureSupport(featureId: string, canIUseId?: string, mdnBcdPath?: string): BrowserSupport {
+  return getSupport(featureId, canIUseId, mdnBcdPath)
 }
 
 /**
@@ -116,6 +121,20 @@ function getSupportLabel(
  */
 function getCanIUseUrl(canIUseId?: string): string | undefined {
   return canIUseId ? `https://caniuse.com/${canIUseId}` : undefined
+}
+
+/**
+ * Build MDN URL from mdnBcdPath
+ * Converts "api.Navigator.setAppBadge" to "https://developer.mozilla.org/docs/Web/API/Navigator/setAppBadge"
+ */
+function getMdnUrl(mdnBcdPath?: string): string | undefined {
+  if (!mdnBcdPath) return undefined
+
+  // Convert dot notation to URL path: api.Navigator.setAppBadge → /Web/API/Navigator/setAppBadge
+  const parts = mdnBcdPath.split('.')
+  const urlPath = parts.join('/')
+
+  return `https://developer.mozilla.org/docs/Web/${urlPath}`
 }
 
 /**
@@ -195,17 +214,23 @@ const groupItems = createGroupItems(pwaFeatures)
                   class="w-10 h-10"
                 />
                 <div>
-                  <div class="font-semibold text-lg">
-                    {{ browser.name }}
+                  <div class="text-lg flex items-center gap-1">
+                    <span class="font-semibold">{{ browser.name }}</span>
+                    <span class="font-normal text-gray-500 dark:text-gray-400 flex items-center" :class="browser.platformIcon === 'i-simple-icons-android' ? 'gap-[5px]' : 'gap-1'">
+                      for
+                      <UIcon :name="browser.platformIcon" :class="browser.platformIcon === 'i-simple-icons-android' ? 'w-[18px] h-[18px]' : 'w-4 h-4'" />
+                    </span>
                   </div>
                   <div class="text-sm text-gray-500 dark:text-gray-400">
                     Version {{ browser.version }}
                   </div>
                 </div>
               </div>
-              <div :class="['text-4xl font-bold', browser.color]">
-                {{ browser.score }}
-              </div>
+              <UTooltip :text="`Raw coverage: ${browser.scores.unweighted}%`">
+                <div :class="['text-4xl font-bold', browser.color]">
+                  {{ browser.scores.weighted }}
+                </div>
+              </UTooltip>
             </div>
           </template>
         </UCard>
@@ -218,89 +243,88 @@ const groupItems = createGroupItems(pwaFeatures)
             type="multiple"
             :ui="{ item: { label: 'font-semibold' } }"
           >
-          <template
-            v-for="group in pwaFeatures"
-            :key="group.id"
-            #[group.id]
-          >
-            <!-- Categories within this group -->
-            <div class="pl-6">
-              <UAccordion
-                v-model="openCategories"
-                :items="createCategoryItems(group)"
-                type="multiple"
-              >
-                <template
-                  v-for="category in group.categories"
-                  :key="category.id"
-                  #[category.id]
+            <template
+              v-for="group in pwaFeatures"
+              :key="group.id"
+              #[group.id]
+            >
+              <!-- Categories within this group -->
+              <div class="pl-6">
+                <UAccordion
+                  v-model="openCategories"
+                  :items="createCategoryItems(group)"
+                  type="multiple"
                 >
-                  <!-- Features within this category -->
-                  <div class="space-y-1 pl-6 pb-3">
-                    <div
-                      v-for="feature in category.features"
-                      :key="feature.id"
-                      class="flex items-center justify-between py-1"
-                    >
-                    <div class="flex-1 min-w-0 pr-3">
-                      <div class="flex items-center gap-2">
-                        <UTooltip>
-                          <template #text>
-                            <div class="space-y-1">
-                              <div
-                                v-if="feature.apiName"
-                                class="font-semibold text-xs"
+                  <template
+                    v-for="category in group.categories"
+                    :key="category.id"
+                    #[category.id]
+                  >
+                    <!-- Features within this category -->
+                    <div class="space-y-1 pl-6 pb-3">
+                      <div
+                        v-for="feature in category.features"
+                        :key="feature.id"
+                        class="flex items-center justify-between py-1"
+                      >
+                        <div class="flex-1 min-w-0 pr-3">
+                          <div class="flex items-center gap-2">
+                            <UTooltip :text="feature.apiName ? `API: ${feature.apiName} — ${feature.description}` : feature.description">
+                              <div class="text-sm truncate cursor-help">
+                                {{ feature.name }}
+                              </div>
+                            </UTooltip>
+                            <div class="inline-flex items-center gap-2 flex-shrink-0">
+                              <a
+                                v-if="feature.canIUseId"
+                                :href="getCanIUseUrl(feature.canIUseId)"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-xs text-primary hover:underline inline-flex items-center gap-1"
                               >
-                                API: {{ feature.apiName }}
-                              </div>
-                              <div class="text-xs">
-                                {{ feature.description }}
-                              </div>
+                                <span>Can I Use</span>
+                                <UIcon name="i-heroicons-arrow-top-right-on-square" />
+                              </a>
+                              <a
+                                v-if="feature.mdnBcdPath"
+                                :href="getMdnUrl(feature.mdnBcdPath)"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                              >
+                                <span>MDN</span>
+                                <UIcon name="i-heroicons-arrow-top-right-on-square" />
+                              </a>
                             </div>
-                          </template>
-                          <div class="text-sm truncate cursor-help">
-                            {{ feature.name }}
                           </div>
-                        </UTooltip>
-                        <a
-                          v-if="feature.canIUseId"
-                          :href="getCanIUseUrl(feature.canIUseId)"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-xs text-primary hover:underline inline-flex items-center gap-1 flex-shrink-0"
-                        >
-                          <span>Can I Use</span>
-                          <UIcon name="i-heroicons-arrow-top-right-on-square" />
-                        </a>
+                        </div>
+                        <div class="flex-shrink-0 -mt-1">
+                          <UBadge
+                            :color="
+                              getSupportBadgeColor(
+                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[
+                                  browser.id as keyof BrowserSupport
+                                ]
+                              )
+                            "
+                            size="sm"
+                          >
+                            {{
+                              getSupportLabel(
+                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[
+                                  browser.id as keyof BrowserSupport
+                                ]
+                              )
+                            }}
+                          </UBadge>
+                        </div>
                       </div>
                     </div>
-                    <div class="flex-shrink-0 -mt-1">
-                      <UBadge
-                        :color="
-                          getSupportBadgeColor(
-                            getFeatureSupport(feature.id, feature.canIUseId)[
-                              browser.id as keyof BrowserSupport
-                            ]
-                          )
-                        "
-                        size="sm"
-                      >
-                        {{
-                          getSupportLabel(
-                            getFeatureSupport(feature.id, feature.canIUseId)[
-                              browser.id as keyof BrowserSupport
-                            ]
-                          )
-                        }}
-                      </UBadge>
-                    </div>
-                    </div>
-                  </div>
-                </template>
-              </UAccordion>
-            </div>
-          </template>
-        </UAccordion>
+                  </template>
+                </UAccordion>
+              </div>
+            </template>
+          </UAccordion>
         </div>
       </div>
     </div>

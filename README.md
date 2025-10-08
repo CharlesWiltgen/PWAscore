@@ -45,6 +45,40 @@ app/
 - In-memory cache for development
 - Version-based cache invalidation
 
+### Scoring System
+
+**Dual Score Approach:**
+
+PWAscore uses two scoring systems to provide accurate, production-focused metrics:
+
+**Primary Score (Displayed):**
+- Excludes experimental features (`status.experimental === true`)
+- Excludes non-standard features (`status.standard_track === false`)
+- Excludes deprecated features (`status.deprecated === true`)
+- Reflects production-ready PWA support
+- Weighted by feature importance (core features count more)
+
+**Full Score (Tooltip):**
+- Includes all features regardless of status
+- Shows complete browser PWA capabilities
+- Includes both weighted and unweighted percentages
+
+**Example:**
+```
+Primary display: 85
+Tooltip:
+  Stable features: 85% raw
+  With experimental/non-standard:
+    90% weighted, 87% raw
+```
+
+**Status Indicators:**
+- 🧪 Flask icon: Experimental feature
+- ⚠️ Triangle icon: Non-standard feature
+- ❌ X-circle icon: Deprecated feature
+
+Status data sourced from [MDN Browser Compatibility Data](https://github.com/mdn/browser-compat-data).
+
 ### Current Browser Versions
 
 **Dynamically derived from CanIUse data** in `app/utils/canIUseLoader.ts`

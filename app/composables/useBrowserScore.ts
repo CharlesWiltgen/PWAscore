@@ -4,16 +4,20 @@
  */
 
 import type { PWAFeatureGroup } from '../data/pwa-features'
-import type { BrowserSupport, SupportLevel } from './useBrowserSupport'
+import type { BrowserSupport, BrowserId, SupportLevel } from './useBrowserSupport'
 
 /**
  * Browser scores with both weighted and unweighted values
  */
 export interface BrowserScores {
-  /** Weighted score based on feature importance (primary display) */
+  /** Weighted score based on feature importance - excludes experimental/non-standard/deprecated (primary display) */
   weighted: number
-  /** Unweighted raw coverage score (for comparison) */
+  /** Unweighted raw coverage score - excludes experimental/non-standard/deprecated (for comparison) */
   unweighted: number
+  /** Full weighted score including all features (shown in tooltip) */
+  weightedFull: number
+  /** Full unweighted score including all features (shown in tooltip) */
+  unweightedFull: number
 }
 
 /**
@@ -38,19 +42,39 @@ export function useBrowserScore() {
   }
 
   /**
+   * Check if a feature should be excluded from the primary score
+   * Excludes experimental, non-standard, and deprecated features
+   */
+  const shouldExcludeFromPrimaryScore = (support: BrowserSupport): boolean => {
+    if (!support.status) return false
+    return (
+      support.status.experimental
+      || !support.status.standard_track
+      || support.status.deprecated
+    )
+  }
+
+  /**
    * Calculate score for a specific browser across all features
    * Only includes features with known support status (excludes 'unknown')
-   * Returns both weighted (by feature importance) and unweighted scores
+   * Returns both stable scores (excluding experimental/non-standard/deprecated) and full scores
    */
   const calculateBrowserScore = (
-    browserId: keyof BrowserSupport,
+    browserId: BrowserId,
     featureGroups: PWAFeatureGroup[],
     getSupportFn: (featureId: string, canIUseId?: string, mdnBcdPath?: string) => BrowserSupport
   ): BrowserScores => {
-    let weightedPoints = 0
-    let totalPossibleWeight = 0
-    let unweightedPoints = 0
-    let featureCount = 0
+    // Stable scores (excludes experimental/non-standard/deprecated)
+    let stableWeightedPoints = 0
+    let stableTotalPossibleWeight = 0
+    let stableUnweightedPoints = 0
+    let stableFeatureCount = 0
+
+    // Full scores (includes all features)
+    let fullWeightedPoints = 0
+    let fullTotalPossibleWeight = 0
+    let fullUnweightedPoints = 0
+    let fullFeatureCount = 0
 
     // Iterate through all feature groups, categories, and features
     for (const group of featureGroups) {
@@ -63,27 +87,40 @@ export function useBrowserScore() {
           if (browserSupport !== 'unknown') {
             const supportLevel = getSupportWeight(browserSupport)
             const featureWeight = feature.weight ?? 1.0
+            const excludeFromPrimary = shouldExcludeFromPrimaryScore(support)
 
-            // Weighted score: support level × feature weight
-            weightedPoints += supportLevel * featureWeight
-            totalPossibleWeight += featureWeight
+            // Always add to full scores
+            fullWeightedPoints += supportLevel * featureWeight
+            fullTotalPossibleWeight += featureWeight
+            fullUnweightedPoints += supportLevel
+            fullFeatureCount++
 
-            // Unweighted score: support level × 1.0
-            unweightedPoints += supportLevel
-            featureCount++
+            // Only add to stable scores if not experimental/non-standard/deprecated
+            if (!excludeFromPrimary) {
+              stableWeightedPoints += supportLevel * featureWeight
+              stableTotalPossibleWeight += featureWeight
+              stableUnweightedPoints += supportLevel
+              stableFeatureCount++
+            }
           }
         }
       }
     }
 
-    if (featureCount === 0) {
-      return { weighted: 0, unweighted: 0 }
-    }
-
     // Calculate percentage scores
     return {
-      weighted: Math.round((weightedPoints / totalPossibleWeight) * 100),
-      unweighted: Math.round((unweightedPoints / featureCount) * 100)
+      weighted: stableFeatureCount > 0
+        ? Math.round((stableWeightedPoints / stableTotalPossibleWeight) * 100)
+        : 0,
+      unweighted: stableFeatureCount > 0
+        ? Math.round((stableUnweightedPoints / stableFeatureCount) * 100)
+        : 0,
+      weightedFull: fullFeatureCount > 0
+        ? Math.round((fullWeightedPoints / fullTotalPossibleWeight) * 100)
+        : 0,
+      unweightedFull: fullFeatureCount > 0
+        ? Math.round((fullUnweightedPoints / fullFeatureCount) * 100)
+        : 0
     }
   }
 

@@ -351,9 +351,16 @@ interface MdnBcdSupport {
   }>
 }
 
+interface MdnBcdStatus {
+  experimental?: boolean
+  standard_track?: boolean
+  deprecated?: boolean
+}
+
 interface MdnBcdFeature {
   __compat?: {
     support?: Record<string, MdnBcdSupport | MdnBcdSupport[]>
+    status?: MdnBcdStatus
   }
   [key: string]: unknown
 }
@@ -526,9 +533,16 @@ function isVersionSupported(
   return { level: 'unknown', partial: false }
 }
 
+export interface FeatureStatus {
+  experimental: boolean
+  standard_track: boolean
+  deprecated: boolean
+}
+
 /**
  * Get browser support from MDN BCD for a specific API path
  * Queries mobile browser support: chrome_android, firefox_android, safari_ios
+ * Also returns status flags (experimental, standard_track, deprecated)
  */
 export async function getMdnBcdSupport(
   mdnBcdPath: string,
@@ -537,6 +551,7 @@ export async function getMdnBcdSupport(
   chrome: SupportLevel
   firefox: SupportLevel
   safari: SupportLevel
+  status?: FeatureStatus
 }> {
   try {
     const bcdData = await loadMdnBcdData()
@@ -552,6 +567,7 @@ export async function getMdnBcdSupport(
     }
 
     const support = feature.__compat.support
+    const status = feature.__compat.status
 
     // Check mobile browser support
     const chromeSupport = support.chrome_android
@@ -565,7 +581,14 @@ export async function getMdnBcdSupport(
     return {
       chrome: chrome.partial ? 'partial' : chrome.level,
       firefox: firefox.partial ? 'partial' : firefox.level,
-      safari: safari.partial ? 'partial' : safari.level
+      safari: safari.partial ? 'partial' : safari.level,
+      status: status
+        ? {
+            experimental: status.experimental || false,
+            standard_track: status.standard_track !== false,
+            deprecated: status.deprecated || false
+          }
+        : undefined
     }
   } catch (error) {
     console.error(`Error getting MDN BCD support for ${mdnBcdPath}:`, error)

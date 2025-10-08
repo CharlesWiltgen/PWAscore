@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import type { PWAFeatureGroup } from '../data/pwa-features'
 import { pwaFeatures } from '../data/pwa-features'
-import type { BrowserSupport } from '../composables/useBrowserSupport'
+import type { BrowserSupport, BrowserId } from '../composables/useBrowserSupport'
 
 const { getSupport, loadMultipleSupport } = useBrowserSupport()
 const { calculateBrowserScore } = useBrowserScore()
@@ -31,7 +31,7 @@ onMounted(async () => {
 })
 
 interface BrowserColumn {
-  id: keyof BrowserSupport
+  id: BrowserId
   name: string
   icon: string
   version: string
@@ -232,7 +232,18 @@ const groupItems = createGroupItems(pwaFeatures)
                   </div>
                 </div>
               </div>
-              <UTooltip :text="`Raw coverage: ${browser.scores.unweighted}%`">
+              <UTooltip>
+                <template #text>
+                  <div class="text-xs space-y-1">
+                    <div>Stable features: {{ browser.scores.unweighted }}% raw</div>
+                    <div class="text-gray-400">
+                      With experimental/non-standard:
+                    </div>
+                    <div class="pl-2">
+                      {{ browser.scores.weightedFull }}% weighted, {{ browser.scores.unweightedFull }}% raw
+                    </div>
+                  </div>
+                </template>
                 <div :class="['text-4xl font-bold', browser.color]">
                   {{ browser.scores.weighted }}
                 </div>
@@ -273,33 +284,78 @@ const groupItems = createGroupItems(pwaFeatures)
                         class="flex items-center justify-between py-1"
                       >
                         <div class="flex-1 min-w-0 pr-3">
-                          <div class="flex items-center gap-2">
+                          <div class="flex items-center gap-1.5">
                             <UTooltip :text="feature.apiName ? `API: ${feature.apiName} — ${feature.description}` : feature.description">
-                              <div class="text-sm truncate cursor-help">
+                              <div class="text-sm truncate">
                                 {{ feature.name }}
                               </div>
                             </UTooltip>
-                            <div class="inline-flex items-center gap-2 flex-shrink-0">
-                              <a
+                            <!-- Status icons -->
+                            <div class="inline-flex items-center gap-1 flex-shrink-0">
+                              <UTooltip
+                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.experimental"
+                                text="Experimental: This feature is experimental and subject to change"
+                              >
+                                <UIcon
+                                  name="i-heroicons-beaker"
+                                  class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                                />
+                              </UTooltip>
+                              <UTooltip
+                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status && !getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.standard_track"
+                                text="Non-standard: This feature is not on the standards track"
+                              >
+                                <UIcon
+                                  name="i-heroicons-exclamation-triangle"
+                                  class="w-4 h-4 text-gray-600 dark:text-gray-400 translate-y-[0.5px]"
+                                />
+                              </UTooltip>
+                              <UTooltip
+                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.deprecated"
+                                text="Deprecated: This feature is deprecated and may be removed"
+                              >
+                                <UIcon
+                                  name="i-heroicons-x-circle"
+                                  class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                                />
+                              </UTooltip>
+                            </div>
+                            <div
+                              v-if="feature.canIUseId || feature.mdnBcdPath"
+                              class="inline-flex items-center flex-shrink-0 rounded-md overflow-hidden border border-primary-500/20 bg-primary-50 dark:bg-primary-950/50"
+                            >
+                              <UTooltip
                                 v-if="feature.canIUseId"
-                                :href="getCanIUseUrl(feature.canIUseId)"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                                text="View browser compatibility on Can I Use"
                               >
-                                <span>Can I Use</span>
-                                <UIcon name="i-heroicons-arrow-top-right-on-square" />
-                              </a>
-                              <a
+                                <a
+                                  :href="getCanIUseUrl(feature.canIUseId)"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="View browser compatibility on Can I Use"
+                                  class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
+                                >
+                                  CIU
+                                </a>
+                              </UTooltip>
+                              <div
+                                v-if="feature.canIUseId && feature.mdnBcdPath"
+                                class="w-px self-stretch bg-primary-500/20"
+                              />
+                              <UTooltip
                                 v-if="feature.mdnBcdPath"
-                                :href="getMdnUrl(feature.mdnBcdPath)"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                                text="View documentation on MDN Web Docs"
                               >
-                                <span>MDN</span>
-                                <UIcon name="i-heroicons-arrow-top-right-on-square" />
-                              </a>
+                                <a
+                                  :href="getMdnUrl(feature.mdnBcdPath)"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label="View documentation on MDN Web Docs"
+                                  class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
+                                >
+                                  MDN
+                                </a>
+                              </UTooltip>
                             </div>
                           </div>
                         </div>
@@ -307,18 +363,14 @@ const groupItems = createGroupItems(pwaFeatures)
                           <UBadge
                             :color="
                               getSupportBadgeColor(
-                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[
-                                  browser.id as keyof BrowserSupport
-                                ]
+                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[browser.id]
                               )
                             "
                             size="sm"
                           >
                             {{
                               getSupportLabel(
-                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[
-                                  browser.id as keyof BrowserSupport
-                                ]
+                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[browser.id]
                               )
                             }}
                           </UBadge>

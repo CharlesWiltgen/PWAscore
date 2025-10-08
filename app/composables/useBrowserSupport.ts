@@ -67,6 +67,17 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       deprecated: false,
     },
   },
+  "declarative-web-push": {
+    safari: "supported",
+    chrome: "not-supported",
+    firefox: "not-supported",
+    safariVersion: "18.4", // Safari 18.4 (iOS 18.4/macOS 15.5)
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false,
+    },
+  },
 };
 
 /**

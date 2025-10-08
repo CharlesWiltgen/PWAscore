@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import type { PWAFeatureGroup } from '../data/pwa-features'
-import { pwaFeatures } from '../data/pwa-features'
-import type { BrowserSupport, BrowserId } from '../composables/useBrowserSupport'
+import { onMounted, watch } from "vue";
+import type { PWAFeatureGroup } from "../data/pwa-features";
+import { pwaFeatures } from "../data/pwa-features";
+import type {
+  BrowserSupport,
+  BrowserId,
+} from "../composables/useBrowserSupport";
 
-const { getSupport, loadMultipleSupport } = useBrowserSupport()
-const { calculateBrowserScore } = useBrowserScore()
+const { getSupport, loadMultipleSupport } = useBrowserSupport();
+const { calculateBrowserScore } = useBrowserScore();
 
 // Shared accordion state across all browser columns
-const openGroups = ref<string[]>([])
-const openCategories = ref<string[]>([])
+const openGroups = ref<string[]>([]);
+const openCategories = ref<string[]>([]);
 
 // Load support data for all features on mount
 onMounted(async () => {
-  const allFeatures: Array<{ id: string, canIUseId?: string, mdnBcdPath?: string }> = []
+  const allFeatures: Array<{
+    id: string;
+    canIUseId?: string;
+    mdnBcdPath?: string;
+  }> = [];
 
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
@@ -21,80 +28,93 @@ onMounted(async () => {
         allFeatures.push({
           id: feature.id,
           canIUseId: feature.canIUseId,
-          mdnBcdPath: feature.mdnBcdPath
-        })
+          mdnBcdPath: feature.mdnBcdPath,
+        });
       }
     }
   }
 
-  await loadMultipleSupport(allFeatures)
-})
+  await loadMultipleSupport(allFeatures);
+});
+
+// Auto-expand all categories when a group is opened
+watch(openGroups, (newGroups, oldGroups) => {
+  // Find newly opened groups
+  const newlyOpened = newGroups.filter((id) => !oldGroups.includes(id));
+
+  // Expand categories for each newly opened group
+  newlyOpened.forEach((groupId) => expandGroupCategories(groupId));
+});
 
 interface BrowserColumn {
-  id: BrowserId
-  name: string
-  icon: string
-  version: string
-  color: string
-  platformIcon: string
+  id: BrowserId;
+  name: string;
+  icon: string;
+  version: string;
+  color: string;
+  platformIcon: string;
 }
 
 const browserConfig: BrowserColumn[] = [
   {
-    id: 'chrome',
-    name: 'Chrome',
-    icon: 'i-simple-icons-googlechrome',
-    version: '131',
-    color: 'text-green-600 dark:text-green-400',
-    platformIcon: 'i-simple-icons-android'
+    id: "chrome",
+    name: "Chrome",
+    icon: "i-simple-icons-googlechrome",
+    version: "131",
+    color: "text-green-600 dark:text-green-400",
+    platformIcon: "i-simple-icons-android",
   },
   {
-    id: 'firefox',
-    name: 'Firefox',
-    icon: 'i-simple-icons-firefox',
-    version: '138',
-    color: 'text-orange-600 dark:text-orange-400',
-    platformIcon: 'i-simple-icons-android'
+    id: "firefox",
+    name: "Firefox",
+    icon: "i-simple-icons-firefox",
+    version: "138",
+    color: "text-orange-600 dark:text-orange-400",
+    platformIcon: "i-simple-icons-android",
   },
   {
-    id: 'safari',
-    name: 'Safari',
-    icon: 'i-simple-icons-safari',
-    version: '26',
-    color: 'text-blue-600 dark:text-blue-400',
-    platformIcon: 'i-simple-icons-apple'
-  }
-]
+    id: "safari",
+    name: "Safari",
+    icon: "i-simple-icons-safari",
+    version: "26",
+    color: "text-blue-600 dark:text-blue-400",
+    platformIcon: "i-simple-icons-apple",
+  },
+];
 
 const browsers = computed(() =>
-  browserConfig.map(browser => ({
+  browserConfig.map((browser) => ({
     ...browser,
-    scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
-  }))
-)
+    scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport),
+  })),
+);
 
 /**
  * Get support data for a feature across all browsers
  */
-function getFeatureSupport(featureId: string, canIUseId?: string, mdnBcdPath?: string): BrowserSupport {
-  return getSupport(featureId, canIUseId, mdnBcdPath)
+function getFeatureSupport(
+  featureId: string,
+  canIUseId?: string,
+  mdnBcdPath?: string,
+): BrowserSupport {
+  return getSupport(featureId, canIUseId, mdnBcdPath);
 }
 
 /**
  * Get badge color based on support level
  */
 function getSupportBadgeColor(
-  support: 'supported' | 'partial' | 'not-supported' | 'unknown'
-): 'success' | 'warning' | 'error' | 'neutral' {
+  support: "supported" | "partial" | "not-supported" | "unknown",
+): "success" | "warning" | "error" | "neutral" {
   switch (support) {
-    case 'supported':
-      return 'success'
-    case 'partial':
-      return 'warning'
-    case 'not-supported':
-      return 'error'
-    case 'unknown':
-      return 'neutral'
+    case "supported":
+      return "success";
+    case "partial":
+      return "warning";
+    case "not-supported":
+      return "error";
+    case "unknown":
+      return "neutral";
   }
 }
 
@@ -102,17 +122,17 @@ function getSupportBadgeColor(
  * Get label text for support level
  */
 function getSupportLabel(
-  support: 'supported' | 'partial' | 'not-supported' | 'unknown'
+  support: "supported" | "partial" | "not-supported" | "unknown",
 ): string {
   switch (support) {
-    case 'supported':
-      return 'Supported'
-    case 'partial':
-      return 'Partial'
-    case 'not-supported':
-      return 'Not Supported'
-    case 'unknown':
-      return 'Unknown'
+    case "supported":
+      return "Supported";
+    case "partial":
+      return "Partial";
+    case "not-supported":
+      return "Not Supported";
+    case "unknown":
+      return "Unknown";
   }
 }
 
@@ -120,7 +140,7 @@ function getSupportLabel(
  * Build CanIUse URL if feature has canIUseId
  */
 function getCanIUseUrl(canIUseId?: string): string | undefined {
-  return canIUseId ? `https://caniuse.com/${canIUseId}` : undefined
+  return canIUseId ? `https://caniuse.com/${canIUseId}` : undefined;
 }
 
 /**
@@ -128,13 +148,28 @@ function getCanIUseUrl(canIUseId?: string): string | undefined {
  * Converts "api.Navigator.setAppBadge" to "https://developer.mozilla.org/docs/Web/API/Navigator/setAppBadge"
  */
 function getMdnUrl(mdnBcdPath?: string): string | undefined {
-  if (!mdnBcdPath) return undefined
+  if (!mdnBcdPath) return undefined;
 
   // Convert dot notation to URL path: api.Navigator.setAppBadge → /Web/API/Navigator/setAppBadge
-  const parts = mdnBcdPath.split('.')
-  const urlPath = parts.join('/')
+  const parts = mdnBcdPath.split(".");
+  const urlPath = parts.join("/");
 
-  return `https://developer.mozilla.org/docs/Web/${urlPath}`
+  return `https://developer.mozilla.org/docs/Web/${urlPath}`;
+}
+
+/**
+ * Expand all categories for a given group
+ */
+function expandGroupCategories(groupId: string): void {
+  const group = pwaFeatures.find((g) => g.id === groupId);
+  if (!group) return;
+
+  // Add all category IDs to openCategories array
+  const categoryIds = group.categories.map((c) => c.id);
+  openCategories.value = [
+    ...openCategories.value.filter((id) => !categoryIds.includes(id)),
+    ...categoryIds,
+  ];
 }
 
 /**
@@ -143,38 +178,34 @@ function getMdnUrl(mdnBcdPath?: string): string | undefined {
  */
 function handleGroupMetaClick(event: MouseEvent): void {
   // Only process Meta-clicks
-  if (!event.metaKey) return
+  if (!event.metaKey) return;
 
   // Find the clicked accordion button
-  const target = event.target as HTMLElement
-  const button = target.closest('button')
-  if (!button) return
+  const target = event.target as HTMLElement;
+  const button = target.closest("button");
+  if (!button) return;
 
   // Find the group ID by matching button text with group names
-  const buttonText = button.textContent?.trim()
-  const group = pwaFeatures.find(g => g.name === buttonText)
-  if (!group) return
+  const buttonText = button.textContent?.trim();
+  const group = pwaFeatures.find((g) => g.name === buttonText);
+  if (!group) return;
 
-  // Add all category IDs to openCategories array
-  const categoryIds = group.categories.map(c => c.id)
-  openCategories.value = [
-    ...openCategories.value.filter(id => !categoryIds.includes(id)),
-    ...categoryIds
-  ]
+  // Expand all categories in this group
+  expandGroupCategories(group.id);
 }
 
 /**
  * Create accordion items for feature groups
  */
 function createGroupItems(groups: PWAFeatureGroup[]) {
-  return groups.map(group => ({
+  return groups.map((group) => ({
     label: group.name,
     description: group.description,
     icon: group.icon,
     slot: group.id,
     value: group.id,
-    defaultOpen: false
-  }))
+    defaultOpen: false,
+  }));
 }
 
 /**
@@ -182,16 +213,16 @@ function createGroupItems(groups: PWAFeatureGroup[]) {
  * This function is called reactively from the template
  */
 function createCategoryItems(group: PWAFeatureGroup) {
-  return group.categories.map(category => ({
+  return group.categories.map((category) => ({
     label: category.name,
     description: category.description,
     slot: category.id,
     value: category.id,
-    defaultOpen: false
-  }))
+    defaultOpen: false,
+  }));
 }
 
-const groupItems = createGroupItems(pwaFeatures)
+const groupItems = createGroupItems(pwaFeatures);
 </script>
 
 <template>
@@ -218,12 +249,20 @@ const groupItems = createGroupItems(pwaFeatures)
                     <span class="font-semibold">{{ browser.name }}</span>
                     <span
                       class="font-normal text-gray-500 dark:text-gray-400 flex items-center"
-                      :class="browser.platformIcon === 'i-simple-icons-android' ? 'gap-[5px]' : 'gap-1'"
+                      :class="
+                        browser.platformIcon === 'i-simple-icons-android'
+                          ? 'gap-[5px]'
+                          : 'gap-1'
+                      "
                     >
                       for
                       <UIcon
                         :name="browser.platformIcon"
-                        :class="browser.platformIcon === 'i-simple-icons-android' ? 'w-[18px] h-[18px]' : 'w-4 h-4'"
+                        :class="
+                          browser.platformIcon === 'i-simple-icons-android'
+                            ? 'w-[18px] h-[18px]'
+                            : 'w-4 h-4'
+                        "
                       />
                     </span>
                   </div>
@@ -235,12 +274,15 @@ const groupItems = createGroupItems(pwaFeatures)
               <UTooltip>
                 <template #text>
                   <div class="text-xs space-y-1">
-                    <div>Stable features: {{ browser.scores.unweighted }}% raw</div>
+                    <div>
+                      Stable features: {{ browser.scores.unweighted }}% raw
+                    </div>
                     <div class="text-gray-400">
                       With experimental/non-standard:
                     </div>
                     <div class="pl-2">
-                      {{ browser.scores.weightedFull }}% weighted, {{ browser.scores.unweightedFull }}% raw
+                      {{ browser.scores.weightedFull }}% weighted,
+                      {{ browser.scores.unweightedFull }}% raw
                     </div>
                   </div>
                 </template>
@@ -254,16 +296,8 @@ const groupItems = createGroupItems(pwaFeatures)
 
         <!-- Feature Groups Accordion -->
         <div @click.capture="handleGroupMetaClick">
-          <UAccordion
-            v-model="openGroups"
-            :items="groupItems"
-            type="multiple"
-          >
-            <template
-              v-for="group in pwaFeatures"
-              :key="group.id"
-              #[group.id]
-            >
+          <UAccordion v-model="openGroups" :items="groupItems" type="multiple">
+            <template v-for="group in pwaFeatures" :key="group.id" #[group.id]>
               <!-- Categories within this group -->
               <div class="pl-6">
                 <UAccordion
@@ -285,15 +319,29 @@ const groupItems = createGroupItems(pwaFeatures)
                       >
                         <div class="flex-1 min-w-0 pr-3">
                           <div class="flex items-center gap-1.5">
-                            <UTooltip :text="feature.apiName ? `API: ${feature.apiName} — ${feature.description}` : feature.description">
+                            <UTooltip
+                              :text="
+                                feature.apiName
+                                  ? `API: ${feature.apiName} — ${feature.description}`
+                                  : feature.description
+                              "
+                            >
                               <div class="text-sm truncate">
                                 {{ feature.name }}
                               </div>
                             </UTooltip>
                             <!-- Status icons -->
-                            <div class="inline-flex items-center gap-1 flex-shrink-0">
+                            <div
+                              class="inline-flex items-center gap-1 flex-shrink-0"
+                            >
                               <UTooltip
-                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.experimental"
+                                v-if="
+                                  getFeatureSupport(
+                                    feature.id,
+                                    feature.canIUseId,
+                                    feature.mdnBcdPath,
+                                  ).status?.experimental
+                                "
                                 text="Experimental: This feature is experimental and subject to change"
                               >
                                 <UIcon
@@ -302,7 +350,18 @@ const groupItems = createGroupItems(pwaFeatures)
                                 />
                               </UTooltip>
                               <UTooltip
-                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status && !getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.standard_track"
+                                v-if="
+                                  getFeatureSupport(
+                                    feature.id,
+                                    feature.canIUseId,
+                                    feature.mdnBcdPath,
+                                  ).status &&
+                                  !getFeatureSupport(
+                                    feature.id,
+                                    feature.canIUseId,
+                                    feature.mdnBcdPath,
+                                  ).status?.standard_track
+                                "
                                 text="Non-standard: This feature is not on the standards track"
                               >
                                 <UIcon
@@ -311,7 +370,13 @@ const groupItems = createGroupItems(pwaFeatures)
                                 />
                               </UTooltip>
                               <UTooltip
-                                v-if="getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath).status?.deprecated"
+                                v-if="
+                                  getFeatureSupport(
+                                    feature.id,
+                                    feature.canIUseId,
+                                    feature.mdnBcdPath,
+                                  ).status?.deprecated
+                                "
                                 text="Deprecated: This feature is deprecated and may be removed"
                               >
                                 <UIcon
@@ -363,14 +428,22 @@ const groupItems = createGroupItems(pwaFeatures)
                           <UBadge
                             :color="
                               getSupportBadgeColor(
-                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[browser.id]
+                                getFeatureSupport(
+                                  feature.id,
+                                  feature.canIUseId,
+                                  feature.mdnBcdPath,
+                                )[browser.id],
                               )
                             "
                             size="sm"
                           >
                             {{
                               getSupportLabel(
-                                getFeatureSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)[browser.id]
+                                getFeatureSupport(
+                                  feature.id,
+                                  feature.canIUseId,
+                                  feature.mdnBcdPath,
+                                )[browser.id],
                               )
                             }}
                           </UBadge>

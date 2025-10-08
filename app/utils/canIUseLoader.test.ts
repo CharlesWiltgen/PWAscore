@@ -20,7 +20,10 @@ describe('getBrowserVersions', () => {
 
   test('should return fallback versions on error', async () => {
     // Mock fetch to fail
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('Network error'))
+    )
 
     const versions = await getBrowserVersions()
 
@@ -59,7 +62,10 @@ describe('getCanIUseSupport', () => {
       safari: '18.4'
     }
 
-    const support = await getCanIUseSupport('non-existent-feature-xyz', browserVersions)
+    const support = await getCanIUseSupport(
+      'non-existent-feature-xyz',
+      browserVersions
+    )
 
     expect(support).toEqual({
       chrome: 'unknown',
@@ -94,7 +100,10 @@ describe('getMdnBcdSupport', () => {
 
     // Navigator.setAppBadge is supported in Safari iOS 16.4+
     const { getMdnBcdSupport } = await import('./canIUseLoader')
-    const support = await getMdnBcdSupport('api.Navigator.setAppBadge', browserVersions)
+    const support = await getMdnBcdSupport(
+      'api.Navigator.setAppBadge',
+      browserVersions
+    )
 
     // Safari iOS should be supported (16.4+ required, we have 18.4)
     expect(support.safari).toBe('supported')
@@ -112,7 +121,10 @@ describe('getMdnBcdSupport', () => {
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
-    const support = await getMdnBcdSupport('api.NonExistentAPI', browserVersions)
+    const support = await getMdnBcdSupport(
+      'api.NonExistentAPI',
+      browserVersions
+    )
 
     expect(support).toEqual({
       chrome: 'unknown',
@@ -129,7 +141,10 @@ describe('getMdnBcdSupport', () => {
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
-    const support = await getMdnBcdSupport('api.BackgroundFetchManager', browserVersions)
+    const support = await getMdnBcdSupport(
+      'api.BackgroundFetchManager',
+      browserVersions
+    )
 
     // Chrome Android supports BackgroundFetchManager (74+)
     expect(support.chrome).toBe('supported')

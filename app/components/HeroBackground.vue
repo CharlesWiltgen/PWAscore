@@ -18,8 +18,8 @@ onMounted(() => {
   <div
     class="absolute w-full -top-px transition-all text-primary shrink-0"
     :class="[
-      isLoading ? 'animate-pulse' : (appear ? '' : 'opacity-0'),
-      appeared ? 'duration-[400ms]': 'duration-1000'
+      isLoading ? 'animate-pulse' : appear ? '' : 'opacity-0',
+      appeared ? 'duration-[400ms]' : 'duration-1000'
     ]"
   >
     <svg

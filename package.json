@@ -1,7 +1,12 @@
 {
-  "name": "nuxt-ui-template-landing",
+  "name": "PWAscore",
   "private": true,
   "type": "module",
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",

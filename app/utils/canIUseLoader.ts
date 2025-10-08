@@ -12,14 +12,20 @@ import type { SupportLevel } from '../composables/useBrowserSupport'
 const UNIVERSALLY_SUPPORTED_FEATURES = ['web-app-manifest'] as const
 
 interface CanIUseData {
-  agents: Record<string, {
-    browser: string
-    current_version?: string
-    version_list: Array<{ version: string }>
-  }>
-  data: Record<string, {
-    stats: Record<string, Record<string, string>>
-  }>
+  agents: Record<
+    string,
+    {
+      browser: string
+      current_version?: string
+      version_list: Array<{ version: string }>
+    }
+  >
+  data: Record<
+    string,
+    {
+      stats: Record<string, Record<string, string>>
+    }
+  >
 }
 
 export interface BrowserVersions {
@@ -29,7 +35,8 @@ export interface BrowserVersions {
 }
 
 // GitHub URL for CanIUse data
-const CANIUSE_URL = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
+const CANIUSE_URL
+  = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Cache version - update this to force cache refresh
 const CACHE_VERSION = '2025-10-06'
@@ -59,11 +66,17 @@ async function loadCanIUseData(): Promise<CanIUseData> {
   loadingPromise = (async (): Promise<CanIUseData> => {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
-      // @ts-expect-error - Cloudflare Workers specific properties
-      if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+      if (
+        import.meta.server
+          // @ts-expect-error - Cloudflare Workers specific properties
+          && import.meta.prod
+          && typeof caches !== 'undefined'
+      ) {
         // @ts-expect-error - Cloudflare Workers cache API
         const cache = caches.default
-        const cacheKey = new Request(`https://pwascore-cache/caniuse/${CACHE_VERSION}`)
+        const cacheKey = new Request(
+          `https://pwascore-cache/caniuse/${CACHE_VERSION}`
+        )
 
         let response = await cache.match(cacheKey)
 
@@ -242,8 +255,15 @@ function findBrowserVersion(
     const targetMajor = Number.parseFloat(targetVersion)
     for (const [versionKey, support] of Object.entries(stats)) {
       if (versionKey.includes('-')) {
-        const [rangeStart, rangeEnd] = versionKey.split('-').map(v => Number.parseFloat(v))
-        if (rangeStart !== undefined && rangeEnd !== undefined && !Number.isNaN(rangeStart) && !Number.isNaN(rangeEnd)) {
+        const [rangeStart, rangeEnd] = versionKey
+          .split('-')
+          .map(v => Number.parseFloat(v))
+        if (
+          rangeStart !== undefined
+          && rangeEnd !== undefined
+          && !Number.isNaN(rangeStart)
+          && !Number.isNaN(rangeEnd)
+        ) {
           // Check if target version is within or close to the range
           // Allow matching if target is within ±1 major version of the range
           if (targetMajor >= rangeStart - 1 && targetMajor <= rangeEnd + 1) {
@@ -281,7 +301,9 @@ export async function getCanIUseSupport(
 }> {
   try {
     // Special case: Some features are universally supported but not in data-2.0.json
-    if ((UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)) {
+    if (
+      (UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)
+    ) {
       return {
         chrome: 'supported',
         firefox: 'supported',
@@ -295,7 +317,11 @@ export async function getCanIUseSupport(
     const featureData = data.data[canIUseId]
     if (!featureData) {
       // Only log if not a known special case (to reduce console noise)
-      if (!(UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)) {
+      if (
+        !(UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(
+          canIUseId
+        )
+      ) {
         console.log(`CanIUse feature not found: ${canIUseId}`)
       }
       return {
@@ -366,7 +392,8 @@ interface MdnBcdFeature {
 }
 
 // MDN BCD CDN URL
-const MDN_BCD_URL = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.1.11/data.json'
+const MDN_BCD_URL
+  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.1.11/data.json'
 
 // Cache version for MDN BCD
 const MDN_BCD_CACHE_VERSION = '2025-10-07'
@@ -394,11 +421,17 @@ async function loadMdnBcdData(): Promise<unknown> {
   mdnBcdLoadingPromise = (async () => {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
-      // @ts-expect-error - Cloudflare Workers specific properties
-      if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+      if (
+        import.meta.server
+          // @ts-expect-error - Cloudflare Workers specific properties
+          && import.meta.prod
+          && typeof caches !== 'undefined'
+      ) {
         // @ts-expect-error - Cloudflare Workers cache API
         const cache = caches.default
-        const cacheKey = new Request(`https://pwascore-cache/mdn-bcd/${MDN_BCD_CACHE_VERSION}`)
+        const cacheKey = new Request(
+          `https://pwascore-cache/mdn-bcd/${MDN_BCD_CACHE_VERSION}`
+        )
 
         let response = await cache.match(cacheKey)
 
@@ -574,9 +607,15 @@ export async function getMdnBcdSupport(
     const firefoxSupport = support.firefox_android
     const safariSupport = support.safari_ios
 
-    const chrome = chromeSupport ? isVersionSupported(chromeSupport, browserVersions.chrome) : { level: 'unknown' as const, partial: false }
-    const firefox = firefoxSupport ? isVersionSupported(firefoxSupport, browserVersions.firefox) : { level: 'unknown' as const, partial: false }
-    const safari = safariSupport ? isVersionSupported(safariSupport, browserVersions.safari) : { level: 'unknown' as const, partial: false }
+    const chrome = chromeSupport
+      ? isVersionSupported(chromeSupport, browserVersions.chrome)
+      : { level: 'unknown' as const, partial: false }
+    const firefox = firefoxSupport
+      ? isVersionSupported(firefoxSupport, browserVersions.firefox)
+      : { level: 'unknown' as const, partial: false }
+    const safari = safariSupport
+      ? isVersionSupported(safariSupport, browserVersions.safari)
+      : { level: 'unknown' as const, partial: false }
 
     return {
       chrome: chrome.partial ? 'partial' : chrome.level,

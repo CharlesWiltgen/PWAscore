@@ -12,11 +12,7 @@ import {
   type FeatureStatus
 } from '../utils/canIUseLoader'
 
-export type SupportLevel
-  = | 'supported'
-    | 'partial'
-    | 'not-supported'
-    | 'unknown'
+export type SupportLevel = 'supported' | 'partial' | 'not-supported' | 'unknown'
 
 export type BrowserId = 'chrome' | 'firefox' | 'safari'
 
@@ -180,10 +176,7 @@ export function useBrowserSupport() {
         supportCache.value[cacheKey] = support
         return support
       } catch (error) {
-        console.error(
-          `Failed to load CanIUse support for ${featureId}:`,
-          error
-        )
+        console.error(`Failed to load CanIUse support for ${featureId}:`, error)
         // Continue to try MDN BCD if available
       }
     }
@@ -198,10 +191,7 @@ export function useBrowserSupport() {
         supportCache.value[cacheKey] = support
         return support
       } catch (error) {
-        console.error(
-          `Failed to load MDN BCD support for ${featureId}:`,
-          error
-        )
+        console.error(`Failed to load MDN BCD support for ${featureId}:`, error)
       }
     }
 

@@ -5,29 +5,33 @@ interface Star {
   size: number
 }
 
-const props = withDefaults(defineProps<{
-  starCount?: number
-  color?: string
-  speed?: 'slow' | 'normal' | 'fast'
-  size?: { min: number, max: number }
-}>(), {
-  starCount: 300,
-  color: 'var(--ui-primary)',
-  speed: 'normal',
-  size: () => ({
-    min: 1,
-    max: 2
-  })
-})
+const props = withDefaults(
+  defineProps<{
+    starCount?: number
+    color?: string
+    speed?: 'slow' | 'normal' | 'fast'
+    size?: { min: number, max: number }
+  }>(),
+  {
+    starCount: 300,
+    color: 'var(--ui-primary)',
+    speed: 'normal',
+    size: () => ({
+      min: 1,
+      max: 2
+    })
+  }
+)
 
 // Generate random star positions and sizes
 const generateStars = (count: number): Star[] => {
   return Array.from({ length: count }, () => ({
     x: Math.floor(Math.random() * 2000),
     y: Math.floor(Math.random() * 2000),
-    size: typeof props.size === 'number'
-      ? props.size
-      : Math.random() * (props.size.max - props.size.min) + props.size.min
+    size:
+      typeof props.size === 'number'
+        ? props.size
+        : Math.random() * (props.size.max - props.size.min) + props.size.min
   }))
 }
 
@@ -39,13 +43,18 @@ const speedMap = {
 }
 
 // Use a more efficient approach to generate and store stars
-const stars = useState<{ slow: Star[], normal: Star[], fast: Star[] }>('stars', () => {
-  return {
-    slow: generateStars(Math.floor(props.starCount * speedMap.slow.ratio)),
-    normal: generateStars(Math.floor(props.starCount * speedMap.normal.ratio)),
-    fast: generateStars(Math.floor(props.starCount * speedMap.fast.ratio))
+const stars = useState<{ slow: Star[], normal: Star[], fast: Star[] }>(
+  'stars',
+  () => {
+    return {
+      slow: generateStars(Math.floor(props.starCount * speedMap.slow.ratio)),
+      normal: generateStars(
+        Math.floor(props.starCount * speedMap.normal.ratio)
+      ),
+      fast: generateStars(Math.floor(props.starCount * speedMap.fast.ratio))
+    }
   }
-})
+)
 
 // Compute star layers with different speeds and opacities
 const starLayers = computed(() => [
@@ -56,7 +65,9 @@ const starLayers = computed(() => [
 </script>
 
 <template>
-  <div class="absolute pointer-events-none z-[-1] inset-y-0 inset-x-5 sm:inset-x-7 lg:inset-x-9 overflow-hidden">
+  <div
+    class="absolute pointer-events-none z-[-1] inset-y-0 inset-x-5 sm:inset-x-7 lg:inset-x-9 overflow-hidden"
+  >
     <svg
       class="absolute inset-0 pointer-events-none"
       viewBox="0 0 1017 181"
@@ -150,18 +161,22 @@ const starLayers = computed(() => [
 .stars {
   left: 50%;
   transform: translate(-50%);
-  -webkit-mask-image: linear-gradient(180deg,
-      rgba(217, 217, 217, 0) 0%,
-      rgba(217, 217, 217, 0.8) 25%,
-      #d9d9d9 50%,
-      rgba(217, 217, 217, 0.8) 75%,
-      rgba(217, 217, 217, 0) 100%);
-  mask-image: linear-gradient(180deg,
-      rgba(217, 217, 217, 0) 0%,
-      rgba(217, 217, 217, 0.8) 25%,
-      #d9d9d9 50%,
-      rgba(217, 217, 217, 0.8) 75%,
-      rgba(217, 217, 217, 0) 100%);
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    rgba(217, 217, 217, 0) 0%,
+    rgba(217, 217, 217, 0.8) 25%,
+    #d9d9d9 50%,
+    rgba(217, 217, 217, 0.8) 75%,
+    rgba(217, 217, 217, 0) 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    rgba(217, 217, 217, 0) 0%,
+    rgba(217, 217, 217, 0.8) 25%,
+    #d9d9d9 50%,
+    rgba(217, 217, 217, 0.8) 75%,
+    rgba(217, 217, 217, 0) 100%
+  );
   -webkit-mask-size: cover;
   mask-size: cover;
 }

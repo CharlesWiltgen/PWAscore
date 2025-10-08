@@ -3,115 +3,115 @@
  * Returns real browser support data from CanIUse
  */
 
-import { ref } from "vue";
+import { ref } from 'vue'
 import {
   getCanIUseSupport,
   getMdnBcdSupport,
   getBrowserVersions,
   type BrowserVersions,
-  type FeatureStatus,
-} from "../utils/canIUseLoader";
+  type FeatureStatus
+} from '../utils/canIUseLoader'
 
-export type SupportLevel =
-  | "supported"
-  | "partial"
-  | "not-supported"
-  | "unknown";
+export type SupportLevel
+  = | 'supported'
+    | 'partial'
+    | 'not-supported'
+    | 'unknown'
 
-export type BrowserId = "chrome" | "firefox" | "safari";
+export type BrowserId = 'chrome' | 'firefox' | 'safari'
 
 export interface BrowserSupport {
-  chrome: SupportLevel;
-  firefox: SupportLevel;
-  safari: SupportLevel;
-  status?: FeatureStatus;
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
+  status?: FeatureStatus
   // Version where feature was added (optional, for future use)
-  chromeVersion?: string;
-  firefoxVersion?: string;
-  safariVersion?: string;
+  chromeVersion?: string
+  firefoxVersion?: string
+  safariVersion?: string
 }
 
 /**
  * Unknown support fallback
  */
 const UNKNOWN_SUPPORT: BrowserSupport = {
-  chrome: "unknown",
-  firefox: "unknown",
-  safari: "unknown",
-};
+  chrome: 'unknown',
+  firefox: 'unknown',
+  safari: 'unknown'
+}
 
 /**
  * Manual browser support data for features without Can I Use or MDN BCD entries
  * Used for vendor-specific APIs that aren't tracked by standard databases
  */
 const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
-  "apple-pay": {
-    safari: "supported",
-    chrome: "not-supported",
-    firefox: "not-supported",
-    safariVersion: "10.1", // Safari 10.1 (macOS Sierra/iOS 10)
+  'apple-pay': {
+    safari: 'supported',
+    chrome: 'not-supported',
+    firefox: 'not-supported',
+    safariVersion: '10.1', // Safari 10.1 (macOS Sierra/iOS 10)
     status: {
       experimental: false,
       standard_track: false,
-      deprecated: false,
-    },
+      deprecated: false
+    }
   },
-  "google-pay": {
-    chrome: "supported",
-    safari: "not-supported",
-    firefox: "not-supported",
-    chromeVersion: "61", // Chrome 61 (September 2017)
+  'google-pay': {
+    chrome: 'supported',
+    safari: 'not-supported',
+    firefox: 'not-supported',
+    chromeVersion: '61', // Chrome 61 (September 2017)
     status: {
       experimental: false,
       standard_track: false,
-      deprecated: false,
-    },
+      deprecated: false
+    }
   },
-  "declarative-web-push": {
-    safari: "supported",
-    chrome: "not-supported",
-    firefox: "not-supported",
-    safariVersion: "18.4", // Safari 18.4 (iOS 18.4/macOS 15.5)
+  'declarative-web-push': {
+    safari: 'supported',
+    chrome: 'not-supported',
+    firefox: 'not-supported',
+    safariVersion: '18.4', // Safari 18.4 (iOS 18.4/macOS 15.5)
     status: {
       experimental: true,
       standard_track: false,
-      deprecated: false,
-    },
-  },
-};
+      deprecated: false
+    }
+  }
+}
 
 /**
  * Default browser versions (used as fallback)
  */
 const DEFAULT_BROWSER_VERSIONS: BrowserVersions = {
-  chrome: "141",
-  firefox: "143",
-  safari: "18.4",
-};
+  chrome: '141',
+  firefox: '143',
+  safari: '18.4'
+}
 
 /**
  * Get browser support status for PWA features
  */
 export function useBrowserSupport() {
-  const supportCache = ref<Record<string, BrowserSupport>>({});
-  const browserVersions = ref<BrowserVersions>(DEFAULT_BROWSER_VERSIONS);
-  const isLoading = ref(false);
-  const versionsLoaded = ref(false);
+  const supportCache = ref<Record<string, BrowserSupport>>({})
+  const browserVersions = ref<BrowserVersions>(DEFAULT_BROWSER_VERSIONS)
+  const isLoading = ref(false)
+  const versionsLoaded = ref(false)
 
   /**
    * Load browser versions from CanIUse data
    */
   const loadBrowserVersions = async (): Promise<void> => {
-    if (versionsLoaded.value) return;
+    if (versionsLoaded.value) return
 
     try {
-      browserVersions.value = await getBrowserVersions();
-      versionsLoaded.value = true;
+      browserVersions.value = await getBrowserVersions()
+      versionsLoaded.value = true
     } catch (error) {
-      console.error("Failed to load browser versions:", error);
-      browserVersions.value = DEFAULT_BROWSER_VERSIONS;
+      console.error('Failed to load browser versions:', error)
+      browserVersions.value = DEFAULT_BROWSER_VERSIONS
     }
-  };
+  }
 
   /**
    * Get support data for a feature
@@ -121,25 +121,25 @@ export function useBrowserSupport() {
   const getSupport = (
     featureId: string,
     canIUseId?: string,
-    mdnBcdPath?: string,
+    mdnBcdPath?: string
   ): BrowserSupport => {
     // Check cache first - try canIUseId, then mdnBcdPath, then featureId
-    const cacheKey = canIUseId || mdnBcdPath || featureId;
-    const cached = supportCache.value[cacheKey];
+    const cacheKey = canIUseId || mdnBcdPath || featureId
+    const cached = supportCache.value[cacheKey]
     if (cached) {
-      return cached;
+      return cached
     }
 
     // Check manual support and cache it
-    const manual = MANUAL_SUPPORT[featureId];
+    const manual = MANUAL_SUPPORT[featureId]
     if (manual) {
-      supportCache.value[cacheKey] = manual;
-      return manual;
+      supportCache.value[cacheKey] = manual
+      return manual
     }
 
     // Return unknown if not in cache or manual support
-    return UNKNOWN_SUPPORT;
-  };
+    return UNKNOWN_SUPPORT
+  }
 
   /**
    * Load support data for a feature from CanIUse or MDN BCD
@@ -149,41 +149,41 @@ export function useBrowserSupport() {
   const loadSupport = async (
     featureId: string,
     canIUseId?: string,
-    mdnBcdPath?: string,
+    mdnBcdPath?: string
   ): Promise<BrowserSupport> => {
-    const cacheKey = canIUseId || mdnBcdPath || featureId;
+    const cacheKey = canIUseId || mdnBcdPath || featureId
 
     // Check cache first
-    const cached = supportCache.value[cacheKey];
+    const cached = supportCache.value[cacheKey]
     if (cached) {
-      return cached;
+      return cached
     }
 
     // If no data sources, check manual support first
     if (!canIUseId && !mdnBcdPath) {
-      const manual = MANUAL_SUPPORT[featureId];
-      const result = manual || UNKNOWN_SUPPORT;
-      supportCache.value[cacheKey] = result;
-      return result;
+      const manual = MANUAL_SUPPORT[featureId]
+      const result = manual || UNKNOWN_SUPPORT
+      supportCache.value[cacheKey] = result
+      return result
     }
 
     // Ensure browser versions are loaded
-    await loadBrowserVersions();
+    await loadBrowserVersions()
 
     // Try CanIUse first (primary source)
     if (canIUseId) {
       try {
         const support = await getCanIUseSupport(
           canIUseId,
-          browserVersions.value,
-        );
-        supportCache.value[cacheKey] = support;
-        return support;
+          browserVersions.value
+        )
+        supportCache.value[cacheKey] = support
+        return support
       } catch (error) {
         console.error(
           `Failed to load CanIUse support for ${featureId}:`,
-          error,
-        );
+          error
+        )
         // Continue to try MDN BCD if available
       }
     }
@@ -193,40 +193,40 @@ export function useBrowserSupport() {
       try {
         const support = await getMdnBcdSupport(
           mdnBcdPath,
-          browserVersions.value,
-        );
-        supportCache.value[cacheKey] = support;
-        return support;
+          browserVersions.value
+        )
+        supportCache.value[cacheKey] = support
+        return support
       } catch (error) {
         console.error(
           `Failed to load MDN BCD support for ${featureId}:`,
-          error,
-        );
+          error
+        )
       }
     }
 
     // If all sources failed, check manual support as final fallback
-    const manual = MANUAL_SUPPORT[featureId];
-    const result = manual || UNKNOWN_SUPPORT;
-    supportCache.value[cacheKey] = result;
-    return result;
-  };
+    const manual = MANUAL_SUPPORT[featureId]
+    const result = manual || UNKNOWN_SUPPORT
+    supportCache.value[cacheKey] = result
+    return result
+  }
 
   /**
    * Load support data for multiple features at once
    */
   const loadMultipleSupport = async (
-    features: Array<{ id: string; canIUseId?: string; mdnBcdPath?: string }>,
+    features: Array<{ id: string, canIUseId?: string, mdnBcdPath?: string }>
   ): Promise<void> => {
-    isLoading.value = true;
+    isLoading.value = true
     try {
       await Promise.all(
-        features.map((f) => loadSupport(f.id, f.canIUseId, f.mdnBcdPath)),
-      );
+        features.map(f => loadSupport(f.id, f.canIUseId, f.mdnBcdPath))
+      )
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
-  };
+  }
 
   return {
     getSupport,
@@ -234,6 +234,6 @@ export function useBrowserSupport() {
     loadMultipleSupport,
     loadBrowserVersions,
     browserVersions,
-    isLoading,
-  };
+    isLoading
+  }
 }

@@ -53,7 +53,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'beforeinstallprompt API',
             description: 'Prompt users to install the PWA',
             apiName: 'beforeinstallprompt',
-            canIUseId: 'web-app-manifest',
+            mdnBcdPath: 'api.BeforeInstallPromptEvent',
             weight: 2.0
           },
           {

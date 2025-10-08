@@ -358,14 +358,21 @@ interface MdnBcdFeature {
   [key: string]: unknown
 }
 
+// MDN BCD CDN URL
+const MDN_BCD_URL = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.1.11/data.json'
+
+// Cache version for MDN BCD
+const MDN_BCD_CACHE_VERSION = '2025-10-07'
+
 // In-memory cache for MDN BCD data
 let mdnBcdData: unknown = null
 let mdnBcdLoadingPromise: Promise<unknown> | null = null
 
 /**
- * Load MDN Browser Compatibility Data
- * Loads from the installed npm package
- * Prevents concurrent loads by using a loading promise
+ * Load MDN Browser Compatibility Data from CDN
+ * Uses Cloudflare Cache API to store at the edge
+ * Cache TTL: 1 day (86400 seconds)
+ * Prevents concurrent fetches by using a loading promise
  */
 async function loadMdnBcdData(): Promise<unknown> {
   if (mdnBcdData) {
@@ -379,9 +386,56 @@ async function loadMdnBcdData(): Promise<unknown> {
 
   mdnBcdLoadingPromise = (async () => {
     try {
-      // Dynamic import of MDN BCD data
-      const bcd = await import('@mdn/browser-compat-data')
-      mdnBcdData = bcd.default || bcd
+      // Use Cache API on server-side in production (Cloudflare Workers)
+      // @ts-expect-error - Cloudflare Workers specific properties
+      if (import.meta.server && import.meta.prod && typeof caches !== 'undefined') {
+        // @ts-expect-error - Cloudflare Workers cache API
+        const cache = caches.default
+        const cacheKey = new Request(`https://pwascore-cache/mdn-bcd/${MDN_BCD_CACHE_VERSION}`)
+
+        let response = await cache.match(cacheKey)
+
+        if (!response) {
+          console.log('[MDN BCD] Cache miss - fetching from CDN')
+
+          // Fetch from CDN
+          response = await fetch(MDN_BCD_URL)
+
+          if (!response.ok) {
+            throw new Error(`Failed to load MDN BCD data: ${response.status}`)
+          }
+
+          // Cache for 1 day
+          const headers = new Headers(response.headers)
+          headers.set('Cache-Control', 'public, max-age=86400')
+
+          const cachedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers
+          })
+
+          // Store in cache
+          await cache.put(cacheKey, cachedResponse.clone())
+          response = cachedResponse
+
+          console.log('[MDN BCD] Data cached at edge')
+        } else {
+          console.log('[MDN BCD] Cache hit - using cached data')
+        }
+
+        mdnBcdData = await response.json()
+        return mdnBcdData
+      }
+
+      // Development or client-side fallback - fetch directly from CDN
+      const response = await fetch(MDN_BCD_URL)
+
+      if (!response.ok) {
+        throw new Error(`Failed to load MDN BCD data: ${response.status}`)
+      }
+
+      mdnBcdData = await response.json()
       return mdnBcdData
     } catch (error) {
       console.error('[MDN BCD] Error loading data:', error)

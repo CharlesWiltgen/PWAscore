@@ -1893,6 +1893,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Window Controls Overlay',
             description: 'Customize title bar area',
             apiName: 'Window Controls Overlay',
+            canIUseId: 'mdn-api_windowcontrolsoverlay',
             weight: 0.5,
             status: {
               experimental: true,
@@ -1914,7 +1915,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Tabbed Application Mode',
             description: 'Multiple app windows as tabs',
             apiName: 'tabbed',
-            canIUseId: 'web-app-manifest',
+            canIUseId: 'mdn-html_manifest_display_override_tabbed',
             mdnBcdPath: 'html.manifest.display_override',
             weight: 0.5
           }

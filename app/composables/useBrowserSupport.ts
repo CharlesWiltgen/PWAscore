@@ -86,6 +86,28 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false, // Not in spec but universally adopted
       deprecated: false
     }
+  },
+  'window-controls-overlay': {
+    chrome: 'supported',
+    firefox: 'not-supported',
+    safari: 'not-supported',
+    chromeVersion: '105', // Chrome 105 (May 2022)
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'tabbed-mode': {
+    chrome: 'supported',
+    firefox: 'not-supported',
+    safari: 'not-supported',
+    chromeVersion: '116', // Chrome 116 (experimental)
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
   }
 }
 

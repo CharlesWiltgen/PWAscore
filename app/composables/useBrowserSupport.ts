@@ -73,6 +73,19 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false,
       deprecated: false
     }
+  },
+  'viewport-control': {
+    chrome: 'supported',
+    firefox: 'supported',
+    safari: 'supported',
+    chromeVersion: '18', // Early mobile Chrome
+    firefoxVersion: '4', // Early mobile Firefox
+    safariVersion: '3.1', // iOS Safari 3.1 (iPhone OS 2.0)
+    status: {
+      experimental: false,
+      standard_track: false, // Not in spec but universally adopted
+      deprecated: false
+    }
   }
 }
 

@@ -1040,6 +1040,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Display Modes',
             description: 'Different app display modes',
             apiName: 'display-mode',
+            mdnBcdPath: 'css.at-rules.media.display-mode',
             weight: 1
           }
         ]

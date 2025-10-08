@@ -3,6 +3,13 @@ export default defineAppConfig({
     colors: {
       primary: 'blue',
       neutral: 'slate'
+    },
+    prose: {
+      h2: {
+        slots: {
+          base: 'relative text-2xl text-highlighted font-bold mt-6 mb-4 scroll-mt-[calc(48px+45px+var(--ui-header-height))]'
+        }
+      }
     }
   }
 })

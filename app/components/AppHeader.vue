@@ -10,7 +10,15 @@
     </template>
 
     <template #right>
-      <UColorModeButton />
+      <div class="flex items-center gap-3">
+        <NuxtLink
+          to="/about"
+          class="text-sm font-medium hover:text-primary transition-colors"
+        >
+          About
+        </NuxtLink>
+        <UColorModeButton />
+      </div>
     </template>
   </UHeader>
 </template>

@@ -23,7 +23,7 @@ useSeoMeta({
 
 <template>
   <UApp :toaster="{ expand: false }">
-    <UBanner :ui="{ title: 'text-lg' }">
+    <UBanner :ui="{ title: 'text-md', root: '-my-0.5' }">
       <template #title>
         <span>This is a <strong>preview release</strong> of PWAscore • Please
           report issues at

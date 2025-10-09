@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import type { PWAFeatureGroup } from '../data/pwa-features'
 import { pwaFeatures } from '../data/pwa-features'
 import type {
@@ -13,6 +13,54 @@ const { calculateBrowserScore } = useBrowserScore()
 // Shared accordion state across all browser columns
 const openGroups = ref<string[]>([])
 const openCategories = ref<string[]>([])
+
+// Check if all groups and categories are expanded
+const isAllExpanded = computed(() => {
+  const allGroupIds = pwaFeatures.map(g => g.id)
+  const allCategoryIds = pwaFeatures.flatMap(g =>
+    g.categories.map(c => c.id)
+  )
+
+  return (
+    allGroupIds.every(id => openGroups.value.includes(id))
+    && allCategoryIds.every(id => openCategories.value.includes(id))
+  )
+})
+
+/**
+ * Expand all groups and categories
+ */
+function expandAll(): void {
+  const allGroupIds = pwaFeatures.map(g => g.id)
+  const allCategoryIds = pwaFeatures.flatMap(g =>
+    g.categories.map(c => c.id)
+  )
+
+  openGroups.value = [...allGroupIds]
+  openCategories.value = [...allCategoryIds]
+}
+
+/**
+ * Collapse all groups and categories
+ */
+function collapseAll(): void {
+  openGroups.value = []
+  openCategories.value = []
+}
+
+// Keyboard shortcuts
+function handleKeydown(event: KeyboardEvent): void {
+  // Cmd/Ctrl + E to expand all
+  if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
+    event.preventDefault()
+    expandAll()
+  }
+  // Cmd/Ctrl + W to collapse all
+  if ((event.metaKey || event.ctrlKey) && event.key === 'w') {
+    event.preventDefault()
+    collapseAll()
+  }
+}
 
 // Load support data for all features on mount
 onMounted(async () => {
@@ -35,6 +83,14 @@ onMounted(async () => {
   }
 
   await loadMultipleSupport(allFeatures)
+
+  // Add keyboard shortcut listeners
+  window.addEventListener('keydown', handleKeydown)
+})
+
+// Clean up keyboard listeners on unmount
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
 
 // Auto-expand all categories when a group is opened
@@ -227,6 +283,13 @@ const groupItems = createGroupItems(pwaFeatures)
 
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Options Bar -->
+    <PWAFeatureBrowserOptions
+      :is-all-expanded="isAllExpanded"
+      @expand-all="expandAll"
+      @collapse-all="collapseAll"
+    />
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Browser Columns -->
       <div

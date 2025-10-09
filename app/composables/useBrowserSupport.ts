@@ -346,7 +346,8 @@ export function useBrowserSupport() {
   const loadSupport = async (
     featureId: string,
     canIUseId?: string,
-    mdnBcdPath?: string
+    mdnBcdPath?: string,
+    manualStatus?: FeatureStatus
   ): Promise<BrowserSupport> => {
     const cacheKey = canIUseId || mdnBcdPath || featureId
 
@@ -381,8 +382,12 @@ export function useBrowserSupport() {
           || support.safari_ios !== 'unknown'
 
         if (hasKnownSupport) {
-          supportCache.value[cacheKey] = support
-          return support
+          // Merge with manual status override if provided
+          const result = manualStatus
+            ? { ...support, status: manualStatus }
+            : support
+          supportCache.value[cacheKey] = result
+          return result
         }
         // Fall through to CanIUse if MDN BCD returned all unknown
       } catch (error) {
@@ -404,8 +409,12 @@ export function useBrowserSupport() {
           || support.safari_ios !== 'unknown'
 
         if (hasKnownSupport) {
-          supportCache.value[cacheKey] = support
-          return support
+          // Merge with manual status override if provided
+          const result = manualStatus
+            ? { ...support, status: manualStatus }
+            : support
+          supportCache.value[cacheKey] = result
+          return result
         }
       } catch (error) {
         console.error(`Failed to load CanIUse support for ${featureId}:`, error)
@@ -423,12 +432,19 @@ export function useBrowserSupport() {
    * Load support data for multiple features at once
    */
   const loadMultipleSupport = async (
-    features: Array<{ id: string, canIUseId?: string, mdnBcdPath?: string }>
+    features: Array<{
+      id: string
+      canIUseId?: string
+      mdnBcdPath?: string
+      status?: FeatureStatus
+    }>
   ): Promise<void> => {
     isLoading.value = true
     try {
       await Promise.all(
-        features.map(f => loadSupport(f.id, f.canIUseId, f.mdnBcdPath))
+        features.map(f =>
+          loadSupport(f.id, f.canIUseId, f.mdnBcdPath, f.status)
+        )
       )
     } finally {
       isLoading.value = false

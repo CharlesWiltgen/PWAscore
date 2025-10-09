@@ -72,6 +72,11 @@ onMounted(async () => {
     id: string
     canIUseId?: string
     mdnBcdPath?: string
+    status?: {
+      experimental: boolean
+      standard_track: boolean
+      deprecated: boolean
+    }
   }> = []
 
   for (const group of pwaFeatures) {
@@ -80,7 +85,8 @@ onMounted(async () => {
         allFeatures.push({
           id: feature.id,
           canIUseId: feature.canIUseId,
-          mdnBcdPath: feature.mdnBcdPath
+          mdnBcdPath: feature.mdnBcdPath,
+          status: feature.status
         })
       }
     }

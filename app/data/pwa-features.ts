@@ -369,7 +369,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'Background Sync',
             canIUseId: 'background-sync',
             mdnBcdPath: 'api.SyncManager',
-            weight: 2.0
+            weight: 2.0,
+            status: {
+              experimental: true,
+              standard_track: false,
+              deprecated: false
+            }
           },
           {
             id: 'periodic-background-sync',
@@ -378,7 +383,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'Periodic Background Sync',
             canIUseId: 'background-sync',
             mdnBcdPath: 'api.PeriodicSyncManager',
-            weight: 1.0
+            weight: 1.0,
+            status: {
+              experimental: true,
+              standard_track: false,
+              deprecated: false
+            }
           },
           {
             id: 'deferred-actions',
@@ -387,7 +397,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'sync event',
             canIUseId: 'background-sync',
             mdnBcdPath: 'api.ServiceWorkerGlobalScope.sync_event',
-            weight: 2.0
+            weight: 2.0,
+            status: {
+              experimental: true,
+              standard_track: false,
+              deprecated: false
+            }
           }
         ]
       },

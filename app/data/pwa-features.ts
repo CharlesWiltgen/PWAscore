@@ -531,7 +531,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'Web Bluetooth',
             canIUseId: 'web-bluetooth',
             mdnBcdPath: 'api.Bluetooth',
-            weight: 0.5
+            weight: 0.5,
+            status: {
+              experimental: true,
+              standard_track: true,
+              deprecated: false
+            }
           },
           {
             id: 'web-nfc',
@@ -540,7 +545,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'Web NFC',
             canIUseId: 'webnfc',
             mdnBcdPath: 'api.NDEFReader',
-            weight: 0.5
+            weight: 0.5,
+            status: {
+              experimental: true,
+              standard_track: true,
+              deprecated: false
+            }
           },
           {
             id: 'web-usb',
@@ -549,7 +559,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'WebUSB',
             canIUseId: 'webusb',
             mdnBcdPath: 'api.USB',
-            weight: 0.5
+            weight: 0.5,
+            status: {
+              experimental: true,
+              standard_track: true,
+              deprecated: false
+            }
           },
           {
             id: 'web-serial',
@@ -558,7 +573,12 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             apiName: 'Web Serial',
             canIUseId: 'web-serial',
             mdnBcdPath: 'api.Serial',
-            weight: 0.5
+            weight: 0.5,
+            status: {
+              experimental: true,
+              standard_track: true,
+              deprecated: false
+            }
           }
         ]
       },

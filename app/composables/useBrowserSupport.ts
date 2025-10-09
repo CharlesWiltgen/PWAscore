@@ -327,15 +327,15 @@ export function useBrowserSupport() {
     // Ensure browser versions are loaded
     await loadBrowserVersions()
 
-    // Try CanIUse first (primary source)
-    if (canIUseId) {
+    // Try MDN BCD first when available (has both browser support + status)
+    if (mdnBcdPath) {
       try {
-        const support = await getCanIUseSupport(
-          canIUseId,
+        const support = await getMdnBcdSupport(
+          mdnBcdPath,
           browserVersions.value
         )
-        // Only use Can I Use data if at least one browser has known support
-        // If all are 'unknown', fall back to MDN BCD
+        // Only use MDN BCD data if at least one browser has known support
+        // If all are 'unknown', fall back to CanIUse
         const hasKnownSupport = support.chrome_android !== 'unknown'
           || support.firefox_android !== 'unknown'
           || support.safari_ios !== 'unknown'
@@ -344,24 +344,31 @@ export function useBrowserSupport() {
           supportCache.value[cacheKey] = support
           return support
         }
-        // Fall through to MDN BCD if available
+        // Fall through to CanIUse if MDN BCD returned all unknown
       } catch (error) {
-        console.error(`Failed to load CanIUse support for ${featureId}:`, error)
-        // Continue to try MDN BCD if available
+        console.error(`Failed to load MDN BCD support for ${featureId}:`, error)
+        // Continue to try CanIUse if available
       }
     }
 
-    // Try MDN BCD as fallback
-    if (mdnBcdPath) {
+    // Try CanIUse as fallback
+    if (canIUseId) {
       try {
-        const support = await getMdnBcdSupport(
-          mdnBcdPath,
+        const support = await getCanIUseSupport(
+          canIUseId,
           browserVersions.value
         )
-        supportCache.value[cacheKey] = support
-        return support
+        // Only use Can I Use data if at least one browser has known support
+        const hasKnownSupport = support.chrome_android !== 'unknown'
+          || support.firefox_android !== 'unknown'
+          || support.safari_ios !== 'unknown'
+
+        if (hasKnownSupport) {
+          supportCache.value[cacheKey] = support
+          return support
+        }
       } catch (error) {
-        console.error(`Failed to load MDN BCD support for ${featureId}:`, error)
+        console.error(`Failed to load CanIUse support for ${featureId}:`, error)
       }
     }
 

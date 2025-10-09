@@ -45,7 +45,6 @@ function handleHideExperimentalToggle() {
         :label="isAllExpanded ? 'Collapse All' : 'Expand All'"
         color="neutral"
         variant="ghost"
-        size="sm"
         @click="handleToggle"
       />
     </div>

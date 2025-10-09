@@ -23,10 +23,15 @@ const hideExperimental = ref<boolean>(false)
 // Store precomputed MDN URLs by feature ID
 const mdnUrls = ref<Map<string, string | undefined>>(new Map())
 
+// Pre-computed Sets of experimental/non-standard features (populated once in onMounted)
+const experimentalFeatureIds = ref<Set<string>>(new Set())
+const experimentalCategoryIds = ref<Set<string>>(new Set())
+const experimentalGroupIds = ref<Set<string>>(new Set())
+
 // Check if all groups and categories are expanded
 const isAllExpanded = computed(() => {
-  const allGroupIds = filteredFeatures.value.map((g) => g.id)
-  const allCategoryIds = filteredFeatures.value.flatMap((g) =>
+  const allGroupIds = pwaFeatures.map((g) => g.id)
+  const allCategoryIds = pwaFeatures.flatMap((g) =>
     g.categories.map((c) => c.id)
   )
 
@@ -40,8 +45,8 @@ const isAllExpanded = computed(() => {
  * Expand all groups and categories
  */
 function expandAll(): void {
-  const allGroupIds = filteredFeatures.value.map((g) => g.id)
-  const allCategoryIds = filteredFeatures.value.flatMap((g) =>
+  const allGroupIds = pwaFeatures.map((g) => g.id)
+  const allCategoryIds = pwaFeatures.flatMap((g) =>
     g.categories.map((c) => c.id)
   )
 
@@ -140,6 +145,51 @@ onMounted(async () => {
       }
     })
   ])
+
+  // Pre-compute which features are experimental/non-standard (once, after support data loads)
+  for (const group of pwaFeatures) {
+    for (const category of group.categories) {
+      for (const feature of category.features) {
+        const support = getSupport(
+          feature.id,
+          feature.canIUseId,
+          feature.mdnBcdPath
+        )
+        const status = support.status
+
+        // Hide if experimental OR not on standards track (non-standard)
+        if (status?.experimental === true || status?.standard_track === false) {
+          experimentalFeatureIds.value.add(feature.id)
+        }
+      }
+    }
+  }
+
+  // Pre-compute which categories are all-experimental
+  for (const group of pwaFeatures) {
+    for (const category of group.categories) {
+      // Check if ALL features in this category are experimental
+      if (
+        category.features.every((feature) =>
+          experimentalFeatureIds.value.has(feature.id)
+        )
+      ) {
+        experimentalCategoryIds.value.add(category.id)
+      }
+    }
+  }
+
+  // Pre-compute which groups are all-experimental
+  for (const group of pwaFeatures) {
+    // Check if ALL categories in this group are experimental
+    if (
+      group.categories.every((category) =>
+        experimentalCategoryIds.value.has(category.id)
+      )
+    ) {
+      experimentalGroupIds.value.add(group.id)
+    }
+  }
 
   // Add keyboard shortcut listeners
   window.addEventListener('keydown', handleKeydown)
@@ -264,53 +314,34 @@ function getMdnUrl(featureId: string): string | undefined {
 }
 
 /**
- * Computed filtered feature structure when hideExperimental is true.
- * Returns the entire PWA features hierarchy with experimental/non-standard
- * features filtered out. Empty categories and groups are automatically excluded.
- * Only recomputes when hideExperimental changes.
+ * Lightweight computed that returns pre-computed experimental feature IDs or empty set.
+ * O(1) performance - just swaps Set reference based on checkbox state.
  */
-const filteredFeatures = computed<PWAFeatureGroup[]>(() => {
-  if (!hideExperimental.value) {
-    return pwaFeatures
-  }
+const hiddenFeatureIds = computed<Set<string>>(() =>
+  hideExperimental.value ? experimentalFeatureIds.value : new Set()
+)
 
-  // Filter entire structure: groups → categories → features
-  return pwaFeatures
-    .map((group) => ({
-      ...group,
-      categories: group.categories
-        .map((category) => ({
-          ...category,
-          features: category.features.filter((feature) => {
-            const support = getSupport(
-              feature.id,
-              feature.canIUseId,
-              feature.mdnBcdPath
-            )
-            const status = support.status
+/**
+ * Lightweight computed that returns pre-computed experimental category IDs or empty set.
+ * O(1) performance - just swaps Set reference based on checkbox state.
+ */
+const hiddenCategoryIds = computed<Set<string>>(() =>
+  hideExperimental.value ? experimentalCategoryIds.value : new Set()
+)
 
-            // If no status info, treat as standard (show it)
-            if (!status) {
-              return true
-            }
-
-            // Hide if experimental OR not on standards track (non-standard)
-            const isExperimental = status.experimental === true
-            const isNonStandard = status.standard_track === false
-
-            return !(isExperimental || isNonStandard)
-          })
-        }))
-        .filter((category) => category.features.length > 0) // Remove empty categories
-    }))
-    .filter((group) => group.categories.length > 0) // Remove empty groups
-})
+/**
+ * Lightweight computed that returns pre-computed experimental group IDs or empty set.
+ * O(1) performance - just swaps Set reference based on checkbox state.
+ */
+const hiddenGroupIds = computed<Set<string>>(() =>
+  hideExperimental.value ? experimentalGroupIds.value : new Set()
+)
 
 /**
  * Expand all categories for a given group
  */
 function expandGroupCategories(groupId: string): void {
-  const group = filteredFeatures.value.find((g) => g.id === groupId)
+  const group = pwaFeatures.find((g) => g.id === groupId)
   if (!group) return
 
   // Add all category IDs to openCategories array
@@ -336,7 +367,7 @@ function handleGroupMetaClick(event: MouseEvent): void {
 
   // Find the group ID by matching button text with group names
   const buttonText = button.textContent?.trim()
-  const group = filteredFeatures.value.find((g) => g.name === buttonText)
+  const group = pwaFeatures.find((g) => g.name === buttonText)
   if (!group) return
 
   // Expand all categories in this group
@@ -371,11 +402,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
   }))
 }
 
-/**
- * Computed accordion items for groups using filtered features.
- * Updates automatically when hideExperimental changes.
- */
-const groupItems = computed(() => createGroupItems(filteredFeatures.value))
+const groupItems = createGroupItems(pwaFeatures)
 </script>
 
 <template>
@@ -465,13 +492,9 @@ const groupItems = computed(() => createGroupItems(filteredFeatures.value))
         <!-- Feature Groups Accordion -->
         <div @click.capture="handleGroupMetaClick">
           <UAccordion v-model="openGroups" :items="groupItems" type="multiple">
-            <template
-              v-for="group in filteredFeatures"
-              :key="group.id"
-              #[group.id]
-            >
+            <template v-for="group in pwaFeatures" :key="group.id" #[group.id]>
               <!-- Categories within this group -->
-              <div class="pl-6">
+              <div v-show="!hiddenGroupIds.has(group.id)" class="pl-6">
                 <UAccordion
                   v-model="openCategories"
                   :items="createCategoryItems(group)"
@@ -483,9 +506,13 @@ const groupItems = computed(() => createGroupItems(filteredFeatures.value))
                     #[category.id]
                   >
                     <!-- Features within this category -->
-                    <div class="space-y-1 pl-6 pb-3">
+                    <div
+                      v-show="!hiddenCategoryIds.has(category.id)"
+                      class="space-y-1 pl-6 pb-3"
+                    >
                       <div
                         v-for="feature in category.features"
+                        v-show="!hiddenFeatureIds.has(feature.id)"
                         :key="feature.id"
                         class="flex items-center justify-between py-1"
                       >

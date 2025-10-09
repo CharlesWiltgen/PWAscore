@@ -113,7 +113,7 @@ interface BrowserColumn {
 
 const browserConfig: BrowserColumn[] = [
   {
-    id: 'chrome',
+    id: 'chrome_android',
     name: 'Chrome',
     icon: 'i-simple-icons-googlechrome',
     version: '131',
@@ -121,7 +121,7 @@ const browserConfig: BrowserColumn[] = [
     platformIcon: 'i-simple-icons-android'
   },
   {
-    id: 'firefox',
+    id: 'firefox_android',
     name: 'Firefox',
     icon: 'i-simple-icons-firefox',
     version: '138',
@@ -129,7 +129,7 @@ const browserConfig: BrowserColumn[] = [
     platformIcon: 'i-simple-icons-android'
   },
   {
-    id: 'safari',
+    id: 'safari_ios',
     name: 'Safari',
     icon: 'i-simple-icons-safari',
     version: '26',

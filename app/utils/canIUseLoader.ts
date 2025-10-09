@@ -286,6 +286,7 @@ function findBrowserVersion(
 /**
  * Get browser support for a specific feature from CanIUse data
  * Queries mobile browser agents: Chrome for Android, Firefox for Android, Safari on iOS
+ * Returns platform-specific browser keys (chrome_android, firefox_android, safari_ios)
  */
 export async function getCanIUseSupport(
   canIUseId: string,
@@ -295,9 +296,9 @@ export async function getCanIUseSupport(
     safari: string
   }
 ): Promise<{
-  chrome: SupportLevel
-  firefox: SupportLevel
-  safari: SupportLevel
+  chrome_android: SupportLevel
+  firefox_android: SupportLevel
+  safari_ios: SupportLevel
 }> {
   try {
     // Special case: Some features are universally supported but not in data-2.0.json
@@ -305,9 +306,9 @@ export async function getCanIUseSupport(
       (UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)
     ) {
       return {
-        chrome: 'supported',
-        firefox: 'supported',
-        safari: 'supported'
+        chrome_android: 'supported',
+        firefox_android: 'supported',
+        safari_ios: 'supported'
       }
     }
 
@@ -325,9 +326,9 @@ export async function getCanIUseSupport(
         console.log(`CanIUse feature not found: ${canIUseId}`)
       }
       return {
-        chrome: 'unknown',
-        firefox: 'unknown',
-        safari: 'unknown'
+        chrome_android: 'unknown',
+        firefox_android: 'unknown',
+        safari_ios: 'unknown'
       }
     }
 
@@ -349,16 +350,16 @@ export async function getCanIUseSupport(
     )
 
     return {
-      chrome: parseStatus(chromeStatus),
-      firefox: parseStatus(firefoxStatus),
-      safari: parseStatus(safariStatus)
+      chrome_android: parseStatus(chromeStatus),
+      firefox_android: parseStatus(firefoxStatus),
+      safari_ios: parseStatus(safariStatus)
     }
   } catch (error) {
     console.error(`Error getting CanIUse support for ${canIUseId}:`, error)
     return {
-      chrome: 'unknown',
-      firefox: 'unknown',
-      safari: 'unknown'
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown'
     }
   }
 }
@@ -575,15 +576,15 @@ export interface FeatureStatus {
 /**
  * Get browser support from MDN BCD for a specific API path
  * Queries mobile browser support: chrome_android, firefox_android, safari_ios
- * Also returns status flags (experimental, standard_track, deprecated)
+ * Returns platform-specific browser keys with status flags
  */
 export async function getMdnBcdSupport(
   mdnBcdPath: string,
   browserVersions: BrowserVersions
 ): Promise<{
-  chrome: SupportLevel
-  firefox: SupportLevel
-  safari: SupportLevel
+  chrome_android: SupportLevel
+  firefox_android: SupportLevel
+  safari_ios: SupportLevel
   status?: FeatureStatus
 }> {
   try {
@@ -593,9 +594,9 @@ export async function getMdnBcdSupport(
     if (!feature || !feature.__compat?.support) {
       console.log(`MDN BCD feature not found: ${mdnBcdPath}`)
       return {
-        chrome: 'unknown',
-        firefox: 'unknown',
-        safari: 'unknown'
+        chrome_android: 'unknown',
+        firefox_android: 'unknown',
+        safari_ios: 'unknown'
       }
     }
 
@@ -618,9 +619,9 @@ export async function getMdnBcdSupport(
       : { level: 'unknown' as const, partial: false }
 
     return {
-      chrome: chrome.partial ? 'partial' : chrome.level,
-      firefox: firefox.partial ? 'partial' : firefox.level,
-      safari: safari.partial ? 'partial' : safari.level,
+      chrome_android: chrome.partial ? 'partial' : chrome.level,
+      firefox_android: firefox.partial ? 'partial' : firefox.level,
+      safari_ios: safari.partial ? 'partial' : safari.level,
       status: status
         ? {
             experimental: status.experimental || false,
@@ -632,9 +633,9 @@ export async function getMdnBcdSupport(
   } catch (error) {
     console.error(`Error getting MDN BCD support for ${mdnBcdPath}:`, error)
     return {
-      chrome: 'unknown',
-      firefox: 'unknown',
-      safari: 'unknown'
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown'
     }
   }
 }

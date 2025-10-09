@@ -49,9 +49,9 @@ describe('getCanIUseSupport', () => {
     const support = await getCanIUseSupport('web-app-manifest', browserVersions)
 
     expect(support).toEqual({
-      chrome: 'supported',
-      firefox: 'supported',
-      safari: 'supported'
+      chrome_android: 'supported',
+      firefox_android: 'supported',
+      safari_ios: 'supported'
     })
   })
 
@@ -68,9 +68,9 @@ describe('getCanIUseSupport', () => {
     )
 
     expect(support).toEqual({
-      chrome: 'unknown',
-      firefox: 'unknown',
-      safari: 'unknown'
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown'
     })
   })
 
@@ -84,9 +84,9 @@ describe('getCanIUseSupport', () => {
     const support = await getCanIUseSupport('serviceworkers', browserVersions)
 
     // Service workers are widely supported
-    expect(support.chrome).toBe('supported')
-    expect(support.firefox).toBe('supported')
-    expect(support.safari).toBe('supported')
+    expect(support.chrome_android).toBe('supported')
+    expect(support.firefox_android).toBe('supported')
+    expect(support.safari_ios).toBe('supported')
   })
 })
 
@@ -106,11 +106,11 @@ describe('getMdnBcdSupport', () => {
     )
 
     // Safari iOS should be supported (16.4+ required, we have 18.4)
-    expect(support.safari).toBe('supported')
+    expect(support.safari_ios).toBe('supported')
     // Chrome Android should not be supported (version_added: false)
-    expect(support.chrome).toBe('not-supported')
+    expect(support.chrome_android).toBe('not-supported')
     // Firefox Android should not be supported (version_added: false)
-    expect(support.firefox).toBe('not-supported')
+    expect(support.firefox_android).toBe('not-supported')
   })
 
   test('should return unknown for non-existent MDN BCD path', async () => {
@@ -127,9 +127,9 @@ describe('getMdnBcdSupport', () => {
     )
 
     expect(support).toEqual({
-      chrome: 'unknown',
-      firefox: 'unknown',
-      safari: 'unknown'
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown'
     })
   })
 
@@ -147,10 +147,10 @@ describe('getMdnBcdSupport', () => {
     )
 
     // Chrome Android supports BackgroundFetchManager (74+)
-    expect(support.chrome).toBe('supported')
+    expect(support.chrome_android).toBe('supported')
     // Firefox and Safari do not support it
-    expect(support.firefox).toBe('not-supported')
-    expect(support.safari).toBe('not-supported')
+    expect(support.firefox_android).toBe('not-supported')
+    expect(support.safari_ios).toBe('not-supported')
   })
 
   test('should handle partial implementation correctly', async () => {
@@ -165,8 +165,8 @@ describe('getMdnBcdSupport', () => {
 
     // All should be supported since versions are high enough
     // Firefox may be partial due to partial_implementation flag
-    expect(['supported', 'partial']).toContain(support.chrome)
-    expect(['supported', 'partial']).toContain(support.firefox)
-    expect(['supported', 'partial']).toContain(support.safari)
+    expect(['supported', 'partial']).toContain(support.chrome_android)
+    expect(['supported', 'partial']).toContain(support.firefox_android)
+    expect(['supported', 'partial']).toContain(support.safari_ios)
   })
 })

@@ -1,6 +1,7 @@
 /**
  * Browser support data composable
- * Returns real browser support data from CanIUse
+ * Returns mobile browser support data from CanIUse and MDN BCD
+ * Tracks platform-specific browser support (e.g., Chrome for Android vs Chrome Desktop)
  */
 
 import { ref } from 'vue'
@@ -14,26 +15,35 @@ import {
 
 export type SupportLevel = 'supported' | 'partial' | 'not-supported' | 'unknown'
 
-export type BrowserId = 'chrome' | 'firefox' | 'safari'
+/**
+ * Platform-specific browser identifiers
+ * Mobile browsers: chrome_android, firefox_android, safari_ios
+ * (Desktop browsers will be added in the future: chrome, firefox, safari)
+ */
+export type BrowserId = 'chrome_android' | 'firefox_android' | 'safari_ios'
 
+/**
+ * Browser support data for a feature across platforms
+ * Properties use platform-specific naming to match CanIUse/MDN BCD conventions
+ */
 export interface BrowserSupport {
-  chrome: SupportLevel
-  firefox: SupportLevel
-  safari: SupportLevel
+  chrome_android: SupportLevel
+  firefox_android: SupportLevel
+  safari_ios: SupportLevel
   status?: FeatureStatus
   // Version where feature was added (optional, for future use)
-  chromeVersion?: string
-  firefoxVersion?: string
-  safariVersion?: string
+  chrome_androidVersion?: string
+  firefox_androidVersion?: string
+  safari_iosVersion?: string
 }
 
 /**
  * Unknown support fallback
  */
 const UNKNOWN_SUPPORT: BrowserSupport = {
-  chrome: 'unknown',
-  firefox: 'unknown',
-  safari: 'unknown'
+  chrome_android: 'unknown',
+  firefox_android: 'unknown',
+  safari_ios: 'unknown'
 }
 
 /**
@@ -42,10 +52,10 @@ const UNKNOWN_SUPPORT: BrowserSupport = {
  */
 const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
   'apple-pay': {
-    safari: 'supported',
-    chrome: 'not-supported',
-    firefox: 'not-supported',
-    safariVersion: '10.1', // Safari 10.1 (macOS Sierra/iOS 10)
+    safari_ios: 'supported',
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_iosVersion: '10.1', // Safari iOS 10.1
     status: {
       experimental: false,
       standard_track: false,
@@ -53,10 +63,10 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'google-pay': {
-    chrome: 'supported',
-    safari: 'not-supported',
-    firefox: 'not-supported',
-    chromeVersion: '61', // Chrome 61 (September 2017)
+    chrome_android: 'supported',
+    safari_ios: 'not-supported',
+    firefox_android: 'not-supported',
+    chrome_androidVersion: '61', // Chrome for Android 61
     status: {
       experimental: false,
       standard_track: false,
@@ -64,10 +74,10 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'declarative-web-push': {
-    safari: 'supported',
-    chrome: 'not-supported',
-    firefox: 'not-supported',
-    safariVersion: '18.4', // Safari 18.4 (iOS 18.4/macOS 15.5)
+    safari_ios: 'supported',
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_iosVersion: '18.4', // Safari iOS 18.4
     status: {
       experimental: true,
       standard_track: false,
@@ -75,12 +85,12 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'viewport-control': {
-    chrome: 'supported',
-    firefox: 'supported',
-    safari: 'supported',
-    chromeVersion: '18', // Early mobile Chrome
-    firefoxVersion: '4', // Early mobile Firefox
-    safariVersion: '3.1', // iOS Safari 3.1 (iPhone OS 2.0)
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    chrome_androidVersion: '18', // Chrome for Android 18
+    firefox_androidVersion: '4', // Firefox for Android 4
+    safari_iosVersion: '3.1', // Safari iOS 3.1
     status: {
       experimental: false,
       standard_track: false, // Not in spec but universally adopted
@@ -88,10 +98,9 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'window-controls-overlay': {
-    chrome: 'supported',
-    firefox: 'not-supported',
-    safari: 'not-supported',
-    chromeVersion: '105', // Chrome 105 (May 2022)
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
     status: {
       experimental: true,
       standard_track: false,
@@ -99,10 +108,9 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'tabbed-mode': {
-    chrome: 'supported',
-    firefox: 'not-supported',
-    safari: 'not-supported',
-    chromeVersion: '116', // Chrome 116 (experimental)
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
     status: {
       experimental: true,
       standard_track: false,
@@ -110,12 +118,12 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'https-requirement': {
-    chrome: 'supported',
-    firefox: 'supported',
-    safari: 'supported',
-    chromeVersion: '45', // Chrome 45 (Service Workers requirement)
-    firefoxVersion: '44', // Firefox 44 (Service Workers requirement)
-    safariVersion: '11.1', // Safari 11.1 (Service Workers requirement)
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    chrome_androidVersion: '45', // Chrome for Android 45 (Service Workers requirement)
+    firefox_androidVersion: '44', // Firefox for Android 44 (Service Workers requirement)
+    safari_iosVersion: '11.1', // Safari iOS 11.1 (Service Workers requirement)
     status: {
       experimental: false,
       standard_track: true,
@@ -123,9 +131,9 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'same-origin-policy': {
-    chrome: 'supported',
-    firefox: 'supported',
-    safari: 'supported',
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
     status: {
       experimental: false,
       standard_track: true,
@@ -133,12 +141,12 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'secure-contexts': {
-    chrome: 'supported',
-    firefox: 'supported',
-    safari: 'supported',
-    chromeVersion: '47', // Chrome 47
-    firefoxVersion: '49', // Firefox 49
-    safariVersion: '11.1', // Safari 11.1
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    chrome_androidVersion: '47', // Chrome for Android 47
+    firefox_androidVersion: '49', // Firefox for Android 49
+    safari_iosVersion: '11.1', // Safari iOS 11.1
     status: {
       experimental: false,
       standard_track: true,
@@ -146,9 +154,9 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'file-type-associations': {
-    chrome: 'not-supported',
-    firefox: 'not-supported',
-    safari: 'not-supported',
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
     status: {
       experimental: true,
       standard_track: false,
@@ -156,9 +164,71 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
     }
   },
   'open-with-pwa': {
-    chrome: 'not-supported',
-    firefox: 'not-supported',
-    safari: 'not-supported',
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'url-scheme-handling': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'jump-list': {
+    chrome_android: 'supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    chrome_androidVersion: '84', // Chrome for Android 84 (manifest shortcuts)
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'quick-actions': {
+    chrome_android: 'supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    chrome_androidVersion: '84', // Chrome for Android 84 (manifest shortcuts)
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'face-detection': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'text-detection': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'shape-detection': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
     status: {
       experimental: true,
       standard_track: false,
@@ -264,8 +334,17 @@ export function useBrowserSupport() {
           canIUseId,
           browserVersions.value
         )
-        supportCache.value[cacheKey] = support
-        return support
+        // Only use Can I Use data if at least one browser has known support
+        // If all are 'unknown', fall back to MDN BCD
+        const hasKnownSupport = support.chrome_android !== 'unknown'
+          || support.firefox_android !== 'unknown'
+          || support.safari_ios !== 'unknown'
+
+        if (hasKnownSupport) {
+          supportCache.value[cacheKey] = support
+          return support
+        }
+        // Fall through to MDN BCD if available
       } catch (error) {
         console.error(`Failed to load CanIUse support for ${featureId}:`, error)
         // Continue to try MDN BCD if available

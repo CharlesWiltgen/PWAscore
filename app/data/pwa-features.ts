@@ -1202,7 +1202,14 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'URL Scheme Handling',
             description: 'Handle custom URL schemes',
             apiName: 'protocol_handlers',
-            weight: 1
+            canIUseId: 'mdn-html_manifest_protocol_handlers',
+            mdnBcdPath: 'html.manifest.protocol_handlers',
+            weight: 1,
+            status: {
+              experimental: true,
+              standard_track: false,
+              deprecated: false
+            }
           }
         ]
       },
@@ -1259,6 +1266,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Jump List Items',
             description: 'Windows jump list integration',
             apiName: 'shortcuts',
+            canIUseId: 'mdn-manifests_webapp_shortcuts',
             weight: 0.5
           },
           {
@@ -1266,6 +1274,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Quick Actions',
             description: 'Context menu quick actions',
             apiName: 'shortcuts',
+            canIUseId: 'mdn-manifests_webapp_shortcuts',
             weight: 0.5
           }
         ]

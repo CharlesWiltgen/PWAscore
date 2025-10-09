@@ -63,13 +63,25 @@ PWAscore uses two scoring systems to provide accurate, production-focused metric
 - Shows complete browser PWA capabilities
 - Includes both weighted and unweighted percentages
 
+**Design Philosophy:**
+
+The weighting system ensures scores reflect production-ready PWA capabilities rather than raw feature counts. Not all web platform capabilities are equally important for building legitimate PWA alternatives to native apps.
+
+**Weight Tiers:**
+- **3.0** — Core PWA features (Web App Manifest, Service Workers)
+- **2.0** — Important features (Push Notifications, Background Sync, Add to Home Screen)
+- **1.0** — Standard features (default weight)
+- **0.5** — Nice-to-have/experimental features (WebXR/AR/VR, experimental APIs)
+
+This prevents browsers from inflating scores with niche capabilities while lacking fundamentals. For example, a browser supporting AR/VR (0.5 weight) but missing Service Workers (3.0 weight) will score appropriately low, reflecting the reality that it cannot support most production PWAs.
+
 **Example:**
 ```
 Primary display: 85
 Tooltip:
-  Stable features: 85% raw
+  Stable features: 85 raw
   With experimental/non-standard:
-    90% weighted, 87% raw
+    90 weighted, 87 raw
 ```
 
 **Status Indicators:**

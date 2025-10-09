@@ -349,12 +349,12 @@ const groupItems = createGroupItems(pwaFeatures)
                   <div class="text-xs">
                     <div class="mb-2">
                       <span class="text-gray-400">Stable features:</span><br>
-                      {{ browser.scores.unweighted }}% raw
+                      {{ browser.scores.unweighted }} raw
                     </div>
                     <div>
                       <span class="text-gray-400">With experimental/non-standard:</span><br>
-                      {{ browser.scores.weightedFull }}% weighted,
-                      {{ browser.scores.unweightedFull }}% raw
+                      {{ browser.scores.weightedFull }} weighted,
+                      {{ browser.scores.unweightedFull }} raw
                     </div>
                   </div>
                 </template>

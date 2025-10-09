@@ -274,6 +274,28 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false,
       deprecated: false
     }
+  },
+  'push-api': {
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    safari_iosVersion: '16.4', // Safari iOS 16.4 (PWA context only)
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'notification-api': {
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    safari_iosVersion: '16.4', // Safari iOS 16.4 (PWA context only)
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
   }
 }
 

@@ -549,7 +549,15 @@ function isVersionSupported(
 
   // Compare versions (simple string comparison works for most cases)
   // Safari uses iOS versions like "16.4", Chrome uses "83", etc.
-  const requiredVersion = supportData.version_added as string
+  let requiredVersion = supportData.version_added as string
+
+  // Handle version strings with comparison operators (≤, ≥, <, >)
+  // ≤X means "supported since version X or earlier" = definitely supported
+  // ≥X means "requires at least version X" = treat as version X
+  if (requiredVersion.startsWith('≤') || requiredVersion.startsWith('≥') || requiredVersion.startsWith('<') || requiredVersion.startsWith('>')) {
+    requiredVersion = requiredVersion.replace(/^[≤≥<>]=?/, '')
+  }
+
   const current = parseFloat(currentVersion)
   const required = parseFloat(requiredVersion)
 

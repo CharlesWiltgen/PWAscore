@@ -254,6 +254,26 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false,
       deprecated: false
     }
+  },
+  'proximity': {
+    chrome_android: 'not-supported',
+    firefox_android: 'supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'background-audio': {
+    chrome_android: 'supported',
+    firefox_android: 'supported',
+    safari_ios: 'supported',
+    status: {
+      experimental: false,
+      standard_track: false,
+      deprecated: false
+    }
   }
 }
 

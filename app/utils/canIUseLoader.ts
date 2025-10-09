@@ -386,6 +386,7 @@ interface MdnBcdStatus {
 
 interface MdnBcdFeature {
   __compat?: {
+    mdn_url?: string
     support?: Record<string, MdnBcdSupport | MdnBcdSupport[]>
     status?: MdnBcdStatus
   }
@@ -645,5 +646,33 @@ export async function getMdnBcdSupport(
       firefox_android: 'unknown',
       safari_ios: 'unknown'
     }
+  }
+}
+
+/**
+ * Get MDN documentation URL from BCD data
+ * Walks up parent paths if child doesn't have mdn_url
+ */
+export async function getMdnUrlFromBcd(
+  mdnBcdPath: string
+): Promise<string | undefined> {
+  try {
+    const bcdData = await loadMdnBcdData()
+    const parts = mdnBcdPath.split('.')
+
+    // Try to find mdn_url starting from the full path, then walking up parents
+    for (let i = parts.length; i > 0; i--) {
+      const currentPath = parts.slice(0, i).join('.')
+      const feature = navigateMdnBcdPath(bcdData, currentPath)
+
+      if (feature?.__compat?.mdn_url) {
+        return feature.__compat.mdn_url
+      }
+    }
+
+    return undefined
+  } catch (error) {
+    console.error(`Error getting MDN URL for ${mdnBcdPath}:`, error)
+    return undefined
   }
 }

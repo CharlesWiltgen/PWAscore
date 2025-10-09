@@ -6,6 +6,7 @@ import type {
   BrowserSupport,
   BrowserId
 } from '../composables/useBrowserSupport'
+import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
 
 const { getSupport, loadMultipleSupport } = useBrowserSupport()
 const { calculateBrowserScore } = useBrowserScore()
@@ -13,6 +14,9 @@ const { calculateBrowserScore } = useBrowserScore()
 // Shared accordion state across all browser columns
 const openGroups = ref<string[]>([])
 const openCategories = ref<string[]>([])
+
+// Store precomputed MDN URLs by feature ID
+const mdnUrls = ref<Map<string, string | undefined>>(new Map())
 
 // Check if all groups and categories are expanded
 const isAllExpanded = computed(() => {
@@ -82,7 +86,16 @@ onMounted(async () => {
     }
   }
 
-  await loadMultipleSupport(allFeatures)
+  // Load support data and MDN URLs for all features in parallel
+  await Promise.all([
+    loadMultipleSupport(allFeatures),
+    ...allFeatures.map(async (feature) => {
+      if (feature.mdnBcdPath) {
+        const url = await getMdnUrlFromBcd(feature.mdnBcdPath)
+        mdnUrls.value.set(feature.id, url)
+      }
+    })
+  ])
 
   // Add keyboard shortcut listeners
   window.addEventListener('keydown', handleKeydown)
@@ -200,17 +213,10 @@ function getCanIUseUrl(canIUseId?: string): string | undefined {
 }
 
 /**
- * Build MDN URL from mdnBcdPath
- * Converts "api.Navigator.setAppBadge" to "https://developer.mozilla.org/docs/Web/API/Navigator/setAppBadge"
+ * Get precomputed MDN URL for a feature
  */
-function getMdnUrl(mdnBcdPath?: string): string | undefined {
-  if (!mdnBcdPath) return undefined
-
-  // Convert dot notation to URL path: api.Navigator.setAppBadge → /Web/API/Navigator/setAppBadge
-  const parts = mdnBcdPath.split('.')
-  const urlPath = parts.join('/')
-
-  return `https://developer.mozilla.org/docs/Web/${urlPath}`
+function getMdnUrl(featureId: string): string | undefined {
+  return mdnUrls.value.get(featureId)
 }
 
 /**
@@ -483,7 +489,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                 text="View documentation on MDN Web Docs"
                               >
                                 <a
-                                  :href="getMdnUrl(feature.mdnBcdPath)"
+                                  :href="getMdnUrl(feature.id)"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   aria-label="View documentation on MDN Web Docs"

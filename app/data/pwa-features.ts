@@ -89,7 +89,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
               'Control how the app is displayed (standalone, fullscreen, minimal-ui, browser)',
             apiName: 'display',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.display',
+            mdnBcdPath: 'manifests.webapp.display',
             weight: 2.0
           },
           {
@@ -99,7 +99,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
               'Multiple icon sizes for different devices and contexts',
             apiName: 'icons',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.icons',
+            mdnBcdPath: 'manifests.webapp.icons',
             weight: 2.0
           },
           {
@@ -108,7 +108,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Customize browser UI color',
             apiName: 'theme_color',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.theme_color',
+            mdnBcdPath: 'manifests.webapp.theme_color',
             weight: 1.0
           },
           {
@@ -117,7 +117,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Splash screen background color',
             apiName: 'background_color',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.background_color',
+            mdnBcdPath: 'manifests.webapp.background_color',
             weight: 1.0
           },
           {
@@ -126,7 +126,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Specify preferred screen orientation',
             apiName: 'orientation',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.orientation',
+            mdnBcdPath: 'manifests.webapp.orientation',
             weight: 1.0
           },
           {
@@ -135,7 +135,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Define navigation scope of the PWA',
             apiName: 'scope',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.scope',
+            mdnBcdPath: 'manifests.webapp.scope',
             weight: 1.0
           },
           {
@@ -144,7 +144,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'URL to load when app is launched',
             apiName: 'start_url',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.start_url',
+            mdnBcdPath: 'manifests.webapp.start_url',
             weight: 2.0
           }
         ]
@@ -1223,7 +1223,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Handle custom URL schemes',
             apiName: 'protocol_handlers',
             canIUseId: 'mdn-html_manifest_protocol_handlers',
-            mdnBcdPath: 'html.manifest.protocol_handlers',
+            mdnBcdPath: 'manifests.webapp.protocol_handlers',
             weight: 1,
             status: {
               experimental: true,
@@ -1278,7 +1278,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Define shortcuts in manifest',
             apiName: 'shortcuts',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.shortcuts',
+            mdnBcdPath: 'manifests.webapp.shortcuts',
             weight: 1
           },
           {
@@ -1945,7 +1945,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Override display mode',
             apiName: 'display_override',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest.display_override',
+            mdnBcdPath: 'manifests.webapp.display_override',
             weight: 1
           },
           {
@@ -1954,7 +1954,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Multiple app windows as tabs',
             apiName: 'tabbed',
             canIUseId: 'mdn-html_manifest_display_override_tabbed',
-            mdnBcdPath: 'html.manifest.display_override',
+            mdnBcdPath: 'manifests.webapp.display_override.tabbed',
             weight: 0.5
           }
         ]

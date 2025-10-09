@@ -6,7 +6,7 @@ useSeoMeta({
 })
 
 const content = `
-PWAscore provides objective, data-driven comparisons of Progressive Web App (PWA) capabilities across popular mobile and desktop browsers.
+PWAscore provides objective, data-driven comparisons of Progressive Web App (PWA) capabilities across popular mobile (and soon, desktop) browsers.
 
 ## Why
 

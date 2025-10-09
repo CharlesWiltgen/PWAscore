@@ -234,6 +234,26 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false,
       deprecated: false
     }
+  },
+  'element-capture': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'region-capture': {
+    chrome_android: 'not-supported',
+    firefox_android: 'not-supported',
+    safari_ios: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
   }
 }
 

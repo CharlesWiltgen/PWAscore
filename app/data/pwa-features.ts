@@ -1860,9 +1860,10 @@ export const pwaFeatures: PWAFeatureGroup[] = [
           },
           {
             id: 'secure-contexts',
-            name: 'Secure Contexts',
+            name: 'isSecureContext API',
             description: 'APIs restricted to secure contexts',
             apiName: 'isSecureContext',
+            canIUseId: 'mdn-api_issecurecontext',
             mdnBcdPath: 'api.Window.isSecureContext',
             weight: 2
           },

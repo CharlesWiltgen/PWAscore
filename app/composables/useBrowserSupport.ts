@@ -108,6 +108,42 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: false,
       deprecated: false
     }
+  },
+  'https-requirement': {
+    chrome: 'supported',
+    firefox: 'supported',
+    safari: 'supported',
+    chromeVersion: '45', // Chrome 45 (Service Workers requirement)
+    firefoxVersion: '44', // Firefox 44 (Service Workers requirement)
+    safariVersion: '11.1', // Safari 11.1 (Service Workers requirement)
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'same-origin-policy': {
+    chrome: 'supported',
+    firefox: 'supported',
+    safari: 'supported',
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
+  },
+  'secure-contexts': {
+    chrome: 'supported',
+    firefox: 'supported',
+    safari: 'supported',
+    chromeVersion: '47', // Chrome 47
+    firefoxVersion: '49', // Firefox 49
+    safariVersion: '11.1', // Safari 11.1
+    status: {
+      experimental: false,
+      standard_track: true,
+      deprecated: false
+    }
   }
 }
 

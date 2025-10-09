@@ -1216,13 +1216,21 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'File Type Associations',
             description: 'Register as handler for file types',
             apiName: 'file_handlers',
-            weight: 0.5
+            canIUseId: 'mdn-manifests_webapp_file_handlers',
+            weight: 0.5,
+            status: {
+              experimental: true,
+              standard_track: false,
+              deprecated: false
+            }
           },
           {
             id: 'open-with-pwa',
             name: 'Open with PWA',
             description: 'Open files with PWA from system',
             apiName: 'LaunchQueue',
+            canIUseId: 'mdn-api_launchqueue',
+            mdnBcdPath: 'api.LaunchQueue',
             weight: 0.5,
             status: {
               experimental: true,

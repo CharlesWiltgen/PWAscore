@@ -144,6 +144,26 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: true,
       deprecated: false
     }
+  },
+  'file-type-associations': {
+    chrome: 'not-supported',
+    firefox: 'not-supported',
+    safari: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
+  },
+  'open-with-pwa': {
+    chrome: 'not-supported',
+    firefox: 'not-supported',
+    safari: 'not-supported',
+    status: {
+      experimental: true,
+      standard_track: false,
+      deprecated: false
+    }
   }
 }
 

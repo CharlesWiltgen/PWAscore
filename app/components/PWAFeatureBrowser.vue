@@ -10,10 +10,15 @@ import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
 
 const { getSupport, loadMultipleSupport } = useBrowserSupport()
 const { calculateBrowserScore } = useBrowserScore()
+const route = useRoute()
+const router = useRouter()
 
 // Shared accordion state across all browser columns
 const openGroups = ref<string[]>([])
 const openCategories = ref<string[]>([])
+
+// Hide experimental features state
+const hideExperimental = ref<boolean>(false)
 
 // Store precomputed MDN URLs by feature ID
 const mdnUrls = ref<Map<string, string | undefined>>(new Map())
@@ -66,8 +71,41 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
+/**
+ * Initialize hideExperimental from URL parameter
+ */
+function initializeHideExperimental(): void {
+  const urlParam = route.query.hideExperimental
+  if (urlParam === 'true') {
+    hideExperimental.value = true
+  } else if (urlParam === 'false') {
+    hideExperimental.value = false
+  }
+  // If not specified in URL, default to false (already set)
+}
+
+/**
+ * Toggle hideExperimental state and update URL
+ */
+function toggleHideExperimental(): void {
+  hideExperimental.value = !hideExperimental.value
+}
+
+// Watch hideExperimental and sync to URL
+watch(hideExperimental, (newValue) => {
+  const query = { ...route.query }
+  if (newValue) {
+    query.hideExperimental = 'true'
+  } else {
+    delete query.hideExperimental
+  }
+  router.replace({ query })
+})
+
 // Load support data for all features on mount
 onMounted(async () => {
+  // Initialize hideExperimental from URL
+  initializeHideExperimental()
   const allFeatures: Array<{
     id: string
     canIUseId?: string
@@ -226,6 +264,43 @@ function getMdnUrl(featureId: string): string | undefined {
 }
 
 /**
+ * Computed Set of feature IDs to hide when hideExperimental is true.
+ * Only recomputes when hideExperimental changes - much more efficient than
+ * calling a function in the template for every feature on every render.
+ */
+const hiddenFeatureIds = computed<Set<string>>(() => {
+  if (!hideExperimental.value) {
+    return new Set()
+  }
+
+  const hidden = new Set<string>()
+
+  for (const group of pwaFeatures) {
+    for (const category of group.categories) {
+      for (const feature of category.features) {
+        const support = getSupport(feature.id, feature.canIUseId, feature.mdnBcdPath)
+        const status = support.status
+
+        // If no status info, treat as standard (don't hide)
+        if (!status) {
+          continue
+        }
+
+        // Hide if experimental OR not on standards track (non-standard)
+        const isExperimental = status.experimental === true
+        const isNonStandard = status.standard_track === false
+
+        if (isExperimental || isNonStandard) {
+          hidden.add(feature.id)
+        }
+      }
+    }
+  }
+
+  return hidden
+})
+
+/**
  * Expand all categories for a given group
  */
 function expandGroupCategories(groupId: string): void {
@@ -298,8 +373,10 @@ const groupItems = createGroupItems(pwaFeatures)
     <!-- Options Bar -->
     <PWAFeatureBrowserOptions
       :is-all-expanded="isAllExpanded"
+      :hide-experimental="hideExperimental"
       @expand-all="expandAll"
       @collapse-all="collapseAll"
+      @toggle-hide-experimental="toggleHideExperimental"
     />
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -400,6 +477,7 @@ const groupItems = createGroupItems(pwaFeatures)
                     <div class="space-y-1 pl-6 pb-3">
                       <div
                         v-for="feature in category.features"
+                        v-show="!hiddenFeatureIds.has(feature.id)"
                         :key="feature.id"
                         class="flex items-center justify-between py-1"
                       >

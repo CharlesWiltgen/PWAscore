@@ -1,11 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
   isAllExpanded: boolean
+  hideExperimental: boolean
 }>()
 
 const emit = defineEmits<{
   expandAll: []
   collapseAll: []
+  toggleHideExperimental: []
 }>()
 
 function handleToggle() {
@@ -15,12 +17,22 @@ function handleToggle() {
     emit('expandAll')
   }
 }
+
+function handleHideExperimentalToggle() {
+  emit('toggleHideExperimental')
+}
 </script>
 
 <template>
   <div class="flex items-center justify-between mb-6">
-    <!-- Left: Future filters/options -->
-    <div class="flex-1" />
+    <!-- Left: Hide Experimental checkbox -->
+    <div class="flex-1">
+      <UCheckbox
+        :model-value="hideExperimental"
+        label="Hide Experimental"
+        @update:model-value="handleHideExperimentalToggle"
+      />
+    </div>
 
     <!-- Center: Expand/Collapse toggle -->
     <div class="flex-1 flex justify-center">

@@ -340,16 +340,19 @@ const groupItems = createGroupItems(pwaFeatures)
                   </div>
                 </div>
               </div>
-              <UTooltip>
-                <template #text>
-                  <div class="text-xs space-y-1">
+              <UTooltip
+                :ui="{
+                  content: 'bg-gray-900/90 dark:bg-gray-800/90 flex-col items-start h-auto'
+                }"
+              >
+                <template #content>
+                  <div class="text-xs">
+                    <div class="mb-2">
+                      <span class="text-gray-400">Stable features:</span><br>
+                      {{ browser.scores.unweighted }}% raw
+                    </div>
                     <div>
-                      Stable features: {{ browser.scores.unweighted }}% raw
-                    </div>
-                    <div class="text-gray-400">
-                      With experimental/non-standard:
-                    </div>
-                    <div class="pl-2">
+                      <span class="text-gray-400">With experimental/non-standard:</span><br>
                       {{ browser.scores.weightedFull }}% weighted,
                       {{ browser.scores.unweightedFull }}% raw
                     </div>

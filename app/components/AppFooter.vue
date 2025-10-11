@@ -25,14 +25,24 @@
         <p class="text-sm text-muted">
           © {{ new Date().getFullYear() }} by Charles Wiltgen
         </p>
-        <UButton
-          to="https://github.com/CharlesWiltgen/PWAscore"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="PWAscore on GitHub"
-          color="neutral"
-          variant="ghost"
-        />
+        <div class="flex items-center gap-2">
+          <UButton
+            to="https://bsky.app/profile/wiltgen.net"
+            target="_blank"
+            icon="i-simple-icons-bluesky"
+            aria-label="Charles Wiltgen on Bluesky"
+            color="neutral"
+            variant="ghost"
+          />
+          <UButton
+            to="https://github.com/CharlesWiltgen/PWAscore"
+            target="_blank"
+            icon="i-simple-icons-github"
+            aria-label="PWAscore on GitHub"
+            color="neutral"
+            variant="ghost"
+          />
+        </div>
       </div>
     </template>
   </UFooter>

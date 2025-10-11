@@ -6,7 +6,7 @@ export default defineAppConfig({
     },
     checkbox: {
       slots: {
-        base: 'border-gray-400 dark:border-gray-400'
+        base: 'border-gray-200 dark:border-gray-200'
       }
     },
     prose: {

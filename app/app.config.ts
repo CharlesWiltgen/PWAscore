@@ -4,6 +4,11 @@ export default defineAppConfig({
       primary: 'blue',
       neutral: 'slate'
     },
+    checkbox: {
+      slots: {
+        icon: 'shrink-0 size-full text-white dark:text-white'
+      }
+    },
     prose: {
       h2: {
         slots: {

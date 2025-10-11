@@ -12,7 +12,7 @@ useSeoMeta({
       title="PWA Browser Scorecards"
       description="Compare Progressive Web App capabilities across popular mobile (and soon, desktop) browsers."
       :ui="{
-        container: '!pb-15 pt-0 lg:pt-12',
+        container: '!pb-8 pt-0 lg:pt-12',
         title: 'max-w-3xl mx-auto'
       }"
     />

@@ -14,10 +14,37 @@ useHead({
   }
 })
 
+const siteUrl = 'https://pwascore.com'
+const siteTitle = 'PWAscore - PWA Browser Scorecards'
+const siteDescription
+  = 'Compare Progressive Web App capabilities across popular mobile browsers. See which browsers best support PWA features like Service Workers, Web App Manifest, and more.'
+const ogImageUrl = `${siteUrl}/og-image.png`
+
 useSeoMeta({
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/landing-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/landing-light.png',
-  twitterCard: 'summary_large_image'
+  // Basic Meta
+  title: siteTitle,
+  description: siteDescription,
+
+  // Open Graph (Facebook, LinkedIn, Bluesky)
+  ogType: 'website',
+  ogUrl: siteUrl,
+  ogTitle: siteTitle,
+  ogDescription: siteDescription,
+  ogImage: ogImageUrl,
+  ogImageWidth: '1200',
+  ogImageHeight: '630',
+  ogImageAlt: 'PWAscore - Compare PWA support across mobile browsers',
+  ogSiteName: 'PWAscore',
+  ogLocale: 'en_US',
+
+  // Twitter Cards
+  twitterCard: 'summary_large_image',
+  twitterTitle: siteTitle,
+  twitterDescription: siteDescription,
+  twitterImage: ogImageUrl,
+  twitterImageAlt: 'PWAscore - Compare PWA support across mobile browsers',
+  twitterSite: '@pwascore',
+  twitterCreator: '@pwascore'
 })
 </script>
 

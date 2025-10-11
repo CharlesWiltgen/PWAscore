@@ -4,9 +4,14 @@ export default defineAppConfig({
       primary: 'blue',
       neutral: 'slate'
     },
+    card: {
+      slots: {
+        root: 'ring-gray-400 dark:ring-gray-400'
+      }
+    },
     checkbox: {
       slots: {
-        base: 'border-gray-200 dark:border-gray-200'
+        base: 'ring-gray-200 dark:ring-gray-200'
       }
     },
     prose: {

@@ -42,9 +42,7 @@ useSeoMeta({
   twitterTitle: siteTitle,
   twitterDescription: siteDescription,
   twitterImage: ogImageUrl,
-  twitterImageAlt: 'PWAscore - Compare PWA support across mobile browsers',
-  twitterSite: '@pwascore',
-  twitterCreator: '@pwascore'
+  twitterImageAlt: 'PWAscore - Compare PWA support across mobile browsers'
 })
 </script>
 

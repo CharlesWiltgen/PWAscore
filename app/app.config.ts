@@ -6,7 +6,7 @@ export default defineAppConfig({
     },
     card: {
       slots: {
-        root: 'ring-gray-400 dark:ring-gray-400'
+        root: 'ring-gray-500 dark:ring-gray-500'
       }
     },
     checkbox: {

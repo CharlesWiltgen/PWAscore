@@ -30,14 +30,14 @@ const experimentalGroupIds = ref<Set<string>>(new Set())
 
 // Check if all groups and categories are expanded
 const isAllExpanded = computed(() => {
-  const allGroupIds = pwaFeatures.map((g) => g.id)
-  const allCategoryIds = pwaFeatures.flatMap((g) =>
-    g.categories.map((c) => c.id)
+  const allGroupIds = pwaFeatures.map(g => g.id)
+  const allCategoryIds = pwaFeatures.flatMap(g =>
+    g.categories.map(c => c.id)
   )
 
   return (
-    allGroupIds.every((id) => openGroups.value.includes(id)) &&
-    allCategoryIds.every((id) => openCategories.value.includes(id))
+    allGroupIds.every(id => openGroups.value.includes(id))
+    && allCategoryIds.every(id => openCategories.value.includes(id))
   )
 })
 
@@ -45,9 +45,9 @@ const isAllExpanded = computed(() => {
  * Expand all groups and categories
  */
 function expandAll(): void {
-  const allGroupIds = pwaFeatures.map((g) => g.id)
-  const allCategoryIds = pwaFeatures.flatMap((g) =>
-    g.categories.map((c) => c.id)
+  const allGroupIds = pwaFeatures.map(g => g.id)
+  const allCategoryIds = pwaFeatures.flatMap(g =>
+    g.categories.map(c => c.id)
   )
 
   openGroups.value = [...allGroupIds]
@@ -170,7 +170,7 @@ onMounted(async () => {
     for (const category of group.categories) {
       // Check if ALL features in this category are experimental
       if (
-        category.features.every((feature) =>
+        category.features.every(feature =>
           experimentalFeatureIds.value.has(feature.id)
         )
       ) {
@@ -183,7 +183,7 @@ onMounted(async () => {
   for (const group of pwaFeatures) {
     // Check if ALL categories in this group are experimental
     if (
-      group.categories.every((category) =>
+      group.categories.every(category =>
         experimentalCategoryIds.value.has(category.id)
       )
     ) {
@@ -203,10 +203,10 @@ onUnmounted(() => {
 // Auto-expand all categories when a group is opened
 watch(openGroups, (newGroups, oldGroups) => {
   // Find newly opened groups
-  const newlyOpened = newGroups.filter((id) => !oldGroups.includes(id))
+  const newlyOpened = newGroups.filter(id => !oldGroups.includes(id))
 
   // Expand categories for each newly opened group
-  newlyOpened.forEach((groupId) => expandGroupCategories(groupId))
+  newlyOpened.forEach(groupId => expandGroupCategories(groupId))
 })
 
 interface BrowserColumn {
@@ -246,7 +246,7 @@ const browserConfig: BrowserColumn[] = [
 ]
 
 const browsers = computed(() =>
-  browserConfig.map((browser) => ({
+  browserConfig.map(browser => ({
     ...browser,
     scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
@@ -341,13 +341,13 @@ const hiddenGroupIds = computed<Set<string>>(() =>
  * Expand all categories for a given group
  */
 function expandGroupCategories(groupId: string): void {
-  const group = pwaFeatures.find((g) => g.id === groupId)
+  const group = pwaFeatures.find(g => g.id === groupId)
   if (!group) return
 
   // Add all category IDs to openCategories array
-  const categoryIds = group.categories.map((c) => c.id)
+  const categoryIds = group.categories.map(c => c.id)
   openCategories.value = [
-    ...openCategories.value.filter((id) => !categoryIds.includes(id)),
+    ...openCategories.value.filter(id => !categoryIds.includes(id)),
     ...categoryIds
   ]
 }
@@ -367,7 +367,7 @@ function handleGroupMetaClick(event: MouseEvent): void {
 
   // Find the group ID by matching button text with group names
   const buttonText = button.textContent?.trim()
-  const group = pwaFeatures.find((g) => g.name === buttonText)
+  const group = pwaFeatures.find(g => g.name === buttonText)
   if (!group) return
 
   // Expand all categories in this group
@@ -378,7 +378,7 @@ function handleGroupMetaClick(event: MouseEvent): void {
  * Create accordion items for feature groups
  */
 function createGroupItems(groups: PWAFeatureGroup[]) {
-  return groups.map((group) => ({
+  return groups.map(group => ({
     label: group.name,
     description: group.description,
     icon: group.icon,
@@ -393,7 +393,7 @@ function createGroupItems(groups: PWAFeatureGroup[]) {
  * This function is called reactively from the template
  */
 function createCategoryItems(group: PWAFeatureGroup) {
-  return group.categories.map((category) => ({
+  return group.categories.map(category => ({
     label: category.name,
     description: category.description,
     slot: category.id,
@@ -469,13 +469,11 @@ const groupItems = createGroupItems(pwaFeatures)
                 <template #content>
                   <div class="text-xs">
                     <div class="mb-2">
-                      <span class="text-gray-400">Stable features:</span><br />
+                      <span class="text-gray-400">Stable features:</span><br>
                       {{ browser.scores.unweighted }} raw
                     </div>
                     <div>
-                      <span class="text-gray-400"
-                        >With experimental/non-standard:</span
-                      ><br />
+                      <span class="text-gray-400">With experimental/non-standard:</span><br>
                       {{ browser.scores.weightedFull }} weighted,
                       {{ browser.scores.unweightedFull }} raw
                     </div>
@@ -491,10 +489,21 @@ const groupItems = createGroupItems(pwaFeatures)
 
         <!-- Feature Groups Accordion -->
         <div @click.capture="handleGroupMetaClick">
-          <UAccordion v-model="openGroups" :items="groupItems" type="multiple">
-            <template v-for="group in pwaFeatures" :key="group.id" #[group.id]>
+          <UAccordion
+            v-model="openGroups"
+            :items="groupItems"
+            type="multiple"
+          >
+            <template
+              v-for="group in pwaFeatures"
+              :key="group.id"
+              #[group.id]
+            >
               <!-- Categories within this group -->
-              <div v-show="!hiddenGroupIds.has(group.id)" class="pl-6">
+              <div
+                v-show="!hiddenGroupIds.has(group.id)"
+                class="pl-6"
+              >
                 <UAccordion
                   v-model="openCategories"
                   :items="createCategoryItems(group)"
@@ -554,12 +563,12 @@ const groupItems = createGroupItems(pwaFeatures)
                                     feature.id,
                                     feature.canIUseId,
                                     feature.mdnBcdPath
-                                  ).status &&
-                                  !getFeatureSupport(
-                                    feature.id,
-                                    feature.canIUseId,
-                                    feature.mdnBcdPath
-                                  ).status?.standard_track
+                                  ).status
+                                    && !getFeatureSupport(
+                                      feature.id,
+                                      feature.canIUseId,
+                                      feature.mdnBcdPath
+                                    ).status?.standard_track
                                 "
                                 text="Non-standard: This feature is not on the standards track"
                               >

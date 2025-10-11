@@ -97,7 +97,7 @@ async function takeScreenshot() {
     await page.waitForSelector('h1', { timeout: 10000 })
 
     // Give a moment for fonts and styles to load
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Measure banner and header height to skip them
     const skipHeight = await page.evaluate(() => {

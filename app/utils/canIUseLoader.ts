@@ -618,14 +618,13 @@ function isVersionSupported(
   currentVersion: string
 ): { level: SupportLevel, partial: boolean } {
   // Handle array of support objects (multiple implementation attempts)
+  // MDN BCD can return empty arrays when no support information is available
   const supportData = Array.isArray(support)
     ? (support.length > 0 ? support[0] : null)
     : support
 
+  // Empty arrays or null indicate no known support information
   if (!supportData) {
-    if (Array.isArray(support) && support.length === 0) {
-      console.warn('[MDN BCD] Empty support array encountered')
-    }
     return { level: 'unknown', partial: false }
   }
 

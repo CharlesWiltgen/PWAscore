@@ -135,14 +135,14 @@ testimonials:
     - quote: Game-changer for our team. The focus tracking and smart alerts helped us reduce meeting interruptions by 40% and increased our sprint velocity.
       user:
         name: 'Sébastien Chopin'
-        description:  'Lead Software Engineer'
+        description: 'Lead Software Engineer'
         target: _blank
         avatar:
           src: 'https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/atinux'
     - quote: Finally, a productivity tool that understands developers. The AI features helped me identify my peak coding hours and now I accomplish more in less time.
       user:
         name: 'Benjamin Canac'
-        description:  'Senior Frontend Developer'
+        description: 'Senior Frontend Developer'
         target: _blank
         avatar:
           src: 'https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/benjamincanac'

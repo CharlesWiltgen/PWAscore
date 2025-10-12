@@ -9,41 +9,45 @@ vi.mock('../utils/canIUseLoader', () => ({
     firefox: '143',
     safari: '18.4'
   })),
-  getCanIUseSupport: vi.fn(async (canIUseId: string, _versions: BrowserVersions) => {
-    // Mock CanIUse data
-    if (canIUseId === 'serviceworkers') {
-      return {
-        chrome_android: 'supported' as const,
-        firefox_android: 'supported' as const,
-        safari_ios: 'supported' as const
-      }
-    }
-    return {
-      chrome_android: 'unknown' as const,
-      firefox_android: 'unknown' as const,
-      safari_ios: 'unknown' as const
-    }
-  }),
-  getMdnBcdSupport: vi.fn(async (mdnBcdPath: string, _versions: BrowserVersions) => {
-    // Mock MDN BCD data
-    if (mdnBcdPath === 'api.Navigator.setAppBadge') {
-      return {
-        chrome_android: 'not-supported' as const,
-        firefox_android: 'not-supported' as const,
-        safari_ios: 'supported' as const,
-        status: {
-          experimental: false,
-          standard_track: true,
-          deprecated: false
+  getCanIUseSupport: vi.fn(
+    async (canIUseId: string, _versions: BrowserVersions) => {
+      // Mock CanIUse data
+      if (canIUseId === 'serviceworkers') {
+        return {
+          chrome_android: 'supported' as const,
+          firefox_android: 'supported' as const,
+          safari_ios: 'supported' as const
         }
       }
+      return {
+        chrome_android: 'unknown' as const,
+        firefox_android: 'unknown' as const,
+        safari_ios: 'unknown' as const
+      }
     }
-    return {
-      chrome_android: 'unknown' as const,
-      firefox_android: 'unknown' as const,
-      safari_ios: 'unknown' as const
+  ),
+  getMdnBcdSupport: vi.fn(
+    async (mdnBcdPath: string, _versions: BrowserVersions) => {
+      // Mock MDN BCD data
+      if (mdnBcdPath === 'api.Navigator.setAppBadge') {
+        return {
+          chrome_android: 'not-supported' as const,
+          firefox_android: 'not-supported' as const,
+          safari_ios: 'supported' as const,
+          status: {
+            experimental: false,
+            standard_track: true,
+            deprecated: false
+          }
+        }
+      }
+      return {
+        chrome_android: 'unknown' as const,
+        firefox_android: 'unknown' as const,
+        safari_ios: 'unknown' as const
+      }
     }
-  }),
+  ),
   getMdnUrlFromBcd: vi.fn(async () => undefined)
 }))
 
@@ -136,10 +140,7 @@ describe('useBrowserSupport', () => {
     test('should use CanIUse when MDN BCD is not provided', async () => {
       const { loadSupport } = useBrowserSupport()
 
-      const support = await loadSupport(
-        'test-feature',
-        'serviceworkers'
-      )
+      const support = await loadSupport('test-feature', 'serviceworkers')
 
       expect(support.chrome_android).toBe('supported')
       expect(support.firefox_android).toBe('supported')
@@ -202,7 +203,11 @@ describe('useBrowserSupport', () => {
 
       // All features should now be cached
       const support1 = getSupport('feature-1', 'serviceworkers')
-      const support2 = getSupport('feature-2', undefined, 'api.Navigator.setAppBadge')
+      const support2 = getSupport(
+        'feature-2',
+        undefined,
+        'api.Navigator.setAppBadge'
+      )
 
       expect(support1.chrome_android).toBe('supported')
       expect(support2.safari_ios).toBe('supported')
@@ -249,10 +254,18 @@ describe('useBrowserSupport', () => {
       const { loadSupport, getSupport } = useBrowserSupport()
 
       // Load with both IDs - creates composite key 'serviceworkers|api.Navigator.setAppBadge'
-      await loadSupport('feature-1', 'serviceworkers', 'api.Navigator.setAppBadge')
+      await loadSupport(
+        'feature-1',
+        'serviceworkers',
+        'api.Navigator.setAppBadge'
+      )
 
       // Looking up with both IDs should find it (same composite key)
-      const support1 = getSupport('feature-1', 'serviceworkers', 'api.Navigator.setAppBadge')
+      const support1 = getSupport(
+        'feature-1',
+        'serviceworkers',
+        'api.Navigator.setAppBadge'
+      )
       expect(support1.chrome_android).not.toBe('unknown')
 
       // Looking up with only canIUseId won't find it (different cache key)
@@ -260,7 +273,11 @@ describe('useBrowserSupport', () => {
       expect(support2.chrome_android).toBe('unknown')
 
       // Looking up with only mdnBcdPath won't find it (different cache key)
-      const support3 = getSupport('feature-1', undefined, 'api.Navigator.setAppBadge')
+      const support3 = getSupport(
+        'feature-1',
+        undefined,
+        'api.Navigator.setAppBadge'
+      )
       expect(support3.chrome_android).toBe('unknown')
     })
 
@@ -269,7 +286,11 @@ describe('useBrowserSupport', () => {
 
       await loadSupport('feature-2', undefined, 'api.Navigator.setAppBadge')
 
-      const support = getSupport('feature-2', undefined, 'api.Navigator.setAppBadge')
+      const support = getSupport(
+        'feature-2',
+        undefined,
+        'api.Navigator.setAppBadge'
+      )
       expect(support.safari_ios).toBe('supported')
     })
 

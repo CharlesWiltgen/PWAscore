@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from 'vue'
-import type { PWAFeatureGroup } from '../data/pwa-features'
-import { pwaFeatures } from '../data/pwa-features'
+import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type {
   BrowserSupport,
   BrowserId
 } from '../composables/useBrowserSupport'
 import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
 
+const { features: pwaFeatures } = usePWAFeatures()
 const { getSupport, loadMultipleSupport } = useBrowserSupport()
 const { calculateBrowserScore } = useBrowserScore()
 const route = useRoute()

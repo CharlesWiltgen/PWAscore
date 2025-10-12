@@ -1,10 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import { usePWAFeatures } from '../composables/usePWAFeatures'
 
 const CANIUSE_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
@@ -14,7 +9,7 @@ const UNIVERSALLY_SUPPORTED_FEATURES = ['web-app-manifest']
 
 describe('canIUseId integration', () => {
   test(
-    'all canIUseIds in pwa-features.ts should be valid',
+    'all canIUseIds in pwa-features.json should be valid',
     { timeout: 30000 },
     async () => {
       // Fetch CanIUse data from GitHub
@@ -24,20 +19,16 @@ describe('canIUseId integration', () => {
       const canIUseData = await response.json()
       expect(canIUseData).toHaveProperty('data')
 
-      // Extract all canIUseId values from pwa-features.ts
-      const pwaFeaturesPath = join(__dirname, '../data/pwa-features.ts')
-      const pwaFeaturesContent = readFileSync(pwaFeaturesPath, 'utf-8')
+      // Extract all canIUseId values from pwa-features.json
+      const { getAllFeatures } = usePWAFeatures()
+      const allFeatures = getAllFeatures()
 
-      // Extract canIUseId values using regex
-      const canIUseIdRegex = /canIUseId:\s*['"]([^'"]+)['"]/g
       const canIUseIds = new Set<string>()
-      let match
-
-      while ((match = canIUseIdRegex.exec(pwaFeaturesContent)) !== null) {
-        if (match[1]) {
-          canIUseIds.add(match[1])
+      allFeatures.forEach((feature) => {
+        if (feature.canIUseId) {
+          canIUseIds.add(feature.canIUseId)
         }
-      }
+      })
 
       expect(canIUseIds.size).toBeGreaterThan(0)
 
@@ -68,27 +59,23 @@ describe('canIUseId integration', () => {
   )
 
   test(
-    'all mdnBcdPaths in pwa-features.ts should be valid',
+    'all mdnBcdPaths in pwa-features.json should be valid',
     { timeout: 30000 },
     async () => {
       // Load MDN BCD data
       const bcd = await import('@mdn/browser-compat-data')
       const bcdData = bcd.default || bcd
 
-      // Extract all mdnBcdPath values from pwa-features.ts
-      const pwaFeaturesPath = join(__dirname, '../data/pwa-features.ts')
-      const pwaFeaturesContent = readFileSync(pwaFeaturesPath, 'utf-8')
+      // Extract all mdnBcdPath values from pwa-features.json
+      const { getAllFeatures } = usePWAFeatures()
+      const allFeatures = getAllFeatures()
 
-      // Extract mdnBcdPath values using regex
-      const mdnBcdPathRegex = /mdnBcdPath:\s*['"]([^'"]+)['"]/g
       const mdnBcdPaths = new Set<string>()
-      let match
-
-      while ((match = mdnBcdPathRegex.exec(pwaFeaturesContent)) !== null) {
-        if (match[1]) {
-          mdnBcdPaths.add(match[1])
+      allFeatures.forEach((feature) => {
+        if (feature.mdnBcdPath) {
+          mdnBcdPaths.add(feature.mdnBcdPath)
         }
-      }
+      })
 
       // If no mdnBcdPaths found, skip test
       if (mdnBcdPaths.size === 0) {

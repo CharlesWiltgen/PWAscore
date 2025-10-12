@@ -1,5 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
-import { getBrowserVersions, getCanIUseSupport, compareVersions, clearCaches } from './canIUseLoader'
+import {
+  getBrowserVersions,
+  getCanIUseSupport,
+  compareVersions,
+  clearCaches
+} from './canIUseLoader'
 
 describe('getBrowserVersions', () => {
   test('should return current browser versions', async () => {
@@ -232,10 +237,7 @@ describe('getMdnBcdSupport - version comparison edge cases', () => {
 
     // Features with ≤X in version_added should always return supported
     // This tests the operator semantics fix
-    const support = await getMdnBcdSupport(
-      'api.MediaSession',
-      browserVersions
-    )
+    const support = await getMdnBcdSupport('api.MediaSession', browserVersions)
 
     // MediaSession uses version_added with operators in some browsers
     expect(['supported', 'partial']).toContain(support.chrome_android)
@@ -254,14 +256,13 @@ describe('getMdnBcdSupport - edge cases', () => {
 
     // Find a feature that's behind a flag (if available in BCD data)
     // This tests the flag handling logic
-    const support = await getMdnBcdSupport(
-      'api.CookieStore',
-      browserVersions
-    )
+    const support = await getMdnBcdSupport('api.CookieStore', browserVersions)
 
     // CookieStore may be behind flags in some browsers
     // Should return either supported or not-supported (not unknown)
-    expect(['supported', 'not-supported', 'unknown']).toContain(support.chrome_android)
+    expect(['supported', 'not-supported', 'unknown']).toContain(
+      support.chrome_android
+    )
   })
 
   test('should return status information when available', async () => {

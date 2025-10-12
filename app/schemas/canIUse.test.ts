@@ -13,10 +13,7 @@ describe('CanIUse schema validation', () => {
           chrome: {
             browser: 'Chrome',
             current_version: '141',
-            version_list: [
-              { version: '141' },
-              { version: '140' }
-            ]
+            version_list: [{ version: '141' }, { version: '140' }]
           }
         },
         data: {

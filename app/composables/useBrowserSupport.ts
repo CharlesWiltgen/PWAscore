@@ -311,15 +311,22 @@ if (import.meta.dev) {
   for (const [featureId, support] of Object.entries(MANUAL_SUPPORT)) {
     const validationResult = safeParseBrowserSupport(support)
     if (!validationResult.success) {
-      console.error(`[useBrowserSupport] Invalid MANUAL_SUPPORT entry for "${featureId}":`, validationResult.error)
+      console.error(
+        `[useBrowserSupport] Invalid MANUAL_SUPPORT entry for "${featureId}":`,
+        validationResult.error
+      )
       validationErrors++
     }
   }
 
   if (validationErrors === 0) {
-    console.log(`[useBrowserSupport] ✅ All ${Object.keys(MANUAL_SUPPORT).length} MANUAL_SUPPORT entries validated successfully`)
+    console.log(
+      `[useBrowserSupport] ✅ All ${Object.keys(MANUAL_SUPPORT).length} MANUAL_SUPPORT entries validated successfully`
+    )
   } else {
-    console.error(`[useBrowserSupport] ❌ Found ${validationErrors} validation errors in MANUAL_SUPPORT`)
+    console.error(
+      `[useBrowserSupport] ❌ Found ${validationErrors} validation errors in MANUAL_SUPPORT`
+    )
   }
 }
 
@@ -367,9 +374,10 @@ export function useBrowserSupport() {
     mdnBcdPath?: string
   ): BrowserSupport => {
     // Check cache first - use composite key when both IDs present to prevent collisions
-    const cacheKey = mdnBcdPath && canIUseId
-      ? `${canIUseId}|${mdnBcdPath}`
-      : (canIUseId || mdnBcdPath || featureId)
+    const cacheKey
+      = mdnBcdPath && canIUseId
+        ? `${canIUseId}|${mdnBcdPath}`
+        : canIUseId || mdnBcdPath || featureId
     const cached = supportCache.value[cacheKey]
     if (cached) {
       return cached
@@ -398,9 +406,10 @@ export function useBrowserSupport() {
     manualStatus?: FeatureStatus
   ): Promise<BrowserSupport> => {
     // Use composite key when both IDs present to prevent collisions
-    const cacheKey = mdnBcdPath && canIUseId
-      ? `${canIUseId}|${mdnBcdPath}`
-      : (canIUseId || mdnBcdPath || featureId)
+    const cacheKey
+      = mdnBcdPath && canIUseId
+        ? `${canIUseId}|${mdnBcdPath}`
+        : canIUseId || mdnBcdPath || featureId
 
     // Check cache first
     const cached = supportCache.value[cacheKey]
@@ -428,9 +437,10 @@ export function useBrowserSupport() {
         )
         // Only use MDN BCD data if at least one browser has known support
         // If all are 'unknown', fall back to CanIUse
-        const hasKnownSupport = support.chrome_android !== 'unknown'
-          || support.firefox_android !== 'unknown'
-          || support.safari_ios !== 'unknown'
+        const hasKnownSupport
+          = support.chrome_android !== 'unknown'
+            || support.firefox_android !== 'unknown'
+            || support.safari_ios !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided
@@ -455,9 +465,10 @@ export function useBrowserSupport() {
           browserVersions.value
         )
         // Only use Can I Use data if at least one browser has known support
-        const hasKnownSupport = support.chrome_android !== 'unknown'
-          || support.firefox_android !== 'unknown'
-          || support.safari_ios !== 'unknown'
+        const hasKnownSupport
+          = support.chrome_android !== 'unknown'
+            || support.firefox_android !== 'unknown'
+            || support.safari_ios !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided

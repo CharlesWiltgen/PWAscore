@@ -28,7 +28,8 @@
     "@nuxt/content": "^3.7.1",
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "^4.0.1",
-    "nuxt": "^4.1.2"
+    "nuxt": "^4.1.2",
+    "valibot": "^1.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",

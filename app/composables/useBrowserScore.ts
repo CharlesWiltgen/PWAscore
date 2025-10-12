@@ -122,7 +122,7 @@ export function useBrowserScore() {
     // Calculate percentage scores
     return {
       weighted:
-        stableFeatureCount > 0
+        stableFeatureCount > 0 && stableTotalPossibleWeight > 0
           ? Math.round((stableWeightedPoints / stableTotalPossibleWeight) * 100)
           : 0,
       unweighted:
@@ -130,7 +130,7 @@ export function useBrowserScore() {
           ? Math.round((stableUnweightedPoints / stableFeatureCount) * 100)
           : 0,
       weightedFull:
-        fullFeatureCount > 0
+        fullFeatureCount > 0 && fullTotalPossibleWeight > 0
           ? Math.round((fullWeightedPoints / fullTotalPossibleWeight) * 100)
           : 0,
       unweightedFull:

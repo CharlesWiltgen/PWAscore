@@ -70,7 +70,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Browser support for installing PWA to home screen',
             apiName: 'Add to Home Screen',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest',
+            mdnBcdPath: 'manifests.webapp.name',
             weight: 2.0
           },
           {
@@ -79,7 +79,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'JSON file describing app metadata and behavior',
             apiName: 'Manifest',
             canIUseId: 'web-app-manifest',
-            mdnBcdPath: 'html.manifest',
+            mdnBcdPath: 'manifests.webapp.name',
             weight: 3.0
           },
           {
@@ -608,7 +608,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Biometric and hardware authentication',
             apiName: 'WebAuthn',
             canIUseId: 'webauthn',
-            mdnBcdPath: 'api.Web_Authentication_API',
+            mdnBcdPath: 'api.PublicKeyCredential',
             weight: 1
           },
           {
@@ -873,7 +873,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Create object URLs for blobs and files',
             apiName: 'URL.createObjectURL',
             canIUseId: 'bloburls',
-            mdnBcdPath: 'api.URL.createObjectURL',
+            mdnBcdPath: 'api.URL.createObjectURL_static',
             weight: 1
           },
           {
@@ -1237,7 +1237,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'URL Scheme Handling',
             description: 'Handle custom URL schemes',
             apiName: 'protocol_handlers',
-            canIUseId: 'mdn-html_manifest_protocol_handlers',
             mdnBcdPath: 'manifests.webapp.protocol_handlers',
             weight: 1,
             status: {
@@ -1258,7 +1257,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'File Type Associations',
             description: 'Register as handler for file types',
             apiName: 'file_handlers',
-            canIUseId: 'mdn-manifests_webapp_file_handlers',
             weight: 0.5,
             status: {
               experimental: true,
@@ -1271,7 +1269,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Open with PWA',
             description: 'Open files with PWA from system',
             apiName: 'LaunchQueue',
-            canIUseId: 'mdn-api_launchqueue',
             mdnBcdPath: 'api.LaunchQueue',
             weight: 0.5,
             status: {
@@ -1301,7 +1298,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Jump List Items',
             description: 'Windows jump list integration',
             apiName: 'shortcuts',
-            canIUseId: 'mdn-manifests_webapp_shortcuts',
             weight: 0.5
           },
           {
@@ -1309,7 +1305,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Quick Actions',
             description: 'Context menu quick actions',
             apiName: 'shortcuts',
-            canIUseId: 'mdn-manifests_webapp_shortcuts',
             weight: 0.5
           }
         ]
@@ -1747,7 +1742,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'Run WebAssembly modules',
             apiName: 'WebAssembly',
             canIUseId: 'wasm',
-            mdnBcdPath: 'javascript.builtins.WebAssembly',
+            mdnBcdPath: 'webassembly.api',
             weight: 1
           },
           {
@@ -1756,7 +1751,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             description: 'CPU-intensive computations',
             apiName: 'WebAssembly.instantiate',
             canIUseId: 'wasm',
-            mdnBcdPath: 'javascript.builtins.WebAssembly.instantiate',
+            mdnBcdPath: 'webassembly.api.instantiate_static',
             weight: 1
           }
         ]
@@ -1915,8 +1910,7 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'isSecureContext API',
             description: 'APIs restricted to secure contexts',
             apiName: 'isSecureContext',
-            canIUseId: 'mdn-api_issecurecontext',
-            mdnBcdPath: 'api.Window.isSecureContext',
+            mdnBcdPath: 'api.isSecureContext',
             weight: 2
           },
           {
@@ -1946,7 +1940,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Window Controls Overlay',
             description: 'Customize title bar area',
             apiName: 'Window Controls Overlay',
-            canIUseId: 'mdn-api_windowcontrolsoverlay',
             weight: 0.5,
             status: {
               experimental: true,
@@ -1968,7 +1961,6 @@ export const pwaFeatures: PWAFeatureGroup[] = [
             name: 'Tabbed Application Mode',
             description: 'Multiple app windows as tabs',
             apiName: 'tabbed',
-            canIUseId: 'mdn-html_manifest_display_override_tabbed',
             mdnBcdPath: 'manifests.webapp.display_override.tabbed',
             weight: 0.5
           }

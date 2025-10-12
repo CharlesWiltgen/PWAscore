@@ -4,6 +4,7 @@
  */
 
 import type { SupportLevel } from '../composables/useBrowserSupport'
+import { safeParseCanIUseData, safeParseMdnBcdFeature, type CanIUseData as ValidatedCanIUseData } from '../schemas/canIUse'
 
 /**
  * Features that are universally supported but not in CanIUse data-2.0.json
@@ -11,22 +12,8 @@ import type { SupportLevel } from '../composables/useBrowserSupport'
  */
 const UNIVERSALLY_SUPPORTED_FEATURES = ['web-app-manifest'] as const
 
-interface CanIUseData {
-  agents: Record<
-    string,
-    {
-      browser: string
-      current_version?: string
-      version_list: Array<{ version: string }>
-    }
-  >
-  data: Record<
-    string,
-    {
-      stats: Record<string, Record<string, string>>
-    }
-  >
-}
+// Use Valibot-inferred type for CanIUse data
+type CanIUseData = ValidatedCanIUseData
 
 export interface BrowserVersions {
   chrome: string
@@ -63,7 +50,7 @@ async function loadCanIUseData(): Promise<CanIUseData> {
   }
 
   // Create the loading promise
-  loadingPromise = (async (): Promise<CanIUseData> => {
+  const promise = (async (): Promise<CanIUseData> => {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
@@ -113,8 +100,19 @@ async function loadCanIUseData(): Promise<CanIUseData> {
           console.log('[CanIUse] Cache hit - using cached data')
         }
 
-        canIUseData = await response.json()
-        return canIUseData!
+        const rawData = await response.json()
+
+        // Validate CanIUse data structure
+        const validationResult = safeParseCanIUseData(rawData)
+        if (!validationResult.success) {
+          console.error('[CanIUse] Validation failed:', validationResult.error)
+          throw new Error(`CanIUse data validation failed: ${validationResult.error}`)
+        }
+
+        // TypeScript: data is guaranteed to be defined after success check
+        const data = validationResult.data!
+        canIUseData = data // Assign immediately to prevent race condition
+        return data
       }
 
       // Development or client-side fallback - fetch directly from GitHub
@@ -124,21 +122,39 @@ async function loadCanIUseData(): Promise<CanIUseData> {
         throw new Error(`Failed to load CanIUse data: ${response.status}`)
       }
 
-      canIUseData = await response.json()
-      return canIUseData!
+      const rawData = await response.json()
+
+      // Validate CanIUse data structure
+      const validationResult = safeParseCanIUseData(rawData)
+      if (!validationResult.success) {
+        console.error('[CanIUse] Validation failed:', validationResult.error)
+        throw new Error(`CanIUse data validation failed: ${validationResult.error}`)
+      }
+
+      // TypeScript: data is guaranteed to be defined after success check
+      const data = validationResult.data!
+      canIUseData = data // Assign immediately to prevent race condition
+      return data
     } catch (error) {
       console.error('[CanIUse] Error loading data:', error)
-      loadingPromise = null // Reset on error so it can be retried
       throw error
     }
   })()
 
+  loadingPromise = promise
+
   try {
-    const result = await loadingPromise
+    const result = await promise
     return result
-  } finally {
-    // Clear the loading promise once complete
+  } catch (error) {
+    // Reset on error so it can be retried
     loadingPromise = null
+    throw error
+  } finally {
+    // Only clear if still the same promise
+    if (loadingPromise === promise) {
+      loadingPromise = null
+    }
   }
 }
 
@@ -160,11 +176,17 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
     const safariAgent = data.agents.ios_saf
     if (safariAgent?.version_list) {
       // Find all iOS versions (not ranges, just single versions like "18.0")
+      // iOS versions are typically X.Y where X is 11-25 (as of 2025)
+      // Safari desktop versions are typically 26.x+
+      // Filter out ranges and Safari desktop versions using explicit range
       const versions = safariAgent.version_list
         .map(v => v.version)
-        .filter(v => !v.includes('-') && Number.parseFloat(v) < 20) // Filter out Safari versions (26.x)
+        .filter((v) => {
+          if (v.includes('-')) return false // Skip ranges like "18.5-18.6"
+          const num = Number.parseFloat(v)
+          return !Number.isNaN(num) && num >= 11 && num < 26 // iOS version range
+        })
         .map(v => Number.parseFloat(v))
-        .filter(v => !Number.isNaN(v))
 
       if (versions.length > 0) {
         const maxVersion = Math.max(...versions)
@@ -420,7 +442,7 @@ async function loadMdnBcdData(): Promise<unknown> {
     return mdnBcdLoadingPromise
   }
 
-  mdnBcdLoadingPromise = (async () => {
+  const promise = (async () => {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
@@ -466,8 +488,9 @@ async function loadMdnBcdData(): Promise<unknown> {
           console.log('[MDN BCD] Cache hit - using cached data')
         }
 
-        mdnBcdData = await response.json()
-        return mdnBcdData
+        const data = await response.json()
+        mdnBcdData = data // Assign immediately to prevent race condition
+        return data
       }
 
       // Development or client-side fallback - fetch directly from CDN
@@ -477,25 +500,35 @@ async function loadMdnBcdData(): Promise<unknown> {
         throw new Error(`Failed to load MDN BCD data: ${response.status}`)
       }
 
-      mdnBcdData = await response.json()
-      return mdnBcdData
+      const data = await response.json()
+      mdnBcdData = data // Assign immediately to prevent race condition
+      return data
     } catch (error) {
       console.error('[MDN BCD] Error loading data:', error)
-      mdnBcdLoadingPromise = null // Reset on error
       throw error
     }
   })()
 
+  mdnBcdLoadingPromise = promise
+
   try {
-    return await mdnBcdLoadingPromise
-  } finally {
+    return await promise
+  } catch (error) {
+    // Reset on error so it can be retried
     mdnBcdLoadingPromise = null
+    throw error
+  } finally {
+    // Only clear if still the same promise
+    if (mdnBcdLoadingPromise === promise) {
+      mdnBcdLoadingPromise = null
+    }
   }
 }
 
 /**
  * Navigate MDN BCD data structure using dot-notation path
  * Example: "api.Navigator.setAppBadge" -> bcd.api.Navigator.setAppBadge
+ * Now with runtime validation to ensure data structure is correct
  */
 function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
   const parts = path.split('.')
@@ -509,7 +542,46 @@ function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
     current = next as Record<string, unknown>
   }
 
-  return current as unknown as MdnBcdFeature | null
+  // Validate the feature data structure before returning
+  const validationResult = safeParseMdnBcdFeature(current)
+
+  if (!validationResult.success) {
+    console.warn(`[MDN BCD] Feature validation failed for ${path}:`, validationResult.error)
+    // Return the unvalidated data but log the warning
+    // This prevents breaking existing functionality while alerting us to schema mismatches
+    return current as unknown as MdnBcdFeature
+  }
+
+  // TypeScript: data is guaranteed to be defined after success check
+  return validationResult.data!
+}
+
+/**
+ * Compare two version strings semantically
+ * Returns: negative if a < b, 0 if equal, positive if a > b
+ * Handles versions like "18.10" vs "18.9" correctly (18.10 > 18.9)
+ */
+function compareVersions(a: string, b: string): number {
+  const aParts = a.split('.').map((part) => {
+    const num = Number.parseInt(part, 10)
+    return Number.isNaN(num) ? 0 : num
+  })
+  const bParts = b.split('.').map((part) => {
+    const num = Number.parseInt(part, 10)
+    return Number.isNaN(num) ? 0 : num
+  })
+
+  const maxLength = Math.max(aParts.length, bParts.length)
+
+  for (let i = 0; i < maxLength; i++) {
+    const aVal = aParts[i] || 0
+    const bVal = bParts[i] || 0
+    if (aVal !== bVal) {
+      return aVal - bVal
+    }
+  }
+
+  return 0
 }
 
 /**
@@ -521,9 +593,14 @@ function isVersionSupported(
   currentVersion: string
 ): { level: SupportLevel, partial: boolean } {
   // Handle array of support objects (multiple implementation attempts)
-  const supportData = Array.isArray(support) ? support[0] : support
+  const supportData = Array.isArray(support)
+    ? (support.length > 0 ? support[0] : null)
+    : support
 
   if (!supportData) {
+    if (Array.isArray(support) && support.length === 0) {
+      console.warn('[MDN BCD] Empty support array encountered')
+    }
     return { level: 'unknown', partial: false }
   }
 
@@ -550,30 +627,35 @@ function isVersionSupported(
 
   // Compare versions (simple string comparison works for most cases)
   // Safari uses iOS versions like "16.4", Chrome uses "83", etc.
-  let requiredVersion = supportData.version_added as string
+  const requiredVersion = supportData.version_added as string
 
   // Handle version strings with comparison operators (≤, ≥, <, >)
-  // ≤X means "supported since version X or earlier" = definitely supported
-  // ≥X means "requires at least version X" = treat as version X
-  if (requiredVersion.startsWith('≤') || requiredVersion.startsWith('≥') || requiredVersion.startsWith('<') || requiredVersion.startsWith('>')) {
-    requiredVersion = requiredVersion.replace(/^[≤≥<>]=?/, '')
-  }
-
-  const current = parseFloat(currentVersion)
-  const required = parseFloat(requiredVersion)
-
-  if (!isNaN(current) && !isNaN(required)) {
-    if (current >= required) {
-      return {
-        level: 'supported',
-        partial: supportData.partial_implementation || false
-      }
-    } else {
-      return { level: 'not-supported', partial: false }
+  // ≤X means "supported since version X or earlier" = definitely supported now
+  if (requiredVersion.startsWith('≤')) {
+    return {
+      level: 'supported',
+      partial: supportData.partial_implementation || false
     }
   }
 
-  return { level: 'unknown', partial: false }
+  // ≥X or >X means "requires at least version X" = need to compare
+  let versionToCompare = requiredVersion
+  if (requiredVersion.startsWith('≥') || requiredVersion.startsWith('>') || requiredVersion.startsWith('<')) {
+    versionToCompare = requiredVersion.replace(/^[≥><]=?/, '')
+  }
+
+  // Use semantic version comparison instead of parseFloat
+  // This correctly handles versions like "18.10" > "18.9"
+  const comparison = compareVersions(currentVersion, versionToCompare)
+
+  if (comparison >= 0) {
+    return {
+      level: 'supported',
+      partial: supportData.partial_implementation || false
+    }
+  } else {
+    return { level: 'not-supported', partial: false }
+  }
 }
 
 export interface FeatureStatus {

@@ -12,6 +12,7 @@ import {
   type BrowserVersions,
   type FeatureStatus
 } from '../utils/canIUseLoader'
+import { safeParseBrowserSupport } from '../schemas/canIUse'
 
 export type SupportLevel = 'supported' | 'partial' | 'not-supported' | 'unknown'
 
@@ -296,6 +297,29 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport> = {
       standard_track: true,
       deprecated: false
     }
+  }
+}
+
+/**
+ * Validate MANUAL_SUPPORT in development mode
+ * Catches typos and invalid data structures at startup
+ */
+if (import.meta.dev) {
+  console.log('[useBrowserSupport] Validating MANUAL_SUPPORT entries...')
+  let validationErrors = 0
+
+  for (const [featureId, support] of Object.entries(MANUAL_SUPPORT)) {
+    const validationResult = safeParseBrowserSupport(support)
+    if (!validationResult.success) {
+      console.error(`[useBrowserSupport] Invalid MANUAL_SUPPORT entry for "${featureId}":`, validationResult.error)
+      validationErrors++
+    }
+  }
+
+  if (validationErrors === 0) {
+    console.log(`[useBrowserSupport] ✅ All ${Object.keys(MANUAL_SUPPORT).length} MANUAL_SUPPORT entries validated successfully`)
+  } else {
+    console.error(`[useBrowserSupport] ❌ Found ${validationErrors} validation errors in MANUAL_SUPPORT`)
   }
 }
 

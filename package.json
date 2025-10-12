@@ -7,20 +7,34 @@
     "singleQuote": true,
     "trailingComma": "none"
   },
+  "lint-staged": {
+    "*.{js,mjs,ts,vue}": [
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "scripts": {
     "build": "node scripts/generate-og-screenshot.mjs && nuxt build",
     "dev": "nuxt dev",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "nuxt typecheck",
+    "precommit": "pnpm run lint && pnpm run typecheck",
+    "fix": "pnpm run lint:fix",
     "update-caniuse": "node scripts/download-caniuse.mjs",
     "generate-og": "node scripts/generate-og-screenshot.mjs",
     "deploy": "pnpm build && wrangler deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.68",
@@ -40,6 +54,8 @@
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.37.0",
     "happy-dom": "^19.0.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
     "puppeteer-core": "^24.0.0",
     "sharp": "^0.33.5",
     "typescript": "^5.9.3",

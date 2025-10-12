@@ -3,7 +3,7 @@
  * Calculates PWA support scores based on feature support data
  */
 
-import type { PWAFeatureGroup } from '../data/pwa-features'
+import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type {
   BrowserSupport,
   BrowserId,

@@ -60,10 +60,12 @@ const MdnBcdStatusSchema = v.object({
 
 const MdnBcdCompatSchema = v.object({
   mdn_url: v.optional(v.string()),
-  support: v.optional(v.record(v.string(), v.union([
-    MdnBcdSupportSchema,
-    v.array(MdnBcdSupportSchema)
-  ]))),
+  support: v.optional(
+    v.record(
+      v.string(),
+      v.union([MdnBcdSupportSchema, v.array(MdnBcdSupportSchema)])
+    )
+  ),
   status: v.optional(MdnBcdStatusSchema)
 })
 

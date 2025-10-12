@@ -31,3 +31,8 @@ logs
 
 # CanIUse data (now fetched from GitHub and cached at edge - no longer bundled)
 public/data/caniuse-data.json
+
+# Task tracking files (personal notes, not part of project)
+/*.md
+!README.md
+!CLAUDE.md

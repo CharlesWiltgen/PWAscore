@@ -4,7 +4,11 @@
  */
 
 import type { SupportLevel } from '../composables/useBrowserSupport'
-import { safeParseCanIUseData, safeParseMdnBcdFeature, type CanIUseData as ValidatedCanIUseData } from '../schemas/canIUse'
+import {
+  safeParseCanIUseData,
+  safeParseMdnBcdFeature,
+  type CanIUseData as ValidatedCanIUseData
+} from '../schemas/canIUse'
 
 /**
  * Features that are universally supported but not in CanIUse data-2.0.json
@@ -55,7 +59,7 @@ async function loadCanIUseData(): Promise<CanIUseData> {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
         import.meta.server
-          // @ts-expect-error - Cloudflare Workers specific properties
+        // @ts-expect-error - Cloudflare Workers specific properties
           && import.meta.prod
           && typeof caches !== 'undefined'
       ) {
@@ -106,7 +110,9 @@ async function loadCanIUseData(): Promise<CanIUseData> {
         const validationResult = safeParseCanIUseData(rawData)
         if (!validationResult.success) {
           console.error('[CanIUse] Validation failed:', validationResult.error)
-          throw new Error(`CanIUse data validation failed: ${validationResult.error}`)
+          throw new Error(
+            `CanIUse data validation failed: ${validationResult.error}`
+          )
         }
 
         // TypeScript: data is guaranteed to be defined after success check
@@ -128,7 +134,9 @@ async function loadCanIUseData(): Promise<CanIUseData> {
       const validationResult = safeParseCanIUseData(rawData)
       if (!validationResult.success) {
         console.error('[CanIUse] Validation failed:', validationResult.error)
-        throw new Error(`CanIUse data validation failed: ${validationResult.error}`)
+        throw new Error(
+          `CanIUse data validation failed: ${validationResult.error}`
+        )
       }
 
       // TypeScript: data is guaranteed to be defined after success check
@@ -454,7 +462,7 @@ async function loadMdnBcdData(): Promise<unknown> {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
         import.meta.server
-          // @ts-expect-error - Cloudflare Workers specific properties
+        // @ts-expect-error - Cloudflare Workers specific properties
           && import.meta.prod
           && typeof caches !== 'undefined'
       ) {
@@ -549,7 +557,10 @@ function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
   const validationResult = safeParseMdnBcdFeature(current)
 
   if (!validationResult.success) {
-    console.warn(`[MDN BCD] Feature validation failed for ${path}:`, validationResult.error)
+    console.warn(
+      `[MDN BCD] Feature validation failed for ${path}:`,
+      validationResult.error
+    )
     // Return the unvalidated data but log the warning
     // This prevents breaking existing functionality while alerting us to schema mismatches
     return current as unknown as MdnBcdFeature
@@ -620,7 +631,9 @@ function isVersionSupported(
   // Handle array of support objects (multiple implementation attempts)
   // MDN BCD can return empty arrays when no support information is available
   const supportData = Array.isArray(support)
-    ? (support.length > 0 ? support[0] : null)
+    ? support.length > 0
+      ? support[0]
+      : null
     : support
 
   // Empty arrays or null indicate no known support information
@@ -664,7 +677,11 @@ function isVersionSupported(
 
   // ≥X or >X means "requires at least version X" = need to compare
   let versionToCompare = requiredVersion
-  if (requiredVersion.startsWith('≥') || requiredVersion.startsWith('>') || requiredVersion.startsWith('<')) {
+  if (
+    requiredVersion.startsWith('≥')
+    || requiredVersion.startsWith('>')
+    || requiredVersion.startsWith('<')
+  ) {
     versionToCompare = requiredVersion.replace(/^[≥><]=?/, '')
   }
 

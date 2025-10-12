@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import type { PWAFeatureGroup } from '../data/pwa-features'
+import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type { BrowserSupport, SupportLevel } from './useBrowserSupport'
 import { useBrowserScore } from './useBrowserScore'
 
@@ -7,12 +7,14 @@ describe('useBrowserScore', () => {
   const { calculateBrowserScore } = useBrowserScore()
 
   // Test helper to create minimal test data
-  function createMockFeatureGroup(features: Array<{
-    weight?: number
-    supportLevel: SupportLevel
-    experimental?: boolean
-    standardTrack?: boolean
-  }>): PWAFeatureGroup[] {
+  function createMockFeatureGroup(
+    features: Array<{
+      weight?: number
+      supportLevel: SupportLevel
+      experimental?: boolean
+      standardTrack?: boolean
+    }>
+  ): PWAFeatureGroup[] {
     return [
       {
         id: 'test-group',
@@ -67,12 +69,8 @@ describe('useBrowserScore', () => {
 
   describe('getSupportWeight', () => {
     test('should return 1.0 for supported', () => {
-      const features = createMockFeatureGroup([
-        { supportLevel: 'supported' }
-      ])
-      const getSupport = createMockGetSupport([
-        { supportLevel: 'supported' }
-      ])
+      const features = createMockFeatureGroup([{ supportLevel: 'supported' }])
+      const getSupport = createMockGetSupport([{ supportLevel: 'supported' }])
 
       const scores = calculateBrowserScore(
         'chrome_android',
@@ -86,12 +84,8 @@ describe('useBrowserScore', () => {
     })
 
     test('should return 0.5 for partial support', () => {
-      const features = createMockFeatureGroup([
-        { supportLevel: 'partial' }
-      ])
-      const getSupport = createMockGetSupport([
-        { supportLevel: 'partial' }
-      ])
+      const features = createMockFeatureGroup([{ supportLevel: 'partial' }])
+      const getSupport = createMockGetSupport([{ supportLevel: 'partial' }])
 
       const scores = calculateBrowserScore(
         'chrome_android',
@@ -124,12 +118,8 @@ describe('useBrowserScore', () => {
     })
 
     test('should return 0.0 for unknown (treat as not supported)', () => {
-      const features = createMockFeatureGroup([
-        { supportLevel: 'unknown' }
-      ])
-      const getSupport = createMockGetSupport([
-        { supportLevel: 'unknown' }
-      ])
+      const features = createMockFeatureGroup([{ supportLevel: 'unknown' }])
+      const getSupport = createMockGetSupport([{ supportLevel: 'unknown' }])
 
       const scores = calculateBrowserScore(
         'chrome_android',
@@ -384,11 +374,19 @@ describe('useBrowserScore', () => {
     test('should handle stable vs experimental feature scores correctly', () => {
       const features = createMockFeatureGroup([
         { supportLevel: 'supported', experimental: false, standardTrack: true },
-        { supportLevel: 'not-supported', experimental: true, standardTrack: true }
+        {
+          supportLevel: 'not-supported',
+          experimental: true,
+          standardTrack: true
+        }
       ])
       const getSupport = createMockGetSupport([
         { supportLevel: 'supported', experimental: false, standardTrack: true },
-        { supportLevel: 'not-supported', experimental: true, standardTrack: true }
+        {
+          supportLevel: 'not-supported',
+          experimental: true,
+          standardTrack: true
+        }
       ])
 
       const scores = calculateBrowserScore(

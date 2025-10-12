@@ -16,15 +16,15 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 ## Package Overview
 
-| Property | Value |
-|----------|-------|
-| Package Name | `@mdn/browser-compat-data` |
-| Version | 7.1.11 (as of 2025-10-07) |
-| License | CC0-1.0 (Public Domain) |
-| Size | ~450KB compressed |
-| Total API Entries | 1,070+ |
-| Update Frequency | Active (timestamp: 2025-10-07T14:22:11.452Z) |
-| Used By | VSCode, TypeScript, CanIUse, MDN Docs |
+| Property          | Value                                        |
+| ----------------- | -------------------------------------------- |
+| Package Name      | `@mdn/browser-compat-data`                   |
+| Version           | 7.1.11 (as of 2025-10-07)                    |
+| License           | CC0-1.0 (Public Domain)                      |
+| Size              | ~450KB compressed                            |
+| Total API Entries | 1,070+                                       |
+| Update Frequency  | Active (timestamp: 2025-10-07T14:22:11.452Z) |
+| Used By           | VSCode, TypeScript, CanIUse, MDN Docs        |
 
 ---
 
@@ -36,11 +36,11 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 **BCD Path**: `api.Navigator.setAppBadge`
 
-| Browser | Support | Version | Notes |
-|---------|---------|---------|-------|
-| Chrome Android | ❌ Not Supported | false | - |
-| Firefox Android | ❌ Not Supported | false | - |
-| Safari iOS | ✅ Supported | 16.4+ | Badge shown for home screen apps. Passing `0` clears badge instead of showing dot. |
+| Browser         | Support          | Version | Notes                                                                              |
+| --------------- | ---------------- | ------- | ---------------------------------------------------------------------------------- |
+| Chrome Android  | ❌ Not Supported | false   | -                                                                                  |
+| Firefox Android | ❌ Not Supported | false   | -                                                                                  |
+| Safari iOS      | ✅ Supported     | 16.4+   | Badge shown for home screen apps. Passing `0` clears badge instead of showing dot. |
 
 **MDN URL**: https://developer.mozilla.org/docs/Web/API/Navigator/setAppBadge
 
@@ -52,11 +52,11 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 **BCD Path**: `api.BackgroundFetchManager`
 
-| Browser | Support | Version | Notes |
-|---------|---------|---------|-------|
-| Chrome Android | ✅ Supported | 74+ | - |
-| Firefox Android | ❌ Not Supported | false | - |
-| Safari iOS | ❌ Not Supported | false | - |
+| Browser         | Support          | Version | Notes |
+| --------------- | ---------------- | ------- | ----- |
+| Chrome Android  | ✅ Supported     | 74+     | -     |
+| Firefox Android | ❌ Not Supported | false   | -     |
+| Safari iOS      | ❌ Not Supported | false   | -     |
 
 **Available Methods**: `fetch`, `get`, `getIds`
 
@@ -68,11 +68,11 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 **BCD Path**: `api.MediaSession`
 
-| Browser | Support | Version | Notes |
-|---------|---------|---------|-------|
-| Chrome Android | ✅ Supported | 57+ | - |
-| Firefox Android | ⚠️ Partial | 82+ | API exposed but no user-facing media controls |
-| Safari iOS | ✅ Supported | 15+ | - |
+| Browser         | Support      | Version | Notes                                         |
+| --------------- | ------------ | ------- | --------------------------------------------- |
+| Chrome Android  | ✅ Supported | 57+     | -                                             |
+| Firefox Android | ⚠️ Partial   | 82+     | API exposed but no user-facing media controls |
+| Safari iOS      | ✅ Supported | 15+     | -                                             |
 
 **Available Properties**: `metadata`, `playbackState`, `setActionHandler`, `setCameraActive`, `setMicrophoneActive`, `setPositionState`, `setScreenshareActive`
 
@@ -84,11 +84,11 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 **BCD Path**: `api.BarcodeDetector`
 
-| Browser | Support | Version | Notes |
-|---------|---------|---------|-------|
-| Chrome Android | ✅ Supported | 83+ | - |
-| Firefox Android | ❌ Not Supported | false | Bug tracker: https://bugzil.la/1553738 |
-| Safari iOS | 🚩 Behind Flag | 17+ | Requires "Shape Detection API" preference enabled |
+| Browser         | Support          | Version | Notes                                             |
+| --------------- | ---------------- | ------- | ------------------------------------------------- |
+| Chrome Android  | ✅ Supported     | 83+     | -                                                 |
+| Firefox Android | ❌ Not Supported | false   | Bug tracker: https://bugzil.la/1553738            |
+| Safari iOS      | 🚩 Behind Flag   | 17+     | Requires "Shape Detection API" preference enabled |
 
 **Impact**: 2 PWA features can now show accurate support data instead of "unknown"
 
@@ -98,11 +98,11 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 
 **BCD Path**: `api.PerformanceObserver`
 
-| Browser | Support | Version | Notes |
-|---------|---------|---------|-------|
-| Chrome Android | ✅ Supported | 52+ | - |
-| Firefox Android | ✅ Supported | 57+ | - |
-| Safari iOS | ✅ Supported | 11+ | - |
+| Browser         | Support      | Version | Notes |
+| --------------- | ------------ | ------- | ----- |
+| Chrome Android  | ✅ Supported | 52+     | -     |
+| Firefox Android | ✅ Supported | 57+     | -     |
+| Safari iOS      | ✅ Supported | 11+     | -     |
 
 **Impact**: 2 PWA features can now show accurate support data instead of "unknown"
 
@@ -113,12 +113,14 @@ MDN BCD provides comprehensive, well-maintained browser compatibility data for *
 #### 6. Shape Detection API
 
 **Missing APIs**:
+
 - `api.FaceDetector` - NOT FOUND in BCD
 - `api.TextDetector` - NOT FOUND in BCD
 
 **Impact**: 3 PWA features will continue showing "unknown" support
 
 **Alternatives**:
+
 - Could use BarcodeDetector data as a proxy for general Shape Detection API support
 - Manual research for these specific APIs
 - Leave as "unknown" with explanatory notes
@@ -140,7 +142,7 @@ interface BrowserSupport {
     type: 'preference' | 'runtime_flag'
     value_to_set?: string
   }>
-  impl_url?: string  // Bug tracker or implementation URL
+  impl_url?: string // Bug tracker or implementation URL
 }
 ```
 
@@ -169,8 +171,8 @@ const badgeSupport = bcd.api.Navigator.setAppBadge.__compat.support.safari_ios
 ```typescript
 interface PWAFeature {
   name: string
-  canIUseId?: string      // Existing CanIUse ID (primary source)
-  mdnBcdPath?: string     // NEW: MDN BCD API path (fallback source)
+  canIUseId?: string // Existing CanIUse ID (primary source)
+  mdnBcdPath?: string // NEW: MDN BCD API path (fallback source)
   // ... other fields
 }
 ```
@@ -184,13 +186,13 @@ interface PWAFeature {
 
 ### Support Level Mapping
 
-| BCD Value | PWAscore SupportLevel |
-|-----------|----------------------|
-| `version_added: "X.Y"` | `'supported'` (if current >= X.Y) |
-| `version_added: false` | `'not-supported'` |
-| `partial_implementation: true` | `'partial'` |
-| Not found / null | `'unknown'` |
-| `flags: [...]` | `'not-supported'` or custom handling |
+| BCD Value                      | PWAscore SupportLevel                |
+| ------------------------------ | ------------------------------------ |
+| `version_added: "X.Y"`         | `'supported'` (if current >= X.Y)    |
+| `version_added: false`         | `'not-supported'`                    |
+| `partial_implementation: true` | `'partial'`                          |
+| Not found / null               | `'unknown'`                          |
+| `flags: [...]`                 | `'not-supported'` or custom handling |
 
 ---
 
@@ -222,11 +224,13 @@ interface PWAFeature {
 ## Implementation Plan
 
 ### Phase 1: Foundation
+
 - [ ] Add `mdnBcdPath` property to PWAFeature interface
 - [ ] Create `getMdnBcdSupport()` function parallel to `getCanIUseSupport()`
 - [ ] Implement version comparison logic for MDN data
 
 ### Phase 2: Data Population
+
 - [ ] Add mdnBcdPath to 10 PWA features currently lacking canIUseId:
   - Badge API: `api.Navigator.setAppBadge`
   - Background Fetch: `api.BackgroundFetchManager`
@@ -235,16 +239,19 @@ interface PWAFeature {
   - Performance Observer: `api.PerformanceObserver`
 
 ### Phase 3: Integration
+
 - [ ] Update `canIUseLoader.ts` to check mdnBcdPath when canIUseId is missing
 - [ ] Handle `partial_implementation` flag → map to `'partial'` SupportLevel
 - [ ] Handle flags → document in feature descriptions or map to `'not-supported'`
 
 ### Phase 4: Testing
+
 - [ ] Extend integration test to validate mdnBcdPath values
 - [ ] Add unit tests for MDN BCD data parsing
 - [ ] Verify support levels match real browser behavior
 
 ### Phase 5: Optimization (Optional)
+
 - [ ] Consider build-time extraction of only needed BCD data
 - [ ] Cache compiled support data to reduce runtime processing
 - [ ] Document BCD update process
@@ -253,13 +260,13 @@ interface PWAFeature {
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Bundle size increase | Medium | Use build-time processing to extract only needed data |
-| BCD data changes format | Low | BCD is stable; add integration test to catch breaking changes |
-| Version comparison complexity | Low | Use existing libraries (semver) or simple string comparison |
-| Partial support ambiguity | Low | Document partial support cases; potentially show in UI |
-| FaceDetector/TextDetector gap | Low | Continue showing "unknown" for these 3 features |
+| Risk                          | Impact | Mitigation                                                    |
+| ----------------------------- | ------ | ------------------------------------------------------------- |
+| Bundle size increase          | Medium | Use build-time processing to extract only needed data         |
+| BCD data changes format       | Low    | BCD is stable; add integration test to catch breaking changes |
+| Version comparison complexity | Low    | Use existing libraries (semver) or simple string comparison   |
+| Partial support ambiguity     | Low    | Document partial support cases; potentially show in UI        |
+| FaceDetector/TextDetector gap | Low    | Continue showing "unknown" for these 3 features               |
 
 ---
 

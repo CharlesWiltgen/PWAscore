@@ -366,8 +366,10 @@ export function useBrowserSupport() {
     canIUseId?: string,
     mdnBcdPath?: string
   ): BrowserSupport => {
-    // Check cache first - try canIUseId, then mdnBcdPath, then featureId
-    const cacheKey = canIUseId || mdnBcdPath || featureId
+    // Check cache first - use composite key when both IDs present to prevent collisions
+    const cacheKey = mdnBcdPath && canIUseId
+      ? `${canIUseId}|${mdnBcdPath}`
+      : (canIUseId || mdnBcdPath || featureId)
     const cached = supportCache.value[cacheKey]
     if (cached) {
       return cached
@@ -395,7 +397,10 @@ export function useBrowserSupport() {
     mdnBcdPath?: string,
     manualStatus?: FeatureStatus
   ): Promise<BrowserSupport> => {
-    const cacheKey = canIUseId || mdnBcdPath || featureId
+    // Use composite key when both IDs present to prevent collisions
+    const cacheKey = mdnBcdPath && canIUseId
+      ? `${canIUseId}|${mdnBcdPath}`
+      : (canIUseId || mdnBcdPath || featureId)
 
     // Check cache first
     const cached = supportCache.value[cacheKey]

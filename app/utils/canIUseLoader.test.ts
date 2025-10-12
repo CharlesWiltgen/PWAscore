@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { getBrowserVersions, getCanIUseSupport } from './canIUseLoader'
+import { getBrowserVersions, getCanIUseSupport, compareVersions, clearCaches } from './canIUseLoader'
 
 describe('getBrowserVersions', () => {
   test('should return current browser versions', async () => {
@@ -19,6 +19,9 @@ describe('getBrowserVersions', () => {
   })
 
   test('should return fallback versions on error', async () => {
+    // Clear cache to ensure we test the error path
+    clearCaches()
+
     // Mock fetch to fail
     vi.stubGlobal(
       'fetch',
@@ -35,6 +38,7 @@ describe('getBrowserVersions', () => {
     })
 
     vi.unstubAllGlobals()
+    clearCaches() // Clean up for subsequent tests
   })
 })
 
@@ -183,14 +187,16 @@ describe('getBrowserVersions edge cases', () => {
     expect(versions.safari).toMatch(/^\d{1,2}(\.\d+)?$/)
   })
 
-  test('should filter Safari versions correctly (exclude desktop Safari 26+)', async () => {
+  test('should return current iOS Safari version (no hardcoded upper limit)', async () => {
     const versions = await getBrowserVersions()
 
     const safariVersion = Number.parseFloat(versions.safari)
 
-    // Safari version should be iOS version (11-25 range), not desktop Safari (26+)
+    // Safari version should be a valid iOS version (11+, including iOS 26+)
+    // No upper limit since iOS 26 has been released
     expect(safariVersion).toBeGreaterThanOrEqual(11)
-    expect(safariVersion).toBeLessThan(26)
+    // Should be a reasonable version number (not NaN, not absurdly high)
+    expect(safariVersion).toBeLessThan(100)
   })
 })
 
@@ -277,5 +283,83 @@ describe('getMdnBcdSupport - edge cases', () => {
     expect(typeof support.status?.experimental).toBe('boolean')
     expect(typeof support.status?.standard_track).toBe('boolean')
     expect(typeof support.status?.deprecated).toBe('boolean')
+  })
+})
+
+describe('compareVersions', () => {
+  describe('standard semantic versioning', () => {
+    test('should correctly compare multi-digit minor versions (18.10 > 18.9)', () => {
+      expect(compareVersions('18.10', '18.9')).toBeGreaterThan(0)
+    })
+
+    test('should correctly compare major versions (18.0 > 17.9)', () => {
+      expect(compareVersions('18.0', '17.9')).toBeGreaterThan(0)
+    })
+
+    test('should return 0 for equal versions (18.0 === 18.0)', () => {
+      expect(compareVersions('18.0', '18.0')).toBe(0)
+    })
+
+    test('should treat missing minor version as .0 (16 < 16.4)', () => {
+      expect(compareVersions('16', '16.4')).toBeLessThan(0)
+    })
+
+    test('should treat missing minor version as equal (18 === 18.0)', () => {
+      expect(compareVersions('18', '18.0')).toBe(0)
+    })
+
+    test('should compare three-part versions correctly (1.2.3 > 1.2.2)', () => {
+      expect(compareVersions('1.2.3', '1.2.2')).toBeGreaterThan(0)
+    })
+
+    test('should handle large version numbers (141 > 140)', () => {
+      expect(compareVersions('141', '140')).toBeGreaterThan(0)
+    })
+  })
+
+  describe('pre-release versions', () => {
+    test('should treat pre-release as less than release (18.0-alpha < 18.0)', () => {
+      expect(compareVersions('18.0-alpha', '18.0')).toBeLessThan(0)
+    })
+
+    test('should compare pre-release versions alphabetically (18.0-alpha < 18.0-beta)', () => {
+      expect(compareVersions('18.0-alpha', '18.0-beta')).toBeLessThan(0)
+    })
+
+    test('should treat beta as less than release (18.0-beta < 18.0)', () => {
+      expect(compareVersions('18.0-beta', '18.0')).toBeLessThan(0)
+    })
+
+    test('should compare equal pre-release versions (18.0-rc < 18.0-rc)', () => {
+      expect(compareVersions('18.0-rc', '18.0-rc')).toBe(0)
+    })
+  })
+
+  describe('wildcards', () => {
+    test('should treat x wildcard as 0 (17.x === 17.0)', () => {
+      expect(compareVersions('17.x', '17.0')).toBe(0)
+    })
+
+    test('should treat * wildcard as 0 (17.* === 17.0)', () => {
+      expect(compareVersions('17.*', '17.0')).toBe(0)
+    })
+
+    test('should compare wildcards correctly (18.x > 17.x)', () => {
+      expect(compareVersions('18.x', '17.x')).toBeGreaterThan(0)
+    })
+  })
+
+  describe('edge cases', () => {
+    test('should treat invalid parts as 0 (18.alpha treated as 18.0)', () => {
+      expect(compareVersions('18.alpha', '18.0')).toBe(0)
+    })
+
+    test('should handle empty string parts defensively', () => {
+      expect(compareVersions('18', '18')).toBe(0)
+    })
+
+    test('should compare versions with different part counts (18.4.1 > 18.4)', () => {
+      expect(compareVersions('18.4.1', '18.4')).toBeGreaterThan(0)
+    })
   })
 })

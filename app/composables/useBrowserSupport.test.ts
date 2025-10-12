@@ -245,18 +245,23 @@ describe('useBrowserSupport', () => {
   })
 
   describe('cache key precedence', () => {
-    test('should use canIUseId as cache key when provided', async () => {
+    test('should use composite cache key when both canIUseId and mdnBcdPath provided', async () => {
       const { loadSupport, getSupport } = useBrowserSupport()
 
+      // Load with both IDs - creates composite key 'serviceworkers|api.Navigator.setAppBadge'
       await loadSupport('feature-1', 'serviceworkers', 'api.Navigator.setAppBadge')
 
-      // Cache key is 'serviceworkers' (canIUseId takes precedence)
-      const support1 = getSupport('feature-1', 'serviceworkers')
+      // Looking up with both IDs should find it (same composite key)
+      const support1 = getSupport('feature-1', 'serviceworkers', 'api.Navigator.setAppBadge')
       expect(support1.chrome_android).not.toBe('unknown')
 
-      // Looking up with different cache key (mdnBcdPath) won't find it
-      const support2 = getSupport('feature-1', undefined, 'api.Navigator.setAppBadge')
-      expect(support2.chrome_android).toBe('unknown') // Different cache key
+      // Looking up with only canIUseId won't find it (different cache key)
+      const support2 = getSupport('feature-1', 'serviceworkers')
+      expect(support2.chrome_android).toBe('unknown')
+
+      // Looking up with only mdnBcdPath won't find it (different cache key)
+      const support3 = getSupport('feature-1', undefined, 'api.Navigator.setAppBadge')
+      expect(support3.chrome_android).toBe('unknown')
     })
 
     test('should use mdnBcdPath when canIUseId not provided', async () => {

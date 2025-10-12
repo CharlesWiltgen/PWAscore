@@ -144,14 +144,9 @@ async function loadCanIUseData(): Promise<CanIUseData> {
   loadingPromise = promise
 
   try {
-    const result = await promise
-    return result
-  } catch (error) {
-    // Reset on error so it can be retried
-    loadingPromise = null
-    throw error
+    return await promise
   } finally {
-    // Only clear if still the same promise
+    // Always clear if still the same promise (handles both success and error)
     if (loadingPromise === promise) {
       loadingPromise = null
     }
@@ -170,23 +165,25 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
     const chromeVersion = data.agents.and_chr?.current_version || '141'
     const firefoxVersion = data.agents.and_ff?.current_version || '143'
 
-    // For iOS Safari, find the highest iOS version from version_list
-    // iOS Safari uses iOS version numbers (18.x) not Safari version numbers (26.x)
+    // For iOS Safari, use current_version directly if available (most reliable)
+    // iOS Safari uses iOS version numbers (18.x, 26.x) matching the iOS release version
     let safariVersion = '18.4' // Fallback
     const safariAgent = data.agents.ios_saf
-    if (safariAgent?.version_list) {
-      // Find all iOS versions (not ranges, just single versions like "18.0")
-      // iOS versions are typically X.Y where X is 11-25 (as of 2025)
-      // Safari desktop versions are typically 26.x+
-      // Filter out ranges and Safari desktop versions using explicit range
+
+    if (safariAgent?.current_version) {
+      // Use the explicitly provided current version (future-proof, no hardcoded limits)
+      safariVersion = safariAgent.current_version
+    } else if (safariAgent?.version_list) {
+      // Fallback: find the highest released version
+      // Exclude ranges (containing '-') and unreleased versions (release_date === null)
       const versions = safariAgent.version_list
-        .map(v => v.version)
         .filter((v) => {
-          if (v.includes('-')) return false // Skip ranges like "18.5-18.6"
-          const num = Number.parseFloat(v)
-          return !Number.isNaN(num) && num >= 11 && num < 26 // iOS version range
+          if (v.version.includes('-')) return false // Skip ranges like "18.5-18.6"
+          if (!v.release_date) return false // Skip unreleased versions (TP, future releases)
+          return true
         })
-        .map(v => Number.parseFloat(v))
+        .map(v => Number.parseFloat(v.version))
+        .filter(num => !Number.isNaN(num))
 
       if (versions.length > 0) {
         const maxVersion = Math.max(...versions)
@@ -286,9 +283,8 @@ function findBrowserVersion(
           && !Number.isNaN(rangeStart)
           && !Number.isNaN(rangeEnd)
         ) {
-          // Check if target version is within or close to the range
-          // Allow matching if target is within ±1 major version of the range
-          if (targetMajor >= rangeStart - 1 && targetMajor <= rangeEnd + 1) {
+          // Check if target version is within the range (exact match required)
+          if (targetMajor >= rangeStart && targetMajor <= rangeEnd) {
             return support
           }
         }
@@ -427,6 +423,17 @@ let mdnBcdData: unknown = null
 let mdnBcdLoadingPromise: Promise<unknown> | null = null
 
 /**
+ * Clear in-memory caches (for testing only)
+ * @internal
+ */
+export function clearCaches(): void {
+  canIUseData = null
+  loadingPromise = null
+  mdnBcdData = null
+  mdnBcdLoadingPromise = null
+}
+
+/**
  * Load MDN Browser Compatibility Data from CDN
  * Uses Cloudflare Cache API to store at the edge
  * Cache TTL: 1 day (86400 seconds)
@@ -513,12 +520,8 @@ async function loadMdnBcdData(): Promise<unknown> {
 
   try {
     return await promise
-  } catch (error) {
-    // Reset on error so it can be retried
-    mdnBcdLoadingPromise = null
-    throw error
   } finally {
-    // Only clear if still the same promise
+    // Always clear if still the same promise (handles both success and error)
     if (mdnBcdLoadingPromise === promise) {
       mdnBcdLoadingPromise = null
     }
@@ -560,25 +563,47 @@ function navigateMdnBcdPath(data: unknown, path: string): MdnBcdFeature | null {
  * Compare two version strings semantically
  * Returns: negative if a < b, 0 if equal, positive if a > b
  * Handles versions like "18.10" vs "18.9" correctly (18.10 > 18.9)
+ * Supports pre-release versions (18.0-alpha < 18.0) and wildcards (17.x = 17.0)
  */
-function compareVersions(a: string, b: string): number {
-  const aParts = a.split('.').map((part) => {
+export function compareVersions(a: string, b: string): number {
+  // Split on '-' to handle pre-release versions (e.g., "18.0-alpha")
+  const aSplit = a.split('-')
+  const bSplit = b.split('-')
+  const aVersion = aSplit[0] || '0'
+  const bVersion = bSplit[0] || '0'
+  const aPrerelease = aSplit[1]
+  const bPrerelease = bSplit[1]
+
+  const aParts = aVersion.split('.').map((part) => {
+    // Handle wildcards: 'x' or '*' mean "any version" (treat as 0)
+    if (part === 'x' || part === '*') return 0
     const num = Number.parseInt(part, 10)
     return Number.isNaN(num) ? 0 : num
   })
-  const bParts = b.split('.').map((part) => {
+
+  const bParts = bVersion.split('.').map((part) => {
+    if (part === 'x' || part === '*') return 0
     const num = Number.parseInt(part, 10)
     return Number.isNaN(num) ? 0 : num
   })
 
   const maxLength = Math.max(aParts.length, bParts.length)
 
+  // Compare numeric parts first
   for (let i = 0; i < maxLength; i++) {
     const aVal = aParts[i] || 0
     const bVal = bParts[i] || 0
     if (aVal !== bVal) {
       return aVal - bVal
     }
+  }
+
+  // If numeric parts equal, compare pre-release tags
+  // No pre-release > has pre-release (18.0 > 18.0-alpha)
+  if (!aPrerelease && bPrerelease) return 1
+  if (aPrerelease && !bPrerelease) return -1
+  if (aPrerelease && bPrerelease) {
+    return aPrerelease.localeCompare(bPrerelease)
   }
 
   return 0

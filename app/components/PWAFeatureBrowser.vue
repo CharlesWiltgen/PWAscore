@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from 'vue'
+import { useSwipe } from '@vueuse/core'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type {
   BrowserSupport,
@@ -19,6 +20,19 @@ const openCategories = ref<string[]>([])
 
 // Hide experimental features state
 const hideExperimental = ref<boolean>(false)
+
+// Mobile browser selector state
+const selectedBrowserIndex = ref<number>(0)
+
+// Breakpoint detection (1024px = lg breakpoint in Tailwind)
+const isLargeScreen = ref<boolean>(true) // Default to desktop for SSR
+
+// Update breakpoint on resize
+function updateBreakpoint() {
+  if (import.meta.client) {
+    isLargeScreen.value = window.matchMedia('(min-width: 1024px)').matches
+  }
+}
 
 // Store precomputed MDN URLs by feature ID
 const mdnUrls = ref<Map<string, string | undefined>>(new Map())
@@ -193,11 +207,16 @@ onMounted(async () => {
 
   // Add keyboard shortcut listeners
   window.addEventListener('keydown', handleKeydown)
+
+  // Initialize and listen for breakpoint changes
+  updateBreakpoint()
+  window.addEventListener('resize', updateBreakpoint)
 })
 
-// Clean up keyboard listeners on unmount
+// Clean up event listeners on unmount
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('resize', updateBreakpoint)
 })
 
 // Auto-expand all categories when a group is opened
@@ -251,6 +270,50 @@ const browsers = computed(() =>
     scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
 )
+
+// Visible browsers based on screen size
+const visibleBrowsers = computed(() => {
+  if (isLargeScreen.value) {
+    return browsers.value // Show all 3 browsers on desktop
+  }
+  const selectedBrowser = browsers.value[selectedBrowserIndex.value]
+  return selectedBrowser ? [selectedBrowser] : [] // Show only selected browser on mobile
+})
+
+// Browser tabs for mobile selector
+const browserTabs = computed(() =>
+  browsers.value.map((browser, index) => ({
+    label: browser.name,
+    icon: browser.icon,
+    value: String(index)
+  }))
+)
+
+// Computed property for v-model binding (converts between string and number)
+const selectedBrowserTab = computed({
+  get: () => String(selectedBrowserIndex.value),
+  set: (value: string) => {
+    selectedBrowserIndex.value = Number(value)
+  }
+})
+
+// Swipe gesture support for mobile
+const swipeContainer = ref<HTMLElement>()
+
+if (import.meta.client) {
+  const { direction } = useSwipe(swipeContainer, {
+    passive: true,
+    onSwipeEnd() {
+      if (!isLargeScreen.value) {
+        if (direction.value === 'left' && selectedBrowserIndex.value < browsers.value.length - 1) {
+          selectedBrowserIndex.value++
+        } else if (direction.value === 'right' && selectedBrowserIndex.value > 0) {
+          selectedBrowserIndex.value--
+        }
+      }
+    }
+  })
+}
 
 /**
  * Get support data for a feature across all browsers
@@ -416,10 +479,23 @@ const groupItems = createGroupItems(pwaFeatures)
       @toggle-hide-experimental="toggleHideExperimental"
     />
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Mobile Browser Selector (hidden on desktop) -->
+    <div class="lg:hidden mb-6">
+      <UTabs
+        v-model="selectedBrowserTab"
+        :items="browserTabs"
+        orientation="horizontal"
+        class="w-full"
+      />
+    </div>
+
+    <div
+      ref="swipeContainer"
+      class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+    >
       <!-- Browser Columns -->
       <div
-        v-for="browser in browsers"
+        v-for="browser in visibleBrowsers"
         :key="browser.id"
         class="flex flex-col space-y-4"
       >

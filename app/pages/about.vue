@@ -31,7 +31,7 @@ All compatibility data comes from two trusted sources:
 - [Can I Use](https://caniuse.com) (CC BY 4.0) — Browser feature compatibility tables
 - [MDN Browser Compat Data](https://github.com/mdn/browser-compat-data) (CC0) — Feature status and standardization info
 
-Browser versions are automatically derived from Can I Use data, ensuring PWAscore always reflects the latest releases.
+Browser versions are automatically derived from this data, ensuring PWAscore always reflects the latest releases.
 
 ## How
 

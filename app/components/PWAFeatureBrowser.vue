@@ -479,7 +479,12 @@ const groupItems = createGroupItems(pwaFeatures)
                     </div>
                   </div>
                 </template>
-                <div :class="['text-4xl font-bold', browser.color]">
+                <div
+                  :class="[
+                    'text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-30',
+                    browser.color
+                  ]"
+                >
                   {{ browser.scores.weighted }}
                 </div>
               </UTooltip>

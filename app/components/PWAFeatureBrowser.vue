@@ -479,14 +479,16 @@ const groupItems = createGroupItems(pwaFeatures)
                     </div>
                   </div>
                 </template>
-                <div
+                <button
+                  type="button"
+                  :aria-label="`${browser.name} score: ${browser.scores.weighted}. Press for details.`"
                   :class="[
-                    'text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-30',
+                    'appearance-none bg-transparent border-0 p-0 m-0 font-inherit text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-30 hover:border-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
                     browser.color
                   ]"
                 >
                   {{ browser.scores.weighted }}
-                </div>
+                </button>
               </UTooltip>
             </div>
           </template>

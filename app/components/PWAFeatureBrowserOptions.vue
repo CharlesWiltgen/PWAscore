@@ -57,6 +57,7 @@ const isScoresInfoOpen = ref(false)
       <!-- Right: How Scores Work disclosure -->
       <div class="flex-1 flex justify-end">
         <UButton
+          id="scores-info-button"
           label="How Scores Work"
           color="neutral"
           variant="ghost"
@@ -82,6 +83,8 @@ const isScoresInfoOpen = ref(false)
       <template #content>
         <div
           id="scores-info-content"
+          role="region"
+          aria-labelledby="scores-info-button"
           class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
         >
           <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">

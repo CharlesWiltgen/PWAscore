@@ -62,7 +62,6 @@ const isScoresInfoOpen = ref(false)
           variant="ghost"
           size="md"
           trailing-icon="i-lucide-chevron-down"
-          aria-label="Toggle score explanation"
           :aria-expanded="isScoresInfoOpen"
           aria-controls="scores-info-content"
           :ui="{
@@ -77,7 +76,7 @@ const isScoresInfoOpen = ref(false)
     <!-- Disclosure Panel -->
     <UCollapsible
       v-model:open="isScoresInfoOpen"
-      :unmount-on-hide="true"
+      :unmount-on-hide="false"
       class="mb-6"
     >
       <template #content>

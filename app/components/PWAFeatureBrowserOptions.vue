@@ -50,6 +50,9 @@ const isScoresInfoOpen = ref(false)
           color="neutral"
           variant="ghost"
           size="md"
+          :ui="{
+            base: 'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'
+          }"
           @click="handleToggle"
         />
       </div>
@@ -67,7 +70,8 @@ const isScoresInfoOpen = ref(false)
           aria-controls="scores-info-content"
           :ui="{
             trailingIcon: 'transition-transform duration-200 '
-              + (isScoresInfoOpen ? 'rotate-180' : '')
+              + (isScoresInfoOpen ? 'rotate-180' : ''),
+            base: 'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'
           }"
           @click="isScoresInfoOpen = !isScoresInfoOpen"
         />
@@ -85,7 +89,7 @@ const isScoresInfoOpen = ref(false)
           id="scores-info-content"
           role="region"
           aria-labelledby="scores-info-button"
-          class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+          class="px-4 py-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800"
         >
           <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             <strong>About PWA Scores:</strong>

@@ -1,5 +1,5 @@
 <template>
-  <UHeader>
+  <UHeader :toggle="false">
     <template #left>
       <NuxtLink
         to="/"

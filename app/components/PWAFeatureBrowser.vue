@@ -482,7 +482,7 @@ const groupItems = createGroupItems(pwaFeatures)
     </div>
 
     <!-- Mobile Browser Selector (hidden on desktop) - Full width sticky -->
-    <div class="lg:hidden sticky top-0 z-40 bg-default/75 backdrop-blur border-b border-default">
+    <div class="lg:hidden sticky top-0 z-40 bg-default shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <UTabs
           v-model="selectedBrowserTab"
@@ -495,7 +495,7 @@ const groupItems = createGroupItems(pwaFeatures)
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <ClientOnly>
         <div
           ref="swipeContainer"

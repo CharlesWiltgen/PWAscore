@@ -50,8 +50,8 @@ useSeoMeta({
   <UApp :toaster="{ expand: false }">
     <UBanner :ui="{ title: 'text-md', root: '-my-0.5' }">
       <template #title>
-        <span>This is a <strong>preview release</strong> of PWAscore<span class="hidden lg:inline"> • Please
-          report issues at</span>
+        <span>This is a <strong>preview release</strong> of PWAscore • Please
+          report issues at
           <a
             href="https://github.com/charleswiltgen/pwascore/issues"
             target="_blank"

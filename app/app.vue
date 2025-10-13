@@ -48,21 +48,20 @@ useSeoMeta({
 
 <template>
   <UApp :toaster="{ expand: false }">
-    <UBanner :ui="{ title: 'text-md', root: '-my-0.5' }">
+    <UBanner :ui="{ container: 'flex items-center justify-center gap-3 h-12', title: 'text-md', root: '-my-0.5' }">
       <template #title>
-        <span>This is a <strong>preview release</strong> of PWAscore • Please
-          report issues at
-          <a
-            href="https://github.com/charleswiltgen/pwascore/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1 hover:underline ml-[1px]"
-          >
-            <UIcon
-              name="i-simple-icons-github"
-              class="w-5 h-5 relative top-[4px]"
-            />
-          </a>
+        <span>This is a <strong>preview release</strong> of PWAscore<span class="hidden lg:inline"> • Please
+          report issues at</span> <a
+          href="https://github.com/charleswiltgen/pwascore/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1 hover:underline ml-0.5"
+        >
+          <UIcon
+            name="i-simple-icons-github"
+            class="w-5 h-5 relative top-[4px]"
+          />
+        </a>
         </span>
       </template>
     </UBanner>

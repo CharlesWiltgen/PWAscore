@@ -469,289 +469,295 @@ const groupItems = createGroupItems(pwaFeatures)
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Options Bar -->
-    <PWAFeatureBrowserOptions
-      :is-all-expanded="isAllExpanded"
-      :hide-experimental="hideExperimental"
-      @expand-all="expandAll"
-      @collapse-all="collapseAll"
-      @toggle-hide-experimental="toggleHideExperimental"
-    />
-
-    <!-- Mobile Browser Selector (hidden on desktop) -->
-    <div class="lg:hidden mb-6">
-      <UTabs
-        v-model="selectedBrowserTab"
-        :items="browserTabs"
-        orientation="horizontal"
-        default-value="0"
-        size="lg"
-        class="w-full"
+  <div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Options Bar -->
+      <PWAFeatureBrowserOptions
+        :is-all-expanded="isAllExpanded"
+        :hide-experimental="hideExperimental"
+        @expand-all="expandAll"
+        @collapse-all="collapseAll"
+        @toggle-hide-experimental="toggleHideExperimental"
       />
     </div>
 
-    <ClientOnly>
-      <div
-        ref="swipeContainer"
-        class="grid grid-cols-1 lg:grid-cols-3 gap-8"
-      >
-        <!-- Browser Columns -->
+    <!-- Mobile Browser Selector (hidden on desktop) - Full width sticky -->
+    <div class="lg:hidden sticky top-0 z-40 bg-default/75 backdrop-blur border-b border-default">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <UTabs
+          v-model="selectedBrowserTab"
+          :items="browserTabs"
+          orientation="horizontal"
+          default-value="0"
+          size="lg"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <ClientOnly>
         <div
-          v-for="browser in visibleBrowsers"
-          :key="browser.id"
-          class="flex flex-col space-y-4"
+          ref="swipeContainer"
+          class="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
-          <!-- Browser Header Card -->
-          <UCard>
-            <template #header>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <UIcon
-                    :name="browser.icon"
-                    :class="browser.color"
-                    class="w-10 h-10"
-                  />
-                  <div>
-                    <div class="text-lg flex items-center gap-1">
-                      <span class="font-semibold">{{ browser.name }}</span>
-                      <span
-                        class="font-normal text-gray-500 dark:text-gray-400 flex items-center"
-                        :class="
-                          browser.platformIcon === 'i-simple-icons-android'
-                            ? 'gap-[5px]'
-                            : 'gap-1'
-                        "
-                      >
-                        for
-                        <UIcon
-                          :name="browser.platformIcon"
+          <!-- Browser Columns -->
+          <div
+            v-for="browser in visibleBrowsers"
+            :key="browser.id"
+            class="flex flex-col space-y-4"
+          >
+            <!-- Browser Header Card -->
+            <UCard>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <UIcon
+                      :name="browser.icon"
+                      :class="browser.color"
+                      class="w-10 h-10"
+                    />
+                    <div>
+                      <div class="text-lg flex items-center gap-1">
+                        <span class="font-semibold">{{ browser.name }}</span>
+                        <span
+                          class="font-normal text-gray-500 dark:text-gray-400 flex items-center"
                           :class="
                             browser.platformIcon === 'i-simple-icons-android'
-                              ? 'w-[18px] h-[18px]'
-                              : 'w-4 h-4'
+                              ? 'gap-[5px]'
+                              : 'gap-1'
                           "
-                        />
-                      </span>
-                    </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                      Version {{ browser.version }}
+                        >
+                          for
+                          <UIcon
+                            :name="browser.platformIcon"
+                            :class="
+                              browser.platformIcon === 'i-simple-icons-android'
+                                ? 'w-[18px] h-[18px]'
+                                : 'w-4 h-4'
+                            "
+                          />
+                        </span>
+                      </div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Version {{ browser.version }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <UTooltip
-                  :ui="{
-                    content:
-                      'bg-gray-900/90 dark:bg-gray-800/90 flex-col items-start h-auto'
-                  }"
-                >
-                  <template #content>
-                    <div class="text-xs">
-                      <div class="mb-2">
-                        <span class="text-gray-400">Stable features:</span><br>
-                        {{ browser.scores.unweighted }} raw
-                      </div>
-                      <div>
-                        <span class="text-gray-400">With experimental/non-standard:</span><br>
-                        {{ browser.scores.weightedFull }} weighted,
-                        {{ browser.scores.unweightedFull }} raw
-                      </div>
-                    </div>
-                  </template>
-                  <button
-                    type="button"
-                    :aria-label="`${browser.name} score: ${browser.scores.weighted}. Press for details.`"
-                    :class="[
-                      'appearance-none bg-transparent border-0 p-0 m-0 font-inherit text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-50 hover:border-opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
-                      browser.color
-                    ]"
+                  <UTooltip
+                    :ui="{
+                      content:
+                        'bg-gray-900/90 dark:bg-gray-800/90 flex-col items-start h-auto'
+                    }"
                   >
-                    {{ browser.scores.weighted }}
-                  </button>
-                </UTooltip>
-              </div>
-            </template>
-          </UCard>
-
-          <!-- Feature Groups Accordion -->
-          <div @click.capture="handleGroupMetaClick">
-            <UAccordion
-              v-model="openGroups"
-              :items="groupItems"
-              type="multiple"
-            >
-              <template
-                v-for="group in pwaFeatures"
-                :key="group.id"
-                #[group.id]
-              >
-                <!-- Categories within this group -->
-                <div
-                  v-show="!hiddenGroupIds.has(group.id)"
-                  class="pl-6"
-                >
-                  <UAccordion
-                    v-model="openCategories"
-                    :items="createCategoryItems(group)"
-                    type="multiple"
-                  >
-                    <template
-                      v-for="category in group.categories"
-                      :key="category.id"
-                      #[category.id]
-                    >
-                      <!-- Features within this category -->
-                      <div
-                        v-show="!hiddenCategoryIds.has(category.id)"
-                        class="space-y-1 pl-6 pb-3"
-                      >
-                        <div
-                          v-for="feature in category.features"
-                          v-show="!hiddenFeatureIds.has(feature.id)"
-                          :key="feature.id"
-                          class="flex items-center justify-between py-1"
-                        >
-                          <div class="flex-1 min-w-0 pr-3">
-                            <div class="flex items-center gap-1.5">
-                              <UTooltip
-                                :text="
-                                  feature.apiName
-                                    ? `API: ${feature.apiName} — ${feature.description}`
-                                    : feature.description
-                                "
-                              >
-                                <div class="text-sm truncate">
-                                  {{ feature.name }}
-                                </div>
-                              </UTooltip>
-                              <!-- Status icons -->
-                              <div
-                                class="inline-flex items-center gap-1 flex-shrink-0"
-                              >
-                                <UTooltip
-                                  v-if="
-                                    getFeatureSupport(
-                                      feature.id,
-                                      feature.canIUseId,
-                                      feature.mdnBcdPath
-                                    ).status?.experimental
-                                  "
-                                  text="Experimental: This feature is experimental and subject to change"
-                                >
-                                  <UIcon
-                                    name="i-heroicons-beaker"
-                                    class="w-4 h-4 text-gray-600 dark:text-gray-400"
-                                  />
-                                </UTooltip>
-                                <UTooltip
-                                  v-if="
-                                    getFeatureSupport(
-                                      feature.id,
-                                      feature.canIUseId,
-                                      feature.mdnBcdPath
-                                    ).status
-                                      && !getFeatureSupport(
-                                        feature.id,
-                                        feature.canIUseId,
-                                        feature.mdnBcdPath
-                                      ).status?.standard_track
-                                  "
-                                  text="Non-standard: This feature is not on the standards track"
-                                >
-                                  <UIcon
-                                    name="i-heroicons-exclamation-triangle"
-                                    class="w-4 h-4 text-gray-600 dark:text-gray-400 translate-y-[0.5px]"
-                                  />
-                                </UTooltip>
-                                <UTooltip
-                                  v-if="
-                                    getFeatureSupport(
-                                      feature.id,
-                                      feature.canIUseId,
-                                      feature.mdnBcdPath
-                                    ).status?.deprecated
-                                  "
-                                  text="Deprecated: This feature is deprecated and may be removed"
-                                >
-                                  <UIcon
-                                    name="i-heroicons-x-circle"
-                                    class="w-4 h-4 text-gray-600 dark:text-gray-400"
-                                  />
-                                </UTooltip>
-                              </div>
-                              <div
-                                v-if="feature.canIUseId || feature.mdnBcdPath"
-                                class="inline-flex items-center flex-shrink-0 rounded-md overflow-hidden border border-primary-500/20 bg-primary-50 dark:bg-primary-950/50"
-                              >
-                                <UTooltip
-                                  v-if="feature.canIUseId"
-                                  text="View browser compatibility on Can I Use"
-                                >
-                                  <a
-                                    :href="getCanIUseUrl(feature.canIUseId)"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label="View browser compatibility on Can I Use"
-                                    class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
-                                  >
-                                    CIU
-                                  </a>
-                                </UTooltip>
-                                <div
-                                  v-if="feature.canIUseId && feature.mdnBcdPath"
-                                  class="w-px self-stretch bg-primary-500/20"
-                                />
-                                <UTooltip
-                                  v-if="feature.mdnBcdPath"
-                                  text="View documentation on MDN Web Docs"
-                                >
-                                  <a
-                                    :href="getMdnUrl(feature.id)"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label="View documentation on MDN Web Docs"
-                                    class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
-                                  >
-                                    MDN
-                                  </a>
-                                </UTooltip>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="flex-shrink-0 -mt-1">
-                            <UBadge
-                              :color="
-                                getSupportBadgeColor(
-                                  getFeatureSupport(
-                                    feature.id,
-                                    feature.canIUseId,
-                                    feature.mdnBcdPath
-                                  )[browser.id]
-                                )
-                              "
-                              size="sm"
-                            >
-                              {{
-                                getSupportLabel(
-                                  getFeatureSupport(
-                                    feature.id,
-                                    feature.canIUseId,
-                                    feature.mdnBcdPath
-                                  )[browser.id]
-                                )
-                              }}
-                            </UBadge>
-                          </div>
+                    <template #content>
+                      <div class="text-xs">
+                        <div class="mb-2">
+                          <span class="text-gray-400">Stable features:</span><br>
+                          {{ browser.scores.unweighted }} raw
+                        </div>
+                        <div>
+                          <span class="text-gray-400">With experimental/non-standard:</span><br>
+                          {{ browser.scores.weightedFull }} weighted,
+                          {{ browser.scores.unweightedFull }} raw
                         </div>
                       </div>
                     </template>
-                  </UAccordion>
+                    <button
+                      type="button"
+                      :aria-label="`${browser.name} score: ${browser.scores.weighted}. Press for details.`"
+                      :class="[
+                        'appearance-none bg-transparent border-0 p-0 m-0 font-inherit text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-50 hover:border-opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
+                        browser.color
+                      ]"
+                    >
+                      {{ browser.scores.weighted }}
+                    </button>
+                  </UTooltip>
                 </div>
               </template>
-            </UAccordion>
+            </UCard>
+
+            <!-- Feature Groups Accordion -->
+            <div @click.capture="handleGroupMetaClick">
+              <UAccordion
+                v-model="openGroups"
+                :items="groupItems"
+                type="multiple"
+              >
+                <template
+                  v-for="group in pwaFeatures"
+                  :key="group.id"
+                  #[group.id]
+                >
+                  <!-- Categories within this group -->
+                  <div
+                    v-show="!hiddenGroupIds.has(group.id)"
+                    class="pl-6"
+                  >
+                    <UAccordion
+                      v-model="openCategories"
+                      :items="createCategoryItems(group)"
+                      type="multiple"
+                    >
+                      <template
+                        v-for="category in group.categories"
+                        :key="category.id"
+                        #[category.id]
+                      >
+                        <!-- Features within this category -->
+                        <div
+                          v-show="!hiddenCategoryIds.has(category.id)"
+                          class="space-y-1 pl-6 pb-3"
+                        >
+                          <div
+                            v-for="feature in category.features"
+                            v-show="!hiddenFeatureIds.has(feature.id)"
+                            :key="feature.id"
+                            class="flex items-center justify-between py-1"
+                          >
+                            <div class="flex-1 min-w-0 pr-3">
+                              <div class="flex items-center gap-1.5">
+                                <UTooltip
+                                  :text="
+                                    feature.apiName
+                                      ? `API: ${feature.apiName} — ${feature.description}`
+                                      : feature.description
+                                  "
+                                >
+                                  <div class="text-sm truncate">
+                                    {{ feature.name }}
+                                  </div>
+                                </UTooltip>
+                                <!-- Status icons -->
+                                <div
+                                  class="inline-flex items-center gap-1 flex-shrink-0"
+                                >
+                                  <UTooltip
+                                    v-if="
+                                      getFeatureSupport(
+                                        feature.id,
+                                        feature.canIUseId,
+                                        feature.mdnBcdPath
+                                      ).status?.experimental
+                                    "
+                                    text="Experimental: This feature is experimental and subject to change"
+                                  >
+                                    <UIcon
+                                      name="i-heroicons-beaker"
+                                      class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                                    />
+                                  </UTooltip>
+                                  <UTooltip
+                                    v-if="
+                                      getFeatureSupport(
+                                        feature.id,
+                                        feature.canIUseId,
+                                        feature.mdnBcdPath
+                                      ).status
+                                        && !getFeatureSupport(
+                                          feature.id,
+                                          feature.canIUseId,
+                                          feature.mdnBcdPath
+                                        ).status?.standard_track
+                                    "
+                                    text="Non-standard: This feature is not on the standards track"
+                                  >
+                                    <UIcon
+                                      name="i-heroicons-exclamation-triangle"
+                                      class="w-4 h-4 text-gray-600 dark:text-gray-400 translate-y-[0.5px]"
+                                    />
+                                  </UTooltip>
+                                  <UTooltip
+                                    v-if="
+                                      getFeatureSupport(
+                                        feature.id,
+                                        feature.canIUseId,
+                                        feature.mdnBcdPath
+                                      ).status?.deprecated
+                                    "
+                                    text="Deprecated: This feature is deprecated and may be removed"
+                                  >
+                                    <UIcon
+                                      name="i-heroicons-x-circle"
+                                      class="w-4 h-4 text-gray-600 dark:text-gray-400"
+                                    />
+                                  </UTooltip>
+                                </div>
+                                <div
+                                  v-if="feature.canIUseId || feature.mdnBcdPath"
+                                  class="inline-flex items-center flex-shrink-0 rounded-md overflow-hidden border border-primary-500/20 bg-primary-50 dark:bg-primary-950/50"
+                                >
+                                  <UTooltip
+                                    v-if="feature.canIUseId"
+                                    text="View browser compatibility on Can I Use"
+                                  >
+                                    <a
+                                      :href="getCanIUseUrl(feature.canIUseId)"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      aria-label="View browser compatibility on Can I Use"
+                                      class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
+                                    >
+                                      CIU
+                                    </a>
+                                  </UTooltip>
+                                  <div
+                                    v-if="feature.canIUseId && feature.mdnBcdPath"
+                                    class="w-px self-stretch bg-primary-500/20"
+                                  />
+                                  <UTooltip
+                                    v-if="feature.mdnBcdPath"
+                                    text="View documentation on MDN Web Docs"
+                                  >
+                                    <a
+                                      :href="getMdnUrl(feature.id)"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      aria-label="View documentation on MDN Web Docs"
+                                      class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
+                                    >
+                                      MDN
+                                    </a>
+                                  </UTooltip>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="flex-shrink-0 -mt-1">
+                              <UBadge
+                                :color="
+                                  getSupportBadgeColor(
+                                    getFeatureSupport(
+                                      feature.id,
+                                      feature.canIUseId,
+                                      feature.mdnBcdPath
+                                    )[browser.id]
+                                  )
+                                "
+                                size="sm"
+                              >
+                                {{
+                                  getSupportLabel(
+                                    getFeatureSupport(
+                                      feature.id,
+                                      feature.canIUseId,
+                                      feature.mdnBcdPath
+                                    )[browser.id]
+                                  )
+                                }}
+                              </UBadge>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </UAccordion>
+                  </div>
+                </template>
+              </UAccordion>
+            </div>
           </div>
         </div>
-      </div>
-    </ClientOnly>
+      </ClientOnly>
+    </div>
   </div>
 </template>

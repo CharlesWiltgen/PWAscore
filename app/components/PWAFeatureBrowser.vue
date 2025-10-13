@@ -491,6 +491,10 @@ const groupItems = createGroupItems(pwaFeatures)
           default-value="0"
           size="lg"
           class="w-full"
+          :ui="{
+            root: 'border-b-0',
+            list: 'border-b-0'
+          }"
         />
       </div>
     </div>

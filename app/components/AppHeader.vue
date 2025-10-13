@@ -1,5 +1,10 @@
 <template>
-  <UHeader :toggle="false">
+  <UHeader
+    :toggle="false"
+    :ui="{
+      root: 'relative lg:sticky lg:top-0 lg:z-50'
+    }"
+  >
     <template #left>
       <NuxtLink
         to="/"

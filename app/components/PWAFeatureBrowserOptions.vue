@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const { t } = useI18n()
+const localePath = useLocalePath()
+
 const props = defineProps<{
   isAllExpanded: boolean
   hideExperimental: boolean
@@ -33,7 +36,7 @@ const isScoresInfoOpen = ref(false)
       <div class="flex-1">
         <UCheckbox
           :model-value="hideExperimental"
-          label="Hide Experimental"
+          :label="t('options.hideExperimental')"
           @update:model-value="handleHideExperimentalToggle"
         />
       </div>
@@ -46,7 +49,7 @@ const isScoresInfoOpen = ref(false)
               ? 'i-heroicons-chevron-double-up'
               : 'i-heroicons-chevron-double-down'
           "
-          :label="isAllExpanded ? 'Collapse All' : 'Expand All'"
+          :label="isAllExpanded ? t('options.collapseAll') : t('options.expandAll')"
           aria-keyshortcuts="Control+E"
           color="neutral"
           variant="ghost"
@@ -62,7 +65,7 @@ const isScoresInfoOpen = ref(false)
       <div class="flex-1 flex justify-end">
         <UButton
           id="scores-info-button"
-          label="How Scores Work"
+          :label="t('options.howScoresWork')"
           color="neutral"
           variant="ghost"
           size="md"
@@ -93,26 +96,26 @@ const isScoresInfoOpen = ref(false)
           class="px-4 py-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800"
         >
           <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-            <strong>About PWA Scores:</strong>
+            <strong>{{ t('scoresInfo.title') }}</strong>
           </p>
           <ul class="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside">
-            <li>The main score shown is weighted for feature importance</li>
-            <li>Only stable (non-experimental) features are counted</li>
+            <li>{{ t('scoresInfo.weightedImportance') }}</li>
+            <li>{{ t('scoresInfo.stableOnly') }}</li>
             <li>
-              Tap or hover any score to see:
+              {{ t('scoresInfo.tapOrHover') }}
               <ul class="ml-6 mt-1 space-y-0.5 list-[circle]">
-                <li>Raw scores (simple % of supported features)</li>
-                <li>Experimental feature scores</li>
+                <li>{{ t('scoresInfo.rawScores') }}</li>
+                <li>{{ t('scoresInfo.experimentalScores') }}</li>
               </ul>
             </li>
           </ul>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Learn more about our methodology on the
+            {{ t('scoresInfo.learnMore') }}
             <NuxtLink
-              to="/about"
+              :to="localePath('/about')"
               class="text-primary-600 dark:text-primary-400 hover:underline"
             >
-              About page
+              {{ t('scoresInfo.aboutPage') }}
             </NuxtLink>.
           </p>
         </div>

@@ -8,6 +8,7 @@ import type {
 } from '../composables/useBrowserSupport'
 import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
 
+const { t } = useI18n()
 const { features: pwaFeatures } = usePWAFeatures()
 const { getSupport, loadMultipleSupport } = useBrowserSupport()
 const { calculateBrowserScore } = useBrowserScore()
@@ -75,7 +76,7 @@ function expandAll(): void {
 
   openGroups.value = [...allGroupIds]
   openCategories.value = [...allCategoryIds]
-  announce('All groups expanded')
+  announce(t('browser.allExpanded'))
 }
 
 /**
@@ -84,7 +85,7 @@ function expandAll(): void {
 function collapseAll(): void {
   openGroups.value = []
   openCategories.value = []
-  announce('All groups collapsed')
+  announce(t('browser.allCollapsed'))
 }
 
 // Keyboard shortcuts
@@ -132,7 +133,7 @@ watch(hideExperimental, (newValue) => {
     delete query.hideExperimental
   }
   router.replace({ query })
-  announce(newValue ? 'Experimental features hidden' : 'Experimental features shown')
+  announce(newValue ? t('features.experimentalHidden') : t('features.experimentalShown'))
 })
 
 // Load support data for all features on mount
@@ -307,7 +308,7 @@ const browserTabs = computed(() =>
 watch(selectedBrowserIndex, (index) => {
   if (!isLargeScreen.value) {
     const browser = browsers.value[index]
-    if (browser) announce(`Showing ${browser.name}`)
+    if (browser) announce(t('browser.showing', { name: browser.name }))
   }
 })
 
@@ -374,13 +375,13 @@ function getSupportLabel(
 ): string {
   switch (support) {
     case 'supported':
-      return 'Supported'
+      return t('support.supported')
     case 'partial':
-      return 'Partial'
+      return t('support.partial')
     case 'not-supported':
-      return 'Not Supported'
+      return t('support.notSupported')
     case 'unknown':
-      return 'Unknown'
+      return t('support.unknown')
   }
 }
 
@@ -456,34 +457,31 @@ function handleGroupMetaClick(event: MouseEvent): void {
 }
 
 /**
- * Create accordion items for feature groups
+ * Create accordion items for feature groups with translated labels
  */
-function createGroupItems(groups: PWAFeatureGroup[]) {
-  return groups.map(group => ({
-    label: group.name,
+const groupItems = computed(() =>
+  pwaFeatures.map(group => ({
+    label: t(`groups.${group.id}`),
     description: group.description,
     icon: group.icon,
     slot: group.id,
     value: group.id,
     defaultOpen: false
   }))
-}
+)
 
 /**
- * Create accordion items for categories within a group
- * This function is called reactively from the template
+ * Create accordion items for categories within a group with translated labels
  */
 function createCategoryItems(group: PWAFeatureGroup) {
   return group.categories.map(category => ({
-    label: category.name,
+    label: t(`categories.${category.id}`),
     description: category.description,
     slot: category.id,
     value: category.id,
     defaultOpen: false
   }))
 }
-
-const groupItems = createGroupItems(pwaFeatures)
 </script>
 
 <template>
@@ -514,7 +512,7 @@ const groupItems = createGroupItems(pwaFeatures)
         <UTabs
           v-model="selectedBrowserTab"
           :items="browserTabs"
-          aria-label="Select browser"
+          :aria-label="t('browser.selectBrowser')"
           orientation="horizontal"
           default-value="0"
           size="lg"
@@ -544,7 +542,7 @@ const groupItems = createGroupItems(pwaFeatures)
               :id="`heading-${browser.id}`"
               class="sr-only"
             >
-              {{ browser.name }} for {{ browser.platformIcon === 'i-simple-icons-android' ? 'Android' : 'iOS' }}
+              {{ browser.name }} {{ t('browser.for') }} {{ browser.platformIcon === 'i-simple-icons-android' ? t('browser.platform.android') : t('browser.platform.ios') }}
             </h2>
             <!-- Browser Header Card -->
             <UCard>
@@ -567,7 +565,7 @@ const groupItems = createGroupItems(pwaFeatures)
                               : 'gap-1'
                           "
                         >
-                          for
+                          {{ t('browser.for') }}
                           <UIcon
                             :name="browser.platformIcon"
                             aria-hidden="true"
@@ -577,11 +575,11 @@ const groupItems = createGroupItems(pwaFeatures)
                                 : 'w-4 h-4'
                             "
                           />
-                          <span class="sr-only">{{ browser.platformIcon === 'i-simple-icons-android' ? 'Android' : 'iOS' }}</span>
+                          <span class="sr-only">{{ browser.platformIcon === 'i-simple-icons-android' ? t('browser.platform.android') : t('browser.platform.ios') }}</span>
                         </span>
                       </div>
                       <div class="text-sm text-gray-500 dark:text-gray-400">
-                        Version {{ browser.version }}
+                        {{ t('browser.version', { version: browser.version }) }}
                       </div>
                     </div>
                   </div>
@@ -594,19 +592,18 @@ const groupItems = createGroupItems(pwaFeatures)
                     <template #content>
                       <div class="text-xs">
                         <div class="mb-2">
-                          <span class="text-gray-400">Stable features:</span><br>
-                          {{ browser.scores.unweighted }} raw
+                          <span class="text-gray-400">{{ t('scores.stableFeatures') }}</span><br>
+                          {{ t('scores.raw', { score: browser.scores.unweighted }) }}
                         </div>
                         <div>
-                          <span class="text-gray-400">With experimental/non-standard:</span><br>
-                          {{ browser.scores.weightedFull }} weighted,
-                          {{ browser.scores.unweightedFull }} raw
+                          <span class="text-gray-400">{{ t('scores.withExperimental') }}</span><br>
+                          {{ t('scores.weightedAndRaw', { weighted: browser.scores.weightedFull, raw: browser.scores.unweightedFull }) }}
                         </div>
                       </div>
                     </template>
                     <button
                       type="button"
-                      :aria-label="`${browser.name} score: ${browser.scores.weighted}. Press for details.`"
+                      :aria-label="t('browser.scoreLabel', { name: browser.name, score: browser.scores.weighted })"
                       :class="[
                         'appearance-none bg-transparent border-0 p-0 m-0 font-inherit text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-50 hover:border-opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
                         browser.color
@@ -642,13 +639,12 @@ const groupItems = createGroupItems(pwaFeatures)
                       <template #content>
                         <div class="text-xs">
                           <div class="mb-2">
-                            <span class="text-gray-400">Stable features:</span><br>
-                            {{ browser.scores.groupScores[item.value]?.unweighted }} raw
+                            <span class="text-gray-400">{{ t('scores.stableFeatures') }}</span><br>
+                            {{ t('scores.raw', { score: browser.scores.groupScores[item.value]?.unweighted }) }}
                           </div>
                           <div>
-                            <span class="text-gray-400">With experimental/non-standard:</span><br>
-                            {{ browser.scores.groupScores[item.value]?.weightedFull }} weighted,
-                            {{ browser.scores.groupScores[item.value]?.unweightedFull }} raw
+                            <span class="text-gray-400">{{ t('scores.withExperimental') }}</span><br>
+                            {{ t('scores.weightedAndRaw', { weighted: browser.scores.groupScores[item.value]?.weightedFull, raw: browser.scores.groupScores[item.value]?.unweightedFull }) }}
                           </div>
                         </div>
                       </template>
@@ -718,7 +714,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                         feature.mdnBcdPath
                                       ).status?.experimental
                                     "
-                                    text="Experimental: This feature is experimental and subject to change"
+                                    :text="t('features.experimental')"
                                   >
                                     <UIcon
                                       name="i-heroicons-beaker"
@@ -738,7 +734,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                           feature.mdnBcdPath
                                         ).status?.standard_track
                                     "
-                                    text="Non-standard: This feature is not on the standards track"
+                                    :text="t('features.nonStandard')"
                                   >
                                     <UIcon
                                       name="i-heroicons-exclamation-triangle"
@@ -753,7 +749,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                         feature.mdnBcdPath
                                       ).status?.deprecated
                                     "
-                                    text="Deprecated: This feature is deprecated and may be removed"
+                                    :text="t('features.deprecated')"
                                   >
                                     <UIcon
                                       name="i-heroicons-x-circle"
@@ -767,13 +763,13 @@ const groupItems = createGroupItems(pwaFeatures)
                                 >
                                   <UTooltip
                                     v-if="feature.canIUseId"
-                                    text="View browser compatibility on Can I Use"
+                                    :text="t('features.ciuTooltip')"
                                   >
                                     <a
                                       :href="getCanIUseUrl(feature.canIUseId)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      :aria-label="`${feature.name} on Can I Use`"
+                                      :aria-label="t('features.viewOnCIU', { name: feature.name })"
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       CIU
@@ -785,13 +781,13 @@ const groupItems = createGroupItems(pwaFeatures)
                                   />
                                   <UTooltip
                                     v-if="feature.mdnBcdPath"
-                                    text="View documentation on MDN Web Docs"
+                                    :text="t('features.mdnTooltip')"
                                   >
                                     <a
                                       :href="getMdnUrl(feature.id)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      :aria-label="`${feature.name} on MDN Web Docs`"
+                                      :aria-label="t('features.viewOnMDN', { name: feature.name })"
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       MDN

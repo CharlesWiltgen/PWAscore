@@ -1,0 +1,146 @@
+{
+  "site": {
+    "name": "PWAscore",
+    "title": "PWAscore - Fiches d'évaluation PWA des navigateurs",
+    "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles populaires. Découvrez quels navigateurs prennent le mieux en charge les fonctionnalités PWA.",
+    "ogImageAlt": "PWAscore - Comparez la prise en charge PWA entre navigateurs mobiles"
+  },
+  "banner": {
+    "previewRelease": "Ceci est une {strong} de PWAscore",
+    "previewReleaseStrong": "version préliminaire",
+    "reportIssuesAt": "Signalez les problèmes sur",
+    "reportIssuesGitHub": "Signaler un problème sur GitHub"
+  },
+  "nav": {
+    "skipToContent": "Aller au contenu principal",
+    "about": "À propos"
+  },
+  "hero": {
+    "title": "Fiches d'évaluation PWA des navigateurs",
+    "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles populaires (et bientôt de bureau)."
+  },
+  "browser": {
+    "for": "pour",
+    "version": "Version {version}",
+    "scoreLabel": "Score {name} : {score}. Appuyez pour les détails.",
+    "selectBrowser": "Sélectionner un navigateur",
+    "showing": "Affichage de {name}",
+    "allExpanded": "Tous les groupes développés",
+    "allCollapsed": "Tous les groupes réduits",
+    "platform": {
+      "android": "Android",
+      "ios": "iOS"
+    }
+  },
+  "scores": {
+    "stableFeatures": "Fonctionnalités stables :",
+    "raw": "{score} brut",
+    "withExperimental": "Avec expérimentales/non standard :",
+    "weightedAndRaw": "{weighted} pondéré, {raw} brut"
+  },
+  "support": {
+    "supported": "Pris en charge",
+    "partial": "Partiel",
+    "notSupported": "Non pris en charge",
+    "unknown": "Inconnu"
+  },
+  "features": {
+    "experimental": "Expérimental : cette fonctionnalité est expérimentale et peut évoluer",
+    "nonStandard": "Non standard : cette fonctionnalité ne fait pas partie des standards",
+    "deprecated": "Obsolète : cette fonctionnalité est obsolète et pourrait être supprimée",
+    "viewOnCIU": "{name} sur Can I Use",
+    "viewOnMDN": "{name} sur MDN Web Docs",
+    "ciuTooltip": "Voir la compatibilité navigateur sur Can I Use",
+    "mdnTooltip": "Voir la documentation sur MDN Web Docs",
+    "experimentalHidden": "Fonctionnalités expérimentales masquées",
+    "experimentalShown": "Fonctionnalités expérimentales affichées"
+  },
+  "options": {
+    "hideExperimental": "Masquer les expérimentales",
+    "expandAll": "Tout développer",
+    "collapseAll": "Tout réduire",
+    "howScoresWork": "Calcul des scores"
+  },
+  "scoresInfo": {
+    "title": "À propos des scores PWA :",
+    "weightedImportance": "Le score principal est pondéré selon l'importance des fonctionnalités",
+    "stableOnly": "Seules les fonctionnalités stables (non expérimentales) sont comptées",
+    "tapOrHover": "Appuyez ou survolez un score pour voir :",
+    "rawScores": "Scores bruts (pourcentage simple de fonctionnalités prises en charge)",
+    "experimentalScores": "Scores des fonctionnalités expérimentales",
+    "learnMore": "En savoir plus sur notre méthodologie sur la",
+    "aboutPage": "page À propos"
+  },
+  "footer": {
+    "dataSources": "Données issues de {ciu} (CC BY 4.0) et {mdn} (CC0)",
+    "copyright": "© {year} par Charles Wiltgen",
+    "blueskyLabel": "Charles Wiltgen sur Bluesky",
+    "githubLabel": "PWAscore sur GitHub"
+  },
+  "about": {
+    "title": "À propos — PWAscore",
+    "description": "Découvrez PWAscore, la fiche d'évaluation PWA de référence qui aide les développeurs à comparer la prise en charge PWA entre navigateurs.",
+    "heading": "À propos de PWAscore"
+  },
+  "groups": {
+    "installation-core": "Installation et fonctionnalités PWA essentielles",
+    "notifications-communication": "Notifications et communication",
+    "background-capabilities": "Capacités en arrière-plan",
+    "device-hardware": "Accès au matériel",
+    "media-capture": "Capture et traitement multimédia",
+    "file-data-management": "Gestion des fichiers et données",
+    "ui-ux": "Interface et expérience utilisateur",
+    "system-integration": "Intégration système",
+    "audio-speech": "Audio et parole",
+    "network-communication": "Réseau et communication",
+    "payments-commerce": "Paiements et commerce",
+    "advanced-capabilities": "Capacités avancées",
+    "security-privacy": "Sécurité et confidentialité",
+    "window-management": "Gestion des fenêtres"
+  },
+  "categories": {
+    "app-installation": "Installation d'application",
+    "service-workers": "Service Workers",
+    "offline-support": "Prise en charge hors ligne",
+    "push-notifications": "Notifications push",
+    "badging": "Badges",
+    "background-sync": "Synchronisation en arrière-plan",
+    "background-fetch": "Téléchargement en arrière-plan",
+    "location-motion": "Géolocalisation et mouvement",
+    "sensors": "Capteurs",
+    "connectivity": "Connectivité",
+    "biometrics-security": "Biométrie et sécurité",
+    "camera-microphone": "Caméra et microphone",
+    "screen-capture": "Capture d'écran",
+    "media-playback": "Lecture multimédia",
+    "detection-apis": "API de détection",
+    "file-system": "Système de fichiers",
+    "storage": "Stockage",
+    "clipboard": "Presse-papiers",
+    "display-viewport": "Affichage et viewport",
+    "visual-effects": "Effets visuels",
+    "input-methods": "Méthodes de saisie",
+    "haptics": "Retour haptique",
+    "sharing": "Partage",
+    "contacts": "Contacts",
+    "protocol-handling": "Gestion des protocoles",
+    "file-associations": "Associations de fichiers",
+    "app-shortcuts": "Raccourcis d'application",
+    "speech-synthesis": "Synthèse vocale",
+    "speech-recognition": "Reconnaissance vocale",
+    "audio-apis": "API audio",
+    "network-information": "Informations réseau",
+    "online-offline": "Détection en ligne/hors ligne",
+    "cross-context": "Communication inter-contextes",
+    "fetch-requests": "Fetch et requêtes",
+    "payment-processing": "Traitement des paiements",
+    "ar-vr": "AR/VR",
+    "performance": "Performance",
+    "webassembly": "WebAssembly",
+    "workers": "Web Workers",
+    "streams": "Streams",
+    "permissions": "Permissions",
+    "security": "Sécurité",
+    "multi-window": "Multi-fenêtres"
+  }
+}

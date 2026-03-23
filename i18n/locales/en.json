@@ -1,0 +1,146 @@
+{
+  "site": {
+    "name": "PWAscore",
+    "title": "PWAscore - PWA Browser Scorecards",
+    "description": "Compare Progressive Web App capabilities across popular mobile browsers. See which browsers best support PWA features like Service Workers, Web App Manifest, and more.",
+    "ogImageAlt": "PWAscore - Compare PWA support across mobile browsers"
+  },
+  "banner": {
+    "previewRelease": "This is a {strong} of PWAscore",
+    "previewReleaseStrong": "preview release",
+    "reportIssuesAt": "Please report issues at",
+    "reportIssuesGitHub": "Report issues on GitHub"
+  },
+  "nav": {
+    "skipToContent": "Skip to main content",
+    "about": "About"
+  },
+  "hero": {
+    "title": "PWA Browser Scorecards",
+    "description": "Compare Progressive Web App capabilities across popular mobile (and soon, desktop) browsers."
+  },
+  "browser": {
+    "for": "for",
+    "version": "Version {version}",
+    "scoreLabel": "{name} score: {score}. Press for details.",
+    "selectBrowser": "Select browser",
+    "showing": "Showing {name}",
+    "allExpanded": "All groups expanded",
+    "allCollapsed": "All groups collapsed",
+    "platform": {
+      "android": "Android",
+      "ios": "iOS"
+    }
+  },
+  "scores": {
+    "stableFeatures": "Stable features:",
+    "raw": "{score} raw",
+    "withExperimental": "With experimental/non-standard:",
+    "weightedAndRaw": "{weighted} weighted, {raw} raw"
+  },
+  "support": {
+    "supported": "Supported",
+    "partial": "Partial",
+    "notSupported": "Not Supported",
+    "unknown": "Unknown"
+  },
+  "features": {
+    "experimental": "Experimental: This feature is experimental and subject to change",
+    "nonStandard": "Non-standard: This feature is not on the standards track",
+    "deprecated": "Deprecated: This feature is deprecated and may be removed",
+    "viewOnCIU": "{name} on Can I Use",
+    "viewOnMDN": "{name} on MDN Web Docs",
+    "ciuTooltip": "View browser compatibility on Can I Use",
+    "mdnTooltip": "View documentation on MDN Web Docs",
+    "experimentalHidden": "Experimental features hidden",
+    "experimentalShown": "Experimental features shown"
+  },
+  "options": {
+    "hideExperimental": "Hide Experimental",
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All",
+    "howScoresWork": "How Scores Work"
+  },
+  "scoresInfo": {
+    "title": "About PWA Scores:",
+    "weightedImportance": "The main score shown is weighted for feature importance",
+    "stableOnly": "Only stable (non-experimental) features are counted",
+    "tapOrHover": "Tap or hover any score to see:",
+    "rawScores": "Raw scores (simple % of supported features)",
+    "experimentalScores": "Experimental feature scores",
+    "learnMore": "Learn more about our methodology on the",
+    "aboutPage": "About page"
+  },
+  "footer": {
+    "dataSources": "Data sourced from {ciu} (CC BY 4.0) and {mdn} (CC0)",
+    "copyright": "© {year} by Charles Wiltgen",
+    "blueskyLabel": "Charles Wiltgen on Bluesky",
+    "githubLabel": "PWAscore on GitHub"
+  },
+  "about": {
+    "title": "About — PWAscore",
+    "description": "Learn about PWAscore, the definitive Progressive Web App browser scorecard that helps developers compare PWA support across browsers.",
+    "heading": "About PWAscore"
+  },
+  "groups": {
+    "installation-core": "Installation & Core PWA Features",
+    "notifications-communication": "Notifications & Communication",
+    "background-capabilities": "Background Capabilities",
+    "device-hardware": "Device Hardware Access",
+    "media-capture": "Media Capture & Processing",
+    "file-data-management": "File & Data Management",
+    "ui-ux": "User Interface & Experience",
+    "system-integration": "System Integration",
+    "audio-speech": "Audio & Speech",
+    "network-communication": "Network & Communication",
+    "payments-commerce": "Payments & Commerce",
+    "advanced-capabilities": "Advanced Capabilities",
+    "security-privacy": "Security & Privacy",
+    "window-management": "Window Management"
+  },
+  "categories": {
+    "app-installation": "App Installation",
+    "service-workers": "Service Workers",
+    "offline-support": "Offline Support",
+    "push-notifications": "Push Notifications",
+    "badging": "Badging",
+    "background-sync": "Background Sync",
+    "background-fetch": "Background Fetch",
+    "location-motion": "Location & Motion",
+    "sensors": "Sensors",
+    "connectivity": "Connectivity",
+    "biometrics-security": "Biometrics & Security",
+    "camera-microphone": "Camera & Microphone",
+    "screen-capture": "Screen Capture",
+    "media-playback": "Media Playback",
+    "detection-apis": "Detection APIs",
+    "file-system": "File System",
+    "storage": "Storage",
+    "clipboard": "Clipboard",
+    "display-viewport": "Display & Viewport",
+    "visual-effects": "Visual Effects",
+    "input-methods": "Input Methods",
+    "haptics": "Haptics",
+    "sharing": "Sharing",
+    "contacts": "Contacts",
+    "protocol-handling": "Protocol Handling",
+    "file-associations": "File Associations",
+    "app-shortcuts": "App Shortcuts",
+    "speech-synthesis": "Speech Synthesis",
+    "speech-recognition": "Speech Recognition",
+    "audio-apis": "Audio APIs",
+    "network-information": "Network Information",
+    "online-offline": "Online/Offline Detection",
+    "cross-context": "Cross-Context Communication",
+    "fetch-requests": "Fetch & Requests",
+    "payment-processing": "Payment Processing",
+    "ar-vr": "AR/VR",
+    "performance": "Performance",
+    "webassembly": "WebAssembly",
+    "workers": "Web Workers",
+    "streams": "Streams",
+    "permissions": "Permissions",
+    "security": "Security",
+    "multi-window": "Multi-Window"
+  }
+}

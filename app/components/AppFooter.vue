@@ -1,38 +1,47 @@
+<script setup lang="ts">
+const { t } = useI18n()
+</script>
+
 <template>
   <USeparator class="h-px" />
 
   <UFooter>
     <template #left>
-      <p class="text-sm text-muted">
-        Data sourced from
-        <a
-          href="https://caniuse.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="underline"
-        >Can I Use</a>
-        (CC BY 4.0) and
-        <a
-          href="https://github.com/mdn/browser-compat-data"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="underline"
-        >MDN BCD</a>
-        (CC0)
-      </p>
+      <i18n-t
+        keypath="footer.dataSources"
+        tag="p"
+        class="text-sm text-muted"
+      >
+        <template #ciu>
+          <a
+            href="https://caniuse.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >Can I Use</a>
+        </template>
+        <template #mdn>
+          <a
+            href="https://github.com/mdn/browser-compat-data"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline"
+          >MDN BCD</a>
+        </template>
+      </i18n-t>
     </template>
 
     <template #right>
       <div class="flex items-center gap-4">
         <p class="text-sm text-muted">
-          © {{ new Date().getFullYear() }} by Charles Wiltgen
+          {{ t('footer.copyright', { year: new Date().getFullYear() }) }}
         </p>
         <div class="flex items-center gap-2">
           <UButton
             to="https://bsky.app/profile/wiltgen.net"
             target="_blank"
             icon="i-simple-icons-bluesky"
-            aria-label="Charles Wiltgen on Bluesky"
+            :aria-label="t('footer.blueskyLabel')"
             color="neutral"
             variant="ghost"
           />
@@ -40,7 +49,7 @@
             to="https://github.com/CharlesWiltgen/PWAscore"
             target="_blank"
             icon="i-simple-icons-github"
-            aria-label="PWAscore on GitHub"
+            :aria-label="t('footer.githubLabel')"
             color="neutral"
             variant="ghost"
           />

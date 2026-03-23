@@ -35,4 +35,3 @@ public/data/caniuse-data.json
 # Task tracking files (personal notes, not part of project)
 /*.md
 !README.md
-!CLAUDE.md

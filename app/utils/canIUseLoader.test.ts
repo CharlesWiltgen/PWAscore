@@ -37,9 +37,9 @@ describe('getBrowserVersions', () => {
 
     // Should return fallback values
     expect(versions).toEqual({
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     })
 
     vi.unstubAllGlobals()
@@ -50,9 +50,9 @@ describe('getBrowserVersions', () => {
 describe('getCanIUseSupport', () => {
   test('should return supported for web-app-manifest (universally supported feature)', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const support = await getCanIUseSupport('web-app-manifest', browserVersions)
@@ -66,9 +66,9 @@ describe('getCanIUseSupport', () => {
 
   test('should return unknown for non-existent feature', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const support = await getCanIUseSupport(
@@ -85,9 +85,9 @@ describe('getCanIUseSupport', () => {
 
   test('should return support levels for valid feature (service workers)', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const support = await getCanIUseSupport('serviceworkers', browserVersions)
@@ -102,9 +102,9 @@ describe('getCanIUseSupport', () => {
 describe('getMdnBcdSupport', () => {
   test('should return browser support for valid MDN BCD path', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     // Navigator.setAppBadge is supported in Safari iOS 16.4+
@@ -124,9 +124,9 @@ describe('getMdnBcdSupport', () => {
 
   test('should return unknown for non-existent MDN BCD path', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
@@ -144,9 +144,9 @@ describe('getMdnBcdSupport', () => {
 
   test('should return supported for BackgroundFetchManager on Chrome Android', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
@@ -164,9 +164,9 @@ describe('getMdnBcdSupport', () => {
 
   test('should handle partial implementation correctly', async () => {
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
@@ -211,8 +211,8 @@ describe('getMdnBcdSupport - version comparison edge cases', () => {
 
     // Test with iOS 18.10 (should be > 18.9, not < due to semantic versioning fix)
     const browserVersions18_10 = {
-      chrome: '141',
-      firefox: '143',
+      chrome: '146',
+      firefox: '148',
       safari: '18.10'
     }
 
@@ -230,9 +230,9 @@ describe('getMdnBcdSupport - version comparison edge cases', () => {
     const { getMdnBcdSupport } = await import('./canIUseLoader')
 
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     // Features with ≤X in version_added should always return supported
@@ -249,9 +249,9 @@ describe('getMdnBcdSupport - edge cases', () => {
     const { getMdnBcdSupport } = await import('./canIUseLoader')
 
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     // Find a feature that's behind a flag (if available in BCD data)
@@ -269,9 +269,9 @@ describe('getMdnBcdSupport - edge cases', () => {
     const { getMdnBcdSupport } = await import('./canIUseLoader')
 
     const browserVersions = {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
 
     const support = await getMdnBcdSupport(

@@ -30,7 +30,7 @@ const CANIUSE_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Cache version - update this to force cache refresh
-const CACHE_VERSION = '2025-10-06'
+const CACHE_VERSION = '2026-03-23'
 
 // In-memory cache
 let canIUseData: CanIUseData | null = null
@@ -170,12 +170,12 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
     const data = await loadCanIUseData()
 
     // Get Chrome and Firefox versions directly from agents
-    const chromeVersion = data.agents.and_chr?.current_version || '141'
-    const firefoxVersion = data.agents.and_ff?.current_version || '143'
+    const chromeVersion = data.agents.and_chr?.current_version || '146'
+    const firefoxVersion = data.agents.and_ff?.current_version || '148'
 
     // For iOS Safari, use current_version directly if available (most reliable)
     // iOS Safari uses iOS version numbers (18.x, 26.x) matching the iOS release version
-    let safariVersion = '18.4' // Fallback
+    let safariVersion = '26.3' // Fallback
     const safariAgent = data.agents.ios_saf
 
     if (safariAgent?.current_version) {
@@ -208,9 +208,9 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
     console.error('[CanIUse] Error getting browser versions:', error)
     // Return fallback versions
     return {
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
     }
   }
 }
@@ -421,10 +421,10 @@ interface MdnBcdFeature {
 
 // MDN BCD CDN URL
 const MDN_BCD_URL
-  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.1.11/data.json'
+  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.3.8/data.json'
 
 // Cache version for MDN BCD
-const MDN_BCD_CACHE_VERSION = '2025-10-07'
+const MDN_BCD_CACHE_VERSION = '2026-03-23'
 
 // In-memory cache for MDN BCD data
 let mdnBcdData: unknown = null

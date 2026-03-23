@@ -48,7 +48,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251011.0",
     "@iconify-json/heroicons": "^1.2.3",
-    "@mdn/browser-compat-data": "^7.1.12",
+    "@mdn/browser-compat-data": "^7.3.8",
     "@nuxt/eslint": "^1.9.0",
     "@nuxt/test-utils": "^3.19.2",
     "@vitest/ui": "^3.2.4",

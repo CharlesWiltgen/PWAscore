@@ -39,8 +39,8 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@mdn/browser-compat-data':
-        specifier: ^7.1.12
-        version: 7.1.12
+        specifier: ^7.3.8
+        version: 7.3.8
       '@nuxt/eslint':
         specifier: ^1.9.0
         version: 1.9.0(@typescript-eslint/utils@8.45.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.22)(eslint@9.37.0(jiti@2.6.1))(magicast@0.3.5)(typescript@5.9.3)(vite@7.1.9(@types/node@24.7.2)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1))
@@ -1612,10 +1612,10 @@ packages:
     engines: { node: '>=18' }
     hasBin: true
 
-  '@mdn/browser-compat-data@7.1.12':
+  '@mdn/browser-compat-data@7.3.8':
     resolution:
       {
-        integrity: sha512-W3GkHRqD1eqUwkY2tasG73slXfx76mMzpWGs/K6nC7qsYwprZF+IQ2dva/HKjKhSxRiG6a00hoSuu8rGSnhbqg==
+        integrity: sha512-NxKcWM1ydMiJC2fvox3TpWstn5LmkM1wQ6Maw1BVqsVvmFR80TD4GVXT/qBRCGDhpNSxanuJp25DYkdAXJrFJQ==
       }
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -11323,7 +11323,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@mdn/browser-compat-data@7.1.12': {}
+  '@mdn/browser-compat-data@7.3.8': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:

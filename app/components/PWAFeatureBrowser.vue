@@ -420,21 +420,17 @@ function expandGroupCategories(groupId: string): void {
  * to expand group + all its categories
  */
 function handleGroupMetaClick(event: MouseEvent): void {
-  // Only process Meta-clicks
   if (!event.metaKey) return
 
-  // Find the clicked accordion button
   const target = event.target as HTMLElement
-  const button = target.closest('button')
-  if (!button) return
+  const groupEl = target.closest('[data-group-id]')
+    || target.closest('button')?.querySelector('[data-group-id]')
+  if (!groupEl) return
 
-  // Find the group ID by matching button text with group names
-  const buttonText = button.textContent?.trim()
-  const group = pwaFeatures.find(g => g.name === buttonText)
-  if (!group) return
+  const groupId = groupEl.getAttribute('data-group-id')
+  if (!groupId) return
 
-  // Expand all categories in this group
-  expandGroupCategories(group.id)
+  expandGroupCategories(groupId)
 }
 
 /**
@@ -589,6 +585,42 @@ const groupItems = createGroupItems(pwaFeatures)
                 :items="groupItems"
                 type="multiple"
               >
+                <template #default="{ item }">
+                  <span
+                    :data-group-id="item.value"
+                    class="inline-flex items-center gap-2"
+                  >
+                    {{ item.label }}
+                    <UTooltip
+                      v-if="browser.scores.groupScores[item.value]"
+                      :ui="{
+                        content:
+                          'bg-gray-900/90 dark:bg-gray-800/90 flex-col items-start h-auto'
+                      }"
+                    >
+                      <template #content>
+                        <div class="text-xs">
+                          <div class="mb-2">
+                            <span class="text-gray-400">Stable features:</span><br>
+                            {{ browser.scores.groupScores[item.value]?.unweighted }} raw
+                          </div>
+                          <div>
+                            <span class="text-gray-400">With experimental/non-standard:</span><br>
+                            {{ browser.scores.groupScores[item.value]?.weightedFull }} weighted,
+                            {{ browser.scores.groupScores[item.value]?.unweightedFull }} raw
+                          </div>
+                        </div>
+                      </template>
+                      <UBadge
+                        variant="subtle"
+                        color="neutral"
+                        :ui="{ base: 'px-[5px] py-[3px]' }"
+                      >
+                        {{ browser.scores.groupScores[item.value]?.weighted }}
+                      </UBadge>
+                    </UTooltip>
+                  </span>
+                </template>
                 <template
                   v-for="group in pwaFeatures"
                   :key="group.id"

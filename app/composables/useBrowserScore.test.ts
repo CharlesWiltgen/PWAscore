@@ -432,4 +432,169 @@ describe('useBrowserScore', () => {
       expect(scores.unweightedFull).toBeLessThanOrEqual(100)
     })
   })
+
+  describe('groupScores', () => {
+    type FeatureSpec = {
+      supportLevel: SupportLevel
+      weight?: number
+      experimental?: boolean
+      standardTrack?: boolean
+    }
+
+    function createMultiGroupData(
+      groups: Array<{
+        id: string
+        categories: Array<{ id: string, features: FeatureSpec[] }>
+      }>
+    ): PWAFeatureGroup[] {
+      return groups.map(g => ({
+        id: g.id,
+        name: g.id,
+        description: g.id,
+        categories: g.categories.map(c => ({
+          id: c.id,
+          name: c.id,
+          description: c.id,
+          features: c.features.map((f, i) => ({
+            id: `${g.id}-${c.id}-f${i}`,
+            name: `Feature ${i}`,
+            description: `Feature ${i}`,
+            weight: f.weight,
+            status: {
+              experimental: f.experimental ?? false,
+              standard_track: f.standardTrack ?? true,
+              deprecated: false
+            }
+          }))
+        }))
+      }))
+    }
+
+    function createMultiGroupGetSupport(
+      groups: Array<{
+        id: string
+        categories: Array<{ id: string, features: FeatureSpec[] }>
+      }>
+    ) {
+      const featureMap = new Map<string, FeatureSpec>()
+      for (const g of groups) {
+        for (const c of g.categories) {
+          c.features.forEach((f, i) => {
+            featureMap.set(`${g.id}-${c.id}-f${i}`, f)
+          })
+        }
+      }
+      return (featureId: string): BrowserSupport => {
+        const f = featureMap.get(featureId)
+        return {
+          chrome_android: f?.supportLevel || 'unknown',
+          firefox_android: f?.supportLevel || 'unknown',
+          safari_ios: f?.supportLevel || 'unknown',
+          status: {
+            experimental: f?.experimental ?? false,
+            standard_track: f?.standardTrack ?? true,
+            deprecated: false
+          }
+        }
+      }
+    }
+
+    test('should return groupScores keyed by group id', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [{ id: 'cat-1', features: [{ supportLevel: 'supported' as const }] }] },
+        { id: 'group-b', categories: [{ id: 'cat-2', features: [{ supportLevel: 'not-supported' as const }] }] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      expect(Object.keys(result.groupScores).sort()).toEqual(['group-a', 'group-b'])
+    })
+
+    test('should compute correct weighted score per group', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [{ id: 'cat-1', features: [
+          { supportLevel: 'supported' as const, weight: 3.0 },
+          { supportLevel: 'not-supported' as const, weight: 1.0 }
+        ] }] },
+        { id: 'group-b', categories: [{ id: 'cat-2', features: [
+          { supportLevel: 'supported' as const }
+        ] }] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      // group-a: (3.0*1.0 + 1.0*0.0) / (3.0+1.0) = 3.0/4.0 = 75%
+      expect(result.groupScores['group-a']!.weighted).toBe(75)
+      // group-b: 1.0/1.0 = 100%
+      expect(result.groupScores['group-b']!.weighted).toBe(100)
+    })
+
+    test('should accumulate across multiple categories in a group', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [
+          { id: 'cat-1', features: [{ supportLevel: 'supported' as const }] },
+          { id: 'cat-2', features: [{ supportLevel: 'not-supported' as const }] }
+        ] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      // (1.0 + 0.0) / 2.0 = 50%
+      expect(result.groupScores['group-a']!.weighted).toBe(50)
+    })
+
+    test('should exclude experimental features from stable group scores', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [{ id: 'cat-1', features: [
+          { supportLevel: 'supported' as const, experimental: false },
+          { supportLevel: 'supported' as const, experimental: true }
+        ] }] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      // Stable: 1 feature = 100%
+      expect(result.groupScores['group-a']!.weighted).toBe(100)
+      // Full: 2 features both supported = 100%
+      expect(result.groupScores['group-a']!.weightedFull).toBe(100)
+    })
+
+    test('should return 0 for group with all unknown features', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [{ id: 'cat-1', features: [
+          { supportLevel: 'unknown' as const },
+          { supportLevel: 'unknown' as const }
+        ] }] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      expect(result.groupScores['group-a']!.weighted).toBe(0)
+      expect(result.groupScores['group-a']!.unweighted).toBe(0)
+    })
+
+    test('should not affect overall scores', () => {
+      const groupDefs = [
+        { id: 'group-a', categories: [{ id: 'cat-1', features: [{ supportLevel: 'supported' as const }] }] },
+        { id: 'group-b', categories: [{ id: 'cat-2', features: [{ supportLevel: 'not-supported' as const }] }] }
+      ]
+      const data = createMultiGroupData(groupDefs)
+      const getSupport = createMultiGroupGetSupport(groupDefs)
+
+      const result = calculateBrowserScore('chrome_android', data, getSupport)
+
+      // Overall: (1.0 + 0.0) / 2.0 = 50%
+      expect(result.weighted).toBe(50)
+    })
+  })
 })

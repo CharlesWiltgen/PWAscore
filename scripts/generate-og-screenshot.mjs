@@ -37,9 +37,10 @@ function findChrome() {
 
 async function startDevServer() {
   console.log('Starting dev server...')
-  const server = spawn('npm', ['run', 'dev'], {
+  const server = spawn('pnpm', ['run', 'dev'], {
     detached: true,
-    stdio: 'pipe'
+    stdio: 'pipe',
+    env: { ...process.env, NUXT_DEVTOOLS_ENABLED: 'false' }
   })
 
   return new Promise((resolve, reject) => {
@@ -89,23 +90,31 @@ async function takeScreenshot() {
 
     console.log(`Navigating to ${DEV_SERVER_URL}...`)
     await page.goto(DEV_SERVER_URL, {
-      waitUntil: 'networkidle0',
-      timeout: 30000
+      waitUntil: 'domcontentloaded',
+      timeout: 60000
     })
 
-    // Wait for hero section to be visible
-    await page.waitForSelector('h1', { timeout: 10000 })
+    // Wait for browser score cards to render (inside ClientOnly, after API data loads)
+    console.log('Waiting for score cards to render...')
+    try {
+      await page.waitForFunction(
+        () => document.querySelectorAll('[class*="UCard"], .flex.flex-col.space-y-4 .font-semibold').length >= 3,
+        { timeout: 45000 }
+      )
+      console.log('✓ Score cards detected')
+    } catch {
+      console.warn('⚠ Score cards not detected, taking screenshot anyway')
+    }
 
-    // Give a moment for fonts and styles to load
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Extra time for fonts and final layout
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
     // Measure banner and header height to skip them
     const skipHeight = await page.evaluate(() => {
-      const banner = document.querySelector('[class*="banner"]')
       const header = document.querySelector('header')
-      const bannerHeight = banner?.offsetHeight || 0
-      const headerHeight = header?.offsetHeight || 0
-      return bannerHeight + headerHeight
+      const headerRect = header?.getBoundingClientRect()
+      // Skip everything above main content
+      return headerRect ? headerRect.bottom : 0
     })
 
     console.log(`Skipping banner and header (${skipHeight}px)`)

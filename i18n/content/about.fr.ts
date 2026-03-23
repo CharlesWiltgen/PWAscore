@@ -3,19 +3,19 @@ PWAscore fournit des comparaisons objectives et basées sur les données des cap
 
 ## Pourquoi
 
-J'ai créé cet outil pour combler un vide informationnel. Plutôt que de se fier à des anecdotes ou des informations obsolètes, les scores PWAscore sont basés sur des données provenant de bases de données de compatibilité faisant autorité, complétées par des recherches couvrant également les fonctionnalités expérimentales et propriétaires.
+J\u2019ai créé cet outil pour combler un vide informationnel. Plutôt que de se fier à des anecdotes ou des informations obsolètes, les scores PWAscore sont basés sur des données provenant de bases de données de compatibilité faisant autorité, complétées par des recherches couvrant également les fonctionnalités expérimentales et propriétaires.
 
 ## Quoi
 
 PWAscore évalue les navigateurs sur plus de 200 fonctionnalités PWA, notamment :
 
-- **Installation et cycle de vie** — Invites d'installation, mode autonome, service workers
+- **Installation et cycle de vie** — Invites d\u2019installation, mode autonome, service workers
 - **Intégration matérielle** — Caméra, géolocalisation, capteurs, accès au système de fichiers
 - **Capacités hors ligne** — Synchronisation en arrière-plan, stratégies de mise en cache, détection hors ligne
-- **Fonctionnalités UI/UX** — Modes d'affichage, écrans de démarrage, raccourcis d'application
+- **Fonctionnalités UI/UX** — Modes d\u2019affichage, écrans de démarrage, raccourcis d\u2019application
 - **API de performance** — Web Workers, IndexedDB, Cache API
 
-Chaque fonctionnalité est pondérée selon son importance, les capacités PWA essentielles comptant davantage que les fonctionnalités expérimentales. Les navigateurs reçoivent des scores séparés pour les fonctionnalités stables (prêtes pour la production) et l'ensemble des fonctionnalités (y compris expérimentales).
+Chaque fonctionnalité est pondérée selon son importance, les capacités PWA essentielles comptant davantage que les fonctionnalités expérimentales. Les navigateurs reçoivent des scores séparés pour les fonctionnalités stables (prêtes pour la production) et l\u2019ensemble des fonctionnalités (y compris expérimentales).
 
 ## Sources
 
@@ -38,7 +38,7 @@ PWAscore est construit avec ces technologies web modernes :
 
 Le site est open source et disponible sur [GitHub](https://github.com/CharlesWiltgen/PWAscore).
 
-## À propos de l'auteur
+## À propos de l\u2019auteur
 
 PWAscore a été créé par [Charles Wiltgen](https://github.com/CharlesWiltgen).
 

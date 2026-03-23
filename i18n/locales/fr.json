@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "PWAscore",
-    "title": "PWAscore - Fiches d'évaluation PWA des navigateurs",
+    "title": "PWAscore - Fiches d\u2019évaluation PWA des navigateurs",
     "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles populaires. Découvrez quels navigateurs prennent le mieux en charge les fonctionnalités PWA.",
     "ogImageAlt": "PWAscore - Comparez la prise en charge PWA entre navigateurs mobiles"
   },
@@ -16,7 +16,7 @@
     "about": "À propos"
   },
   "hero": {
-    "title": "Fiches d'évaluation PWA des navigateurs",
+    "title": "Fiches d\u2019évaluation PWA des navigateurs",
     "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles populaires (et bientôt de bureau)."
   },
   "browser": {
@@ -63,7 +63,7 @@
   },
   "scoresInfo": {
     "title": "À propos des scores PWA :",
-    "weightedImportance": "Le score principal est pondéré selon l'importance des fonctionnalités",
+    "weightedImportance": "Le score principal est pondéré selon l\u2019importance des fonctionnalités",
     "stableOnly": "Seules les fonctionnalités stables (non expérimentales) sont comptées",
     "tapOrHover": "Appuyez ou survolez un score pour voir :",
     "rawScores": "Scores bruts (pourcentage simple de fonctionnalités prises en charge)",
@@ -79,7 +79,7 @@
   },
   "about": {
     "title": "À propos — PWAscore",
-    "description": "Découvrez PWAscore, la fiche d'évaluation PWA de référence qui aide les développeurs à comparer la prise en charge PWA entre navigateurs.",
+    "description": "Découvrez PWAscore, la fiche d\u2019évaluation PWA de référence qui aide les développeurs à comparer la prise en charge PWA entre navigateurs.",
     "heading": "À propos de PWAscore"
   },
   "groups": {
@@ -99,7 +99,7 @@
     "window-management": "Gestion des fenêtres"
   },
   "categories": {
-    "app-installation": "Installation d'application",
+    "app-installation": "Installation d\u2019application",
     "service-workers": "Service Workers",
     "offline-support": "Prise en charge hors ligne",
     "push-notifications": "Notifications push",
@@ -111,7 +111,7 @@
     "connectivity": "Connectivité",
     "biometrics-security": "Biométrie et sécurité",
     "camera-microphone": "Caméra et microphone",
-    "screen-capture": "Capture d'écran",
+    "screen-capture": "Capture d\u2019écran",
     "media-playback": "Lecture multimédia",
     "detection-apis": "API de détection",
     "file-system": "Système de fichiers",
@@ -125,7 +125,7 @@
     "contacts": "Contacts",
     "protocol-handling": "Gestion des protocoles",
     "file-associations": "Associations de fichiers",
-    "app-shortcuts": "Raccourcis d'application",
+    "app-shortcuts": "Raccourcis d\u2019application",
     "speech-synthesis": "Synthèse vocale",
     "speech-recognition": "Reconnaissance vocale",
     "audio-apis": "API audio",

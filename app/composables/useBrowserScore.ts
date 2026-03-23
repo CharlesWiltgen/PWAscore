@@ -31,14 +31,49 @@ export interface BrowserScoreResult extends BrowserScores {
   groupScores: Record<string, BrowserScores>
 }
 
+type ScoreAccumulator = {
+  weightedPoints: number
+  totalPossibleWeight: number
+  unweightedPoints: number
+  featureCount: number
+}
+
+function createAccumulator(): ScoreAccumulator {
+  return { weightedPoints: 0, totalPossibleWeight: 0, unweightedPoints: 0, featureCount: 0 }
+}
+
+function addToAccumulator(acc: ScoreAccumulator, supportLevel: number, featureWeight: number): void {
+  acc.weightedPoints += supportLevel * featureWeight
+  acc.totalPossibleWeight += featureWeight
+  acc.unweightedPoints += supportLevel
+  acc.featureCount++
+}
+
+function calculatePercentages(stable: ScoreAccumulator, full: ScoreAccumulator): BrowserScores {
+  return {
+    weighted:
+      stable.featureCount > 0 && stable.totalPossibleWeight > 0
+        ? Math.round((stable.weightedPoints / stable.totalPossibleWeight) * 100)
+        : 0,
+    unweighted:
+      stable.featureCount > 0
+        ? Math.round((stable.unweightedPoints / stable.featureCount) * 100)
+        : 0,
+    weightedFull:
+      full.featureCount > 0 && full.totalPossibleWeight > 0
+        ? Math.round((full.weightedPoints / full.totalPossibleWeight) * 100)
+        : 0,
+    unweightedFull:
+      full.featureCount > 0
+        ? Math.round((full.unweightedPoints / full.featureCount) * 100)
+        : 0
+  }
+}
+
 /**
  * Calculate browser score based on feature support
  */
 export function useBrowserScore() {
-  /**
-   * Get weight for a support level
-   * Treat 'unknown' as 0.0 to allow scores to start at 0 and only increment
-   */
   const getSupportWeight = (level: SupportLevel): number => {
     switch (level) {
       case 'supported':
@@ -52,10 +87,6 @@ export function useBrowserScore() {
     }
   }
 
-  /**
-   * Check if a feature should be excluded from the primary score
-   * Excludes experimental, non-standard, and deprecated features
-   */
   const shouldExcludeFromPrimaryScore = (support: BrowserSupport): boolean => {
     if (!support.status) return false
     return (
@@ -64,39 +95,6 @@ export function useBrowserScore() {
       || support.status.deprecated
     )
   }
-
-  /**
-   * Calculate score for a specific browser across all features
-   * Only includes features with known support status (excludes 'unknown')
-   * Returns both stable scores (excluding experimental/non-standard/deprecated) and full scores
-   */
-  const calculatePercentages = (
-    stableWeightedPoints: number,
-    stableTotalPossibleWeight: number,
-    stableUnweightedPoints: number,
-    stableFeatureCount: number,
-    fullWeightedPoints: number,
-    fullTotalPossibleWeight: number,
-    fullUnweightedPoints: number,
-    fullFeatureCount: number
-  ): BrowserScores => ({
-    weighted:
-      stableFeatureCount > 0 && stableTotalPossibleWeight > 0
-        ? Math.round((stableWeightedPoints / stableTotalPossibleWeight) * 100)
-        : 0,
-    unweighted:
-      stableFeatureCount > 0
-        ? Math.round((stableUnweightedPoints / stableFeatureCount) * 100)
-        : 0,
-    weightedFull:
-      fullFeatureCount > 0 && fullTotalPossibleWeight > 0
-        ? Math.round((fullWeightedPoints / fullTotalPossibleWeight) * 100)
-        : 0,
-    unweightedFull:
-      fullFeatureCount > 0
-        ? Math.round((fullUnweightedPoints / fullFeatureCount) * 100)
-        : 0
-  })
 
   const calculateBrowserScore = (
     browserId: BrowserId,
@@ -107,28 +105,13 @@ export function useBrowserScore() {
       mdnBcdPath?: string
     ) => BrowserSupport
   ): BrowserScoreResult => {
-    // Overall accumulators
-    let stableWeightedPoints = 0
-    let stableTotalPossibleWeight = 0
-    let stableUnweightedPoints = 0
-    let stableFeatureCount = 0
-    let fullWeightedPoints = 0
-    let fullTotalPossibleWeight = 0
-    let fullUnweightedPoints = 0
-    let fullFeatureCount = 0
-
+    const overallStable = createAccumulator()
+    const overallFull = createAccumulator()
     const groupScores: Record<string, BrowserScores> = {}
 
     for (const group of featureGroups) {
-      // Per-group accumulators
-      let gStableWP = 0
-      let gStableTPW = 0
-      let gStableUP = 0
-      let gStableFC = 0
-      let gFullWP = 0
-      let gFullTPW = 0
-      let gFullUP = 0
-      let gFullFC = 0
+      const groupStable = createAccumulator()
+      const groupFull = createAccumulator()
 
       for (const category of group.categories) {
         for (const feature of category.features) {
@@ -144,40 +127,22 @@ export function useBrowserScore() {
             const featureWeight = feature.weight ?? 1.0
             const excludeFromPrimary = shouldExcludeFromPrimaryScore(support)
 
-            fullWeightedPoints += supportLevel * featureWeight
-            fullTotalPossibleWeight += featureWeight
-            fullUnweightedPoints += supportLevel
-            fullFeatureCount++
-            gFullWP += supportLevel * featureWeight
-            gFullTPW += featureWeight
-            gFullUP += supportLevel
-            gFullFC++
+            addToAccumulator(overallFull, supportLevel, featureWeight)
+            addToAccumulator(groupFull, supportLevel, featureWeight)
 
             if (!excludeFromPrimary) {
-              stableWeightedPoints += supportLevel * featureWeight
-              stableTotalPossibleWeight += featureWeight
-              stableUnweightedPoints += supportLevel
-              stableFeatureCount++
-              gStableWP += supportLevel * featureWeight
-              gStableTPW += featureWeight
-              gStableUP += supportLevel
-              gStableFC++
+              addToAccumulator(overallStable, supportLevel, featureWeight)
+              addToAccumulator(groupStable, supportLevel, featureWeight)
             }
           }
         }
       }
 
-      groupScores[group.id] = calculatePercentages(
-        gStableWP, gStableTPW, gStableUP, gStableFC,
-        gFullWP, gFullTPW, gFullUP, gFullFC
-      )
+      groupScores[group.id] = calculatePercentages(groupStable, groupFull)
     }
 
     return {
-      ...calculatePercentages(
-        stableWeightedPoints, stableTotalPossibleWeight, stableUnweightedPoints, stableFeatureCount,
-        fullWeightedPoints, fullTotalPossibleWeight, fullUnweightedPoints, fullFeatureCount
-      ),
+      ...calculatePercentages(overallStable, overallFull),
       groupScores
     }
   }

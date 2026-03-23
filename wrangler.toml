@@ -4,6 +4,7 @@ main = ".output/server/index.mjs"
 
 # Workers configuration
 workers_dev = true
+preview_urls = false
 
 # Compatibility flags
 compatibility_flags = ["nodejs_compat"]

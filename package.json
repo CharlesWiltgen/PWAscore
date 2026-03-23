@@ -59,7 +59,7 @@
     "lint-staged": "^16.4.0",
     "puppeteer-core": "^24.40.0",
     "sharp": "^0.34.5",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "vitest": "^4.1.1",
     "vue-tsc": "^3.2.6",
     "wrangler": "^4.76.0"

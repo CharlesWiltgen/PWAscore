@@ -48,6 +48,13 @@ useSeoMeta({
 
 <template>
   <UApp :toaster="{ expand: false }">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-md focus:text-sm focus:font-medium"
+    >
+      Skip to main content
+    </a>
+
     <UBanner :ui="{ container: 'flex items-center justify-center gap-3 h-12', title: 'text-md', root: '-my-0.5' }">
       <template #title>
         <span>This is a <strong>preview release</strong> of PWAscore<span class="hidden lg:inline"> • Please
@@ -56,6 +63,7 @@ useSeoMeta({
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1 hover:underline ml-0.5"
+          aria-label="Report issues on GitHub"
         >
           <UIcon
             name="i-simple-icons-github"
@@ -68,7 +76,7 @@ useSeoMeta({
 
     <AppHeader />
 
-    <UMain>
+    <UMain id="main-content">
       <NuxtPage />
     </UMain>
 

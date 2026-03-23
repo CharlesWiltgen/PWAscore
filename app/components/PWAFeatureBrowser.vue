@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+import { nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useSwipe } from '@vueuse/core'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type {
@@ -20,6 +20,15 @@ const openCategories = ref<string[]>([])
 
 // Hide experimental features state
 const hideExperimental = ref<boolean>(false)
+
+// Screen reader announcements
+const liveAnnouncement = ref<string>('')
+function announce(message: string): void {
+  liveAnnouncement.value = ''
+  nextTick(() => {
+    liveAnnouncement.value = message
+  })
+}
 
 // Mobile browser selector state
 const selectedBrowserIndex = ref<number>(0)
@@ -66,6 +75,7 @@ function expandAll(): void {
 
   openGroups.value = [...allGroupIds]
   openCategories.value = [...allCategoryIds]
+  announce('All groups expanded')
 }
 
 /**
@@ -74,19 +84,22 @@ function expandAll(): void {
 function collapseAll(): void {
   openGroups.value = []
   openCategories.value = []
+  announce('All groups collapsed')
 }
 
 // Keyboard shortcuts
 function handleKeydown(event: KeyboardEvent): void {
-  // Cmd/Ctrl + E to expand all
-  if ((event.metaKey || event.ctrlKey) && event.key === 'e') {
+  const tag = (event.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
+  // Ctrl + E to toggle expand/collapse all
+  if (event.ctrlKey && !event.metaKey && event.key === 'e') {
     event.preventDefault()
-    expandAll()
-  }
-  // Cmd/Ctrl + W to collapse all
-  if ((event.metaKey || event.ctrlKey) && event.key === 'w') {
-    event.preventDefault()
-    collapseAll()
+    if (isAllExpanded.value) {
+      collapseAll()
+    } else {
+      expandAll()
+    }
   }
 }
 
@@ -119,6 +132,7 @@ watch(hideExperimental, (newValue) => {
     delete query.hideExperimental
   }
   router.replace({ query })
+  announce(newValue ? 'Experimental features hidden' : 'Experimental features shown')
 })
 
 // Load support data for all features on mount
@@ -288,6 +302,14 @@ const browserTabs = computed(() =>
     value: String(index)
   }))
 )
+
+// Announce mobile browser tab changes
+watch(selectedBrowserIndex, (index) => {
+  if (!isLargeScreen.value) {
+    const browser = browsers.value[index]
+    if (browser) announce(`Showing ${browser.name}`)
+  }
+})
 
 // Computed property for v-model binding (converts between string and number)
 const selectedBrowserTab = computed({
@@ -466,6 +488,15 @@ const groupItems = createGroupItems(pwaFeatures)
 
 <template>
   <div>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      class="sr-only"
+    >
+      {{ liveAnnouncement }}
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Options Bar -->
       <PWAFeatureBrowserOptions
@@ -483,6 +514,7 @@ const groupItems = createGroupItems(pwaFeatures)
         <UTabs
           v-model="selectedBrowserTab"
           :items="browserTabs"
+          aria-label="Select browser"
           orientation="horizontal"
           default-value="0"
           size="lg"
@@ -502,11 +534,18 @@ const groupItems = createGroupItems(pwaFeatures)
           class="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
           <!-- Browser Columns -->
-          <div
+          <section
             v-for="browser in visibleBrowsers"
             :key="browser.id"
+            :aria-labelledby="`heading-${browser.id}`"
             class="flex flex-col space-y-4"
           >
+            <h2
+              :id="`heading-${browser.id}`"
+              class="sr-only"
+            >
+              {{ browser.name }} for {{ browser.platformIcon === 'i-simple-icons-android' ? 'Android' : 'iOS' }}
+            </h2>
             <!-- Browser Header Card -->
             <UCard>
               <template #header>
@@ -531,12 +570,14 @@ const groupItems = createGroupItems(pwaFeatures)
                           for
                           <UIcon
                             :name="browser.platformIcon"
+                            aria-hidden="true"
                             :class="
                               browser.platformIcon === 'i-simple-icons-android'
                                 ? 'w-[18px] h-[18px]'
                                 : 'w-4 h-4'
                             "
                           />
+                          <span class="sr-only">{{ browser.platformIcon === 'i-simple-icons-android' ? 'Android' : 'iOS' }}</span>
                         </span>
                       </div>
                       <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -732,7 +773,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                       :href="getCanIUseUrl(feature.canIUseId)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      aria-label="View browser compatibility on Can I Use"
+                                      :aria-label="`${feature.name} on Can I Use`"
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       CIU
@@ -750,7 +791,7 @@ const groupItems = createGroupItems(pwaFeatures)
                                       :href="getMdnUrl(feature.id)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      aria-label="View documentation on MDN Web Docs"
+                                      :aria-label="`${feature.name} on MDN Web Docs`"
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       MDN
@@ -791,7 +832,7 @@ const groupItems = createGroupItems(pwaFeatures)
                 </template>
               </UAccordion>
             </div>
-          </div>
+          </section>
         </div>
       </ClientOnly>
     </div>

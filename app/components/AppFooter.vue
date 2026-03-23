@@ -8,12 +8,14 @@
         <a
           href="https://caniuse.com"
           target="_blank"
+          rel="noopener noreferrer"
           class="underline"
         >Can I Use</a>
         (CC BY 4.0) and
         <a
           href="https://github.com/mdn/browser-compat-data"
           target="_blank"
+          rel="noopener noreferrer"
           class="underline"
         >MDN BCD</a>
         (CC0)

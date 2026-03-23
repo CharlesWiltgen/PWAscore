@@ -47,6 +47,7 @@ const isScoresInfoOpen = ref(false)
               : 'i-heroicons-chevron-double-down'
           "
           :label="isAllExpanded ? 'Collapse All' : 'Expand All'"
+          aria-keyshortcuts="Control+E"
           color="neutral"
           variant="ghost"
           size="md"

@@ -609,7 +609,10 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             aria-hidden="true"
                             class="w-4 h-4"
                           />
-                          <span class="sr-only">{{
+                          <span v-if="browser.platformIcon" class="sr-only">{{
+                            browser.platformLabel
+                          }}</span>
+                          <span v-else>{{
                             browser.platformLabel
                           }}</span>
                         </span>

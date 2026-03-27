@@ -6,6 +6,11 @@ main = ".output/server/index.mjs"
 workers_dev = true
 preview_urls = false
 
+# Custom domain
+routes = [
+  { pattern = "pwascore.com", custom_domain = true }
+]
+
 # Compatibility flags
 compatibility_flags = ["nodejs_compat"]
 

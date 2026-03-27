@@ -183,6 +183,9 @@ export function useBrowserSupport() {
           = support.chrome_android !== 'unknown'
             || support.firefox_android !== 'unknown'
             || support.safari_ios !== 'unknown'
+            || support.chrome !== 'unknown'
+            || support.firefox !== 'unknown'
+            || support.safari !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided
@@ -211,6 +214,9 @@ export function useBrowserSupport() {
           = support.chrome_android !== 'unknown'
             || support.firefox_android !== 'unknown'
             || support.safari_ios !== 'unknown'
+            || support.chrome !== 'unknown'
+            || support.firefox !== 'unknown'
+            || support.safari !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided

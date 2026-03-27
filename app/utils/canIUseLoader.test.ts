@@ -60,7 +60,10 @@ describe('getCanIUseSupport', () => {
     expect(support).toEqual({
       chrome_android: 'supported',
       firefox_android: 'supported',
-      safari_ios: 'supported'
+      safari_ios: 'supported',
+      chrome: 'supported',
+      firefox: 'supported',
+      safari: 'supported'
     })
   })
 
@@ -79,7 +82,10 @@ describe('getCanIUseSupport', () => {
     expect(support).toEqual({
       chrome_android: 'unknown',
       firefox_android: 'unknown',
-      safari_ios: 'unknown'
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
     })
   })
 
@@ -138,7 +144,10 @@ describe('getMdnBcdSupport', () => {
     expect(support).toEqual({
       chrome_android: 'unknown',
       firefox_android: 'unknown',
-      safari_ios: 'unknown'
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
     })
   })
 
@@ -284,6 +293,67 @@ describe('getMdnBcdSupport - edge cases', () => {
     expect(typeof support.status?.experimental).toBe('boolean')
     expect(typeof support.status?.standard_track).toBe('boolean')
     expect(typeof support.status?.deprecated).toBe('boolean')
+  })
+})
+
+describe('getCanIUseSupport - desktop browsers', () => {
+  test('should return desktop support for service workers', async () => {
+    const browserVersions = {
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
+    }
+
+    const support = await getCanIUseSupport('serviceworkers', browserVersions)
+
+    expect(support.chrome).toBe('supported')
+    expect(support.firefox).toBe('supported')
+    expect(support.safari).toBe('supported')
+  })
+
+  test('should return desktop support for universally supported features', async () => {
+    const browserVersions = {
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
+    }
+
+    const support = await getCanIUseSupport('web-app-manifest', browserVersions)
+
+    expect(support.chrome).toBe('supported')
+    expect(support.firefox).toBe('supported')
+    expect(support.safari).toBe('supported')
+  })
+
+  test('should return unknown for non-existent feature on desktop', async () => {
+    const browserVersions = {
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
+    }
+
+    const support = await getCanIUseSupport('non-existent-feature-xyz', browserVersions)
+
+    expect(support.chrome).toBe('unknown')
+    expect(support.firefox).toBe('unknown')
+    expect(support.safari).toBe('unknown')
+  })
+})
+
+describe('getMdnBcdSupport - desktop browsers', () => {
+  test('should return desktop support for valid MDN BCD path', async () => {
+    const browserVersions = {
+      chrome: '146',
+      firefox: '148',
+      safari: '26.3'
+    }
+
+    const { getMdnBcdSupport } = await import('./canIUseLoader')
+    const support = await getMdnBcdSupport('api.Navigator.setAppBadge', browserVersions)
+
+    expect(support.chrome).toBe('supported')
+    expect(support.firefox).toBe('not-supported')
+    expect(support.safari).toBe('supported')
   })
 })
 

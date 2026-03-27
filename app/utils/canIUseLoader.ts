@@ -325,6 +325,9 @@ export async function getCanIUseSupport(
   chrome_android: SupportLevel
   firefox_android: SupportLevel
   safari_ios: SupportLevel
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
 }> {
   try {
     // Special case: Some features are universally supported but not in data-2.0.json
@@ -334,7 +337,10 @@ export async function getCanIUseSupport(
       return {
         chrome_android: 'supported',
         firefox_android: 'supported',
-        safari_ios: 'supported'
+        safari_ios: 'supported',
+        chrome: 'supported',
+        firefox: 'supported',
+        safari: 'supported'
       }
     }
 
@@ -354,7 +360,10 @@ export async function getCanIUseSupport(
       return {
         chrome_android: 'unknown',
         firefox_android: 'unknown',
-        safari_ios: 'unknown'
+        safari_ios: 'unknown',
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown'
       }
     }
 
@@ -362,30 +371,53 @@ export async function getCanIUseSupport(
     // and_chr = Chrome for Android
     // and_ff = Firefox for Android
     // ios_saf = Safari on iOS
-    const chromeStatus = findBrowserVersion(
+    const chromeAndroidStatus = findBrowserVersion(
       featureData.stats?.and_chr,
       browserVersions.chrome
     )
-    const firefoxStatus = findBrowserVersion(
+    const firefoxAndroidStatus = findBrowserVersion(
       featureData.stats?.and_ff,
       browserVersions.firefox
     )
-    const safariStatus = findBrowserVersion(
+    const safariIosStatus = findBrowserVersion(
       featureData.stats?.ios_saf,
       browserVersions.safari
     )
 
+    // Query desktop browser agents
+    // chrome = Chrome Desktop
+    // firefox = Firefox Desktop
+    // safari = Safari Desktop
+    const chromeDesktopStatus = findBrowserVersion(
+      featureData.stats?.chrome,
+      browserVersions.chrome
+    )
+    const firefoxDesktopStatus = findBrowserVersion(
+      featureData.stats?.firefox,
+      browserVersions.firefox
+    )
+    const safariDesktopStatus = findBrowserVersion(
+      featureData.stats?.safari,
+      browserVersions.safari
+    )
+
     return {
-      chrome_android: parseStatus(chromeStatus),
-      firefox_android: parseStatus(firefoxStatus),
-      safari_ios: parseStatus(safariStatus)
+      chrome_android: parseStatus(chromeAndroidStatus),
+      firefox_android: parseStatus(firefoxAndroidStatus),
+      safari_ios: parseStatus(safariIosStatus),
+      chrome: parseStatus(chromeDesktopStatus),
+      firefox: parseStatus(firefoxDesktopStatus),
+      safari: parseStatus(safariDesktopStatus)
     }
   } catch (error) {
     console.error(`Error getting CanIUse support for ${canIUseId}:`, error)
     return {
       chrome_android: 'unknown',
       firefox_android: 'unknown',
-      safari_ios: 'unknown'
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
     }
   }
 }
@@ -717,6 +749,9 @@ export async function getMdnBcdSupport(
   chrome_android: SupportLevel
   firefox_android: SupportLevel
   safari_ios: SupportLevel
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
   status?: FeatureStatus
 }> {
   try {
@@ -728,7 +763,10 @@ export async function getMdnBcdSupport(
       return {
         chrome_android: 'unknown',
         firefox_android: 'unknown',
-        safari_ios: 'unknown'
+        safari_ios: 'unknown',
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown'
       }
     }
 
@@ -736,24 +774,34 @@ export async function getMdnBcdSupport(
     const status = feature.__compat.status
 
     // Check mobile browser support
-    const chromeSupport = support.chrome_android
-    const firefoxSupport = support.firefox_android
-    const safariSupport = support.safari_ios
+    const chromeAndroid = support.chrome_android
+      ? isVersionSupported(support.chrome_android, browserVersions.chrome)
+      : { level: 'unknown' as const, partial: false }
+    const firefoxAndroid = support.firefox_android
+      ? isVersionSupported(support.firefox_android, browserVersions.firefox)
+      : { level: 'unknown' as const, partial: false }
+    const safariIos = support.safari_ios
+      ? isVersionSupported(support.safari_ios, browserVersions.safari)
+      : { level: 'unknown' as const, partial: false }
 
-    const chrome = chromeSupport
-      ? isVersionSupported(chromeSupport, browserVersions.chrome)
+    // Check desktop browser support
+    const chromeDesktop = support.chrome
+      ? isVersionSupported(support.chrome, browserVersions.chrome)
       : { level: 'unknown' as const, partial: false }
-    const firefox = firefoxSupport
-      ? isVersionSupported(firefoxSupport, browserVersions.firefox)
+    const firefoxDesktop = support.firefox
+      ? isVersionSupported(support.firefox, browserVersions.firefox)
       : { level: 'unknown' as const, partial: false }
-    const safari = safariSupport
-      ? isVersionSupported(safariSupport, browserVersions.safari)
+    const safariDesktop = support.safari
+      ? isVersionSupported(support.safari, browserVersions.safari)
       : { level: 'unknown' as const, partial: false }
 
     return {
-      chrome_android: chrome.partial ? 'partial' : chrome.level,
-      firefox_android: firefox.partial ? 'partial' : firefox.level,
-      safari_ios: safari.partial ? 'partial' : safari.level,
+      chrome_android: chromeAndroid.partial ? 'partial' : chromeAndroid.level,
+      firefox_android: firefoxAndroid.partial ? 'partial' : firefoxAndroid.level,
+      safari_ios: safariIos.partial ? 'partial' : safariIos.level,
+      chrome: chromeDesktop.partial ? 'partial' : chromeDesktop.level,
+      firefox: firefoxDesktop.partial ? 'partial' : firefoxDesktop.level,
+      safari: safariDesktop.partial ? 'partial' : safariDesktop.level,
       status: status
         ? {
             experimental: status.experimental || false,
@@ -767,7 +815,10 @@ export async function getMdnBcdSupport(
     return {
       chrome_android: 'unknown',
       firefox_android: 'unknown',
-      safari_ios: 'unknown'
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
     }
   }
 }

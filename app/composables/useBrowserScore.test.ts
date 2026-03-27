@@ -242,6 +242,28 @@ describe('useBrowserScore', () => {
     })
   })
 
+  describe('desktop browser scoring', () => {
+    test('should calculate scores for desktop browser IDs', () => {
+      const { groups, getSupport } = createTestData([
+        { supportLevel: 'supported' },
+        { supportLevel: 'partial' },
+        { supportLevel: 'not-supported' }
+      ])
+      const scores = calculateBrowserScore('chrome', groups, getSupport)
+      // (1.0 + 0.5 + 0.0) / 3.0 = 50%
+      expect(scores.weighted).toBe(50)
+      expect(scores.unweighted).toBe(50)
+    })
+
+    test('should calculate scores for safari desktop', () => {
+      const { groups, getSupport } = createTestData([
+        { supportLevel: 'supported' }
+      ])
+      const scores = calculateBrowserScore('safari', groups, getSupport)
+      expect(scores.weighted).toBe(100)
+    })
+  })
+
   describe('groupScores', () => {
     function createMultiGroupData(
       groups: Array<{

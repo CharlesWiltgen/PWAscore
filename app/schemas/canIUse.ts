@@ -99,10 +99,16 @@ export const BrowserSupportSchema = v.object({
   chrome_android: SupportLevelSchema,
   firefox_android: SupportLevelSchema,
   safari_ios: SupportLevelSchema,
+  chrome: v.optional(SupportLevelSchema),
+  firefox: v.optional(SupportLevelSchema),
+  safari: v.optional(SupportLevelSchema),
   status: v.optional(FeatureStatusSchema),
   chrome_androidVersion: v.optional(v.string()),
   firefox_androidVersion: v.optional(v.string()),
-  safari_iosVersion: v.optional(v.string())
+  safari_iosVersion: v.optional(v.string()),
+  chromeVersion: v.optional(v.string()),
+  firefoxVersion: v.optional(v.string()),
+  safariVersion: v.optional(v.string())
 })
 
 export type BrowserSupport = v.InferOutput<typeof BrowserSupportSchema>

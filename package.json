@@ -51,6 +51,7 @@
     "@mdn/browser-compat-data": "^7.3.8",
     "@nuxt/eslint": "^1.15.2",
     "@nuxt/test-utils": "^4.0.0",
+    "@nuxtjs/i18n": "^10.2.4",
     "@vitest/ui": "^4.1.1",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^10.1.0",

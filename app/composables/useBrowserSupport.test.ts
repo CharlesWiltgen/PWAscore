@@ -249,6 +249,18 @@ describe('useBrowserSupport', () => {
     })
   })
 
+  describe('desktop browser support', () => {
+    test('should return unknown for desktop browser fields on unloaded features', () => {
+      const { getSupport } = useBrowserSupport()
+
+      const support = getSupport('unknown-feature')
+
+      expect(support.chrome).toBe('unknown')
+      expect(support.firefox).toBe('unknown')
+      expect(support.safari).toBe('unknown')
+    })
+  })
+
   describe('cache key precedence', () => {
     test('should use composite cache key when both canIUseId and mdnBcdPath provided', async () => {
       const { loadSupport, getSupport } = useBrowserSupport()

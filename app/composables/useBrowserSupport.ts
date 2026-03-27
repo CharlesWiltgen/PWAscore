@@ -17,35 +17,40 @@ import { validateManualSupport } from '../data/manual-browser-support.schema'
 
 export type SupportLevel = 'supported' | 'partial' | 'not-supported' | 'unknown'
 
-/**
- * Platform-specific browser identifiers
- * Mobile browsers: chrome_android, firefox_android, safari_ios
- * (Desktop browsers will be added in the future: chrome, firefox, safari)
- */
-export type BrowserId = 'chrome_android' | 'firefox_android' | 'safari_ios'
+export type Platform = 'mobile' | 'desktop'
 
 /**
- * Browser support data for a feature across platforms
- * Properties use platform-specific naming to match CanIUse/MDN BCD conventions
+ * Platform-specific browser identifiers
+ * Mobile: chrome_android, firefox_android, safari_ios
+ * Desktop: chrome, firefox, safari
  */
+export type BrowserId =
+  | 'chrome_android' | 'firefox_android' | 'safari_ios'
+  | 'chrome' | 'firefox' | 'safari'
+
 export interface BrowserSupport {
   chrome_android: SupportLevel
   firefox_android: SupportLevel
   safari_ios: SupportLevel
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
   status?: FeatureStatus
-  // Version where feature was added (optional, for future use)
   chrome_androidVersion?: string
   firefox_androidVersion?: string
   safari_iosVersion?: string
+  chromeVersion?: string
+  firefoxVersion?: string
+  safariVersion?: string
 }
 
-/**
- * Unknown support fallback
- */
 const UNKNOWN_SUPPORT: BrowserSupport = {
   chrome_android: 'unknown',
   firefox_android: 'unknown',
-  safari_ios: 'unknown'
+  safari_ios: 'unknown',
+  chrome: 'unknown',
+  firefox: 'unknown',
+  safari: 'unknown'
 }
 
 /**
@@ -53,7 +58,19 @@ const UNKNOWN_SUPPORT: BrowserSupport = {
  * Used for vendor-specific APIs that aren't tracked by standard databases
  * Validated at module load time to catch errors early
  */
-const MANUAL_SUPPORT: Record<string, BrowserSupport> = validateManualSupport(manualSupportData)
+function normalizeManualSupport(data: Record<string, unknown>): Record<string, BrowserSupport> {
+  const validated = validateManualSupport(data)
+  const result: Record<string, BrowserSupport> = {}
+  for (const [key, entry] of Object.entries(validated)) {
+    result[key] = {
+      ...UNKNOWN_SUPPORT,
+      ...entry
+    }
+  }
+  return result
+}
+
+const MANUAL_SUPPORT: Record<string, BrowserSupport> = normalizeManualSupport(manualSupportData)
 
 /**
  * Default browser versions (used as fallback)

@@ -111,7 +111,7 @@ export const BrowserSupportSchema = v.object({
   safariVersion: v.optional(v.string())
 })
 
-export type BrowserSupport = v.InferOutput<typeof BrowserSupportSchema>
+export type BrowserSupportInput = v.InferOutput<typeof BrowserSupportSchema>
 
 /**
  * Validation helper functions
@@ -176,7 +176,7 @@ export function safeParseMdnBcdFeature(data: unknown): {
  */
 export function safeParseBrowserSupport(data: unknown): {
   success: boolean
-  data?: BrowserSupport
+  data?: BrowserSupportInput
   error?: string
 } {
   try {

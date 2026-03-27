@@ -20,6 +20,9 @@ describe('Manual Browser Support Data Integrity', () => {
       expect(validLevels).toContain(support.chrome_android)
       expect(validLevels).toContain(support.firefox_android)
       expect(validLevels).toContain(support.safari_ios)
+      if (support.chrome) expect(validLevels).toContain(support.chrome)
+      if (support.firefox) expect(validLevels).toContain(support.firefox)
+      if (support.safari) expect(validLevels).toContain(support.safari)
     })
   })
 
@@ -116,6 +119,20 @@ describe('Manual Browser Support Data Integrity', () => {
       if (support.safari_ios === 'supported' && support.safari_iosVersion) {
         expect(typeof support.safari_iosVersion).toBe('string')
         expect(support.safari_iosVersion.length).toBeGreaterThan(0)
+      }
+
+      // Desktop version fields
+      if (support.chromeVersion) {
+        expect(typeof support.chromeVersion).toBe('string')
+        expect(support.chromeVersion.length).toBeGreaterThan(0)
+      }
+      if (support.firefoxVersion) {
+        expect(typeof support.firefoxVersion).toBe('string')
+        expect(support.firefoxVersion.length).toBeGreaterThan(0)
+      }
+      if (support.safariVersion) {
+        expect(typeof support.safariVersion).toBe('string')
+        expect(support.safariVersion.length).toBeGreaterThan(0)
       }
     })
   })

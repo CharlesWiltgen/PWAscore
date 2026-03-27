@@ -7,6 +7,7 @@
     "firefox": "not-supported",
     "safari": "supported",
     "safari_iosVersion": "10.1",
+    "safariVersion": "11.1",
     "status": {
       "experimental": false,
       "standard_track": false,
@@ -21,6 +22,7 @@
     "firefox": "not-supported",
     "safari": "not-supported",
     "chrome_androidVersion": "61",
+    "chromeVersion": "61",
     "status": {
       "experimental": false,
       "standard_track": false,
@@ -35,6 +37,7 @@
     "firefox": "not-supported",
     "safari": "supported",
     "safari_iosVersion": "18.4",
+    "safariVersion": "16",
     "status": {
       "experimental": true,
       "standard_track": false,

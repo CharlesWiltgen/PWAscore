@@ -38,20 +38,32 @@ const isScoresInfoOpen = ref(false)
     <div class="flex items-center justify-between mb-6">
       <!-- Left: Platform toggle + Hide Experimental -->
       <div class="flex-1 flex items-center gap-4">
-        <UButtonGroup size="sm">
-          <UButton
-            :label="t('options.mobile')"
-            :color="props.platform === 'mobile' ? 'primary' : 'neutral'"
-            :variant="props.platform === 'mobile' ? 'solid' : 'outline'"
+        <div class="inline-flex rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
+          <button
+            type="button"
+            :class="[
+              'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+              props.platform === 'mobile'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            ]"
             @click="emit('update:platform', 'mobile')"
-          />
-          <UButton
-            :label="t('options.desktop')"
-            :color="props.platform === 'desktop' ? 'primary' : 'neutral'"
-            :variant="props.platform === 'desktop' ? 'solid' : 'outline'"
+          >
+            {{ t('options.mobile') }}
+          </button>
+          <button
+            type="button"
+            :class="[
+              'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+              props.platform === 'desktop'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            ]"
             @click="emit('update:platform', 'desktop')"
-          />
-        </UButtonGroup>
+          >
+            {{ t('options.desktop') }}
+          </button>
+        </div>
         <UCheckbox
           :model-value="hideExperimental"
           :label="t('options.hideExperimental')"
@@ -60,7 +72,7 @@ const isScoresInfoOpen = ref(false)
       </div>
 
       <!-- Center: Expand/Collapse toggle -->
-      <div class="flex-1 flex justify-center">
+      <div class="flex justify-center">
         <UButton
           :icon="
             isAllExpanded
@@ -82,7 +94,7 @@ const isScoresInfoOpen = ref(false)
       </div>
 
       <!-- Right: How Scores Work disclosure -->
-      <div class="flex-1 flex justify-end">
+      <div class="flex justify-end">
         <UButton
           id="scores-info-button"
           :label="t('options.howScoresWork')"

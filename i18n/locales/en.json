@@ -17,7 +17,7 @@
   },
   "hero": {
     "title": "PWA Browser Scorecards",
-    "description": "Compare Progressive Web App capabilities across popular mobile (and soon, desktop) browsers."
+    "description": "Compare Progressive Web App capabilities across popular mobile and desktop browsers."
   },
   "browser": {
     "for": "for",
@@ -29,7 +29,9 @@
     "allCollapsed": "All groups collapsed",
     "platform": {
       "android": "Android",
-      "ios": "iOS"
+      "ios": "iOS",
+      "crossPlatform": "Cross-platform",
+      "macos": "macOS"
     }
   },
   "scores": {
@@ -56,6 +58,8 @@
     "experimentalShown": "Experimental features shown"
   },
   "options": {
+    "mobile": "Mobile",
+    "desktop": "Desktop",
     "hideExperimental": "Hide Experimental",
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",

@@ -17,7 +17,7 @@
   },
   "hero": {
     "title": "Fiches d\u2019évaluation PWA des navigateurs",
-    "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles populaires (et bientôt de bureau)."
+    "description": "Comparez les capacités des Progressive Web Apps sur les navigateurs mobiles et de bureau populaires."
   },
   "browser": {
     "for": "pour",
@@ -29,7 +29,9 @@
     "allCollapsed": "Tous les groupes réduits",
     "platform": {
       "android": "Android",
-      "ios": "iOS"
+      "ios": "iOS",
+      "crossPlatform": "Multiplateforme",
+      "macos": "macOS"
     }
   },
   "scores": {
@@ -56,6 +58,8 @@
     "experimentalShown": "Fonctionnalités expérimentales affichées"
   },
   "options": {
+    "mobile": "Mobile",
+    "desktop": "Bureau",
     "hideExperimental": "Masquer les expérimentales",
     "expandAll": "Tout développer",
     "collapseAll": "Tout réduire",

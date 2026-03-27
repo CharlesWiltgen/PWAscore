@@ -255,7 +255,7 @@ interface BrowserColumn {
   version: string
   color: string
   platformLabel: string
-  platformIcon?: string
+  platformIcons: string[]
 }
 
 const mobileBrowserConfig: BrowserColumn[] = [
@@ -266,7 +266,7 @@ const mobileBrowserConfig: BrowserColumn[] = [
     version: '131',
     color: 'text-green-600 dark:text-green-400',
     platformLabel: t('browser.platform.android'),
-    platformIcon: 'i-simple-icons-android'
+    platformIcons: ['i-simple-icons-android']
   },
   {
     id: 'firefox_android',
@@ -275,7 +275,7 @@ const mobileBrowserConfig: BrowserColumn[] = [
     version: '138',
     color: 'text-orange-600 dark:text-orange-400',
     platformLabel: t('browser.platform.android'),
-    platformIcon: 'i-simple-icons-android'
+    platformIcons: ['i-simple-icons-android']
   },
   {
     id: 'safari_ios',
@@ -284,7 +284,7 @@ const mobileBrowserConfig: BrowserColumn[] = [
     version: '26',
     color: 'text-blue-600 dark:text-blue-400',
     platformLabel: t('browser.platform.ios'),
-    platformIcon: 'i-simple-icons-apple'
+    platformIcons: ['i-simple-icons-apple']
   }
 ]
 
@@ -295,7 +295,8 @@ const desktopBrowserConfig: BrowserColumn[] = [
     icon: 'i-simple-icons-googlechrome',
     version: '131',
     color: 'text-green-600 dark:text-green-400',
-    platformLabel: t('browser.platform.crossPlatform')
+    platformLabel: t('browser.platform.crossPlatform'),
+    platformIcons: ['i-simple-icons-windows', 'i-simple-icons-apple', 'i-simple-icons-linux']
   },
   {
     id: 'firefox',
@@ -303,7 +304,8 @@ const desktopBrowserConfig: BrowserColumn[] = [
     icon: 'i-simple-icons-firefox',
     version: '138',
     color: 'text-orange-600 dark:text-orange-400',
-    platformLabel: t('browser.platform.crossPlatform')
+    platformLabel: t('browser.platform.crossPlatform'),
+    platformIcons: ['i-simple-icons-windows', 'i-simple-icons-apple', 'i-simple-icons-linux']
   },
   {
     id: 'safari',
@@ -312,7 +314,7 @@ const desktopBrowserConfig: BrowserColumn[] = [
     version: '26',
     color: 'text-blue-600 dark:text-blue-400',
     platformLabel: t('browser.platform.macos'),
-    platformIcon: 'i-simple-icons-apple'
+    platformIcons: ['i-simple-icons-apple']
   }
 ]
 
@@ -604,15 +606,13 @@ function createCategoryItems(group: PWAFeatureGroup) {
                         >
                           {{ t('browser.for') }}
                           <UIcon
-                            v-if="browser.platformIcon"
-                            :name="browser.platformIcon"
+                            v-for="pIcon in browser.platformIcons"
+                            :key="pIcon"
+                            :name="pIcon"
                             aria-hidden="true"
                             class="w-4 h-4"
                           />
-                          <span v-if="browser.platformIcon" class="sr-only">{{
-                            browser.platformLabel
-                          }}</span>
-                          <span v-else>{{
+                          <span class="sr-only">{{
                             browser.platformLabel
                           }}</span>
                         </span>

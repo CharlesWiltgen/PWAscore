@@ -4,7 +4,8 @@ import { useSwipe } from '@vueuse/core'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type {
   BrowserSupport,
-  BrowserId
+  BrowserId,
+  Platform
 } from '../composables/useBrowserSupport'
 import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
 
@@ -249,16 +250,18 @@ interface BrowserColumn {
   icon: string
   version: string
   color: string
-  platformIcon: string
+  platformLabel: string
+  platformIcon?: string
 }
 
-const browserConfig: BrowserColumn[] = [
+const mobileBrowserConfig: BrowserColumn[] = [
   {
     id: 'chrome_android',
     name: 'Chrome',
     icon: 'i-simple-icons-googlechrome',
     version: '131',
     color: 'text-green-600 dark:text-green-400',
+    platformLabel: t('browser.platform.android'),
     platformIcon: 'i-simple-icons-android'
   },
   {
@@ -267,6 +270,7 @@ const browserConfig: BrowserColumn[] = [
     icon: 'i-simple-icons-firefox',
     version: '138',
     color: 'text-orange-600 dark:text-orange-400',
+    platformLabel: t('browser.platform.android'),
     platformIcon: 'i-simple-icons-android'
   },
   {
@@ -275,12 +279,47 @@ const browserConfig: BrowserColumn[] = [
     icon: 'i-simple-icons-safari',
     version: '26',
     color: 'text-blue-600 dark:text-blue-400',
+    platformLabel: t('browser.platform.ios'),
     platformIcon: 'i-simple-icons-apple'
   }
 ]
 
+const desktopBrowserConfig: BrowserColumn[] = [
+  {
+    id: 'chrome',
+    name: 'Chrome',
+    icon: 'i-simple-icons-googlechrome',
+    version: '131',
+    color: 'text-green-600 dark:text-green-400',
+    platformLabel: t('browser.platform.crossPlatform')
+  },
+  {
+    id: 'firefox',
+    name: 'Firefox',
+    icon: 'i-simple-icons-firefox',
+    version: '138',
+    color: 'text-orange-600 dark:text-orange-400',
+    platformLabel: t('browser.platform.crossPlatform')
+  },
+  {
+    id: 'safari',
+    name: 'Safari',
+    icon: 'i-simple-icons-safari',
+    version: '26',
+    color: 'text-blue-600 dark:text-blue-400',
+    platformLabel: t('browser.platform.macos'),
+    platformIcon: 'i-simple-icons-apple'
+  }
+]
+
+const activePlatform = ref<Platform>('mobile')
+
+const activeBrowserConfig = computed(() =>
+  activePlatform.value === 'mobile' ? mobileBrowserConfig : desktopBrowserConfig
+)
+
 const browsers = computed(() =>
-  browserConfig.map(browser => ({
+  activeBrowserConfig.value.map(browser => ({
     ...browser,
     scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
@@ -542,7 +581,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
               :id="`heading-${browser.id}`"
               class="sr-only"
             >
-              {{ browser.name }} {{ t('browser.for') }} {{ browser.platformIcon === 'i-simple-icons-android' ? t('browser.platform.android') : t('browser.platform.ios') }}
+              {{ browser.name }} {{ t('browser.for') }} {{ browser.platformLabel }}
             </h2>
             <!-- Browser Header Card -->
             <UCard>
@@ -558,24 +597,16 @@ function createCategoryItems(group: PWAFeatureGroup) {
                       <div class="text-lg flex items-center gap-1">
                         <span class="font-semibold">{{ browser.name }}</span>
                         <span
-                          class="font-normal text-gray-500 dark:text-gray-400 flex items-center"
-                          :class="
-                            browser.platformIcon === 'i-simple-icons-android'
-                              ? 'gap-[5px]'
-                              : 'gap-1'
-                          "
+                          class="font-normal text-gray-500 dark:text-gray-400 flex items-center gap-1"
                         >
                           {{ t('browser.for') }}
                           <UIcon
+                            v-if="browser.platformIcon"
                             :name="browser.platformIcon"
                             aria-hidden="true"
-                            :class="
-                              browser.platformIcon === 'i-simple-icons-android'
-                                ? 'w-[18px] h-[18px]'
-                                : 'w-4 h-4'
-                            "
+                            class="w-4 h-4"
                           />
-                          <span class="sr-only">{{ browser.platformIcon === 'i-simple-icons-android' ? t('browser.platform.android') : t('browser.platform.ios') }}</span>
+                          <span class="sr-only">{{ browser.platformLabel }}</span>
                         </span>
                       </div>
                       <div class="text-sm text-gray-500 dark:text-gray-400">

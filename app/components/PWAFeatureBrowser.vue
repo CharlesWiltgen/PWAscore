@@ -390,14 +390,29 @@ if (import.meta.client) {
 }
 
 /**
- * Get support data for a feature across all browsers
+ * Pre-computed support data for all features (avoids repeated lookups in template)
  */
-function getFeatureSupport(
-  featureId: string,
-  canIUseId?: string,
-  mdnBcdPath?: string
-): BrowserSupport {
-  return getSupport(featureId, canIUseId, mdnBcdPath)
+const featureSupportMap = computed(() => {
+  const map = new Map<string, BrowserSupport>()
+  for (const group of pwaFeatures) {
+    for (const category of group.categories) {
+      for (const feature of category.features) {
+        map.set(feature.id, getSupport(feature.id, feature.canIUseId, feature.mdnBcdPath))
+      }
+    }
+  }
+  return map
+})
+
+function getFeatureSupport(featureId: string): BrowserSupport {
+  return featureSupportMap.value.get(featureId) || {
+    chrome_android: 'unknown',
+    firefox_android: 'unknown',
+    safari_ios: 'unknown',
+    chrome: 'unknown',
+    firefox: 'unknown',
+    safari: 'unknown'
+  }
 }
 
 /**
@@ -579,8 +594,8 @@ function createCategoryItems(group: PWAFeatureGroup) {
         <div ref="swipeContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Browser Columns -->
           <section
-            v-for="browser in visibleBrowsers"
-            :key="browser.id"
+            v-for="(browser, browserIndex) in visibleBrowsers"
+            :key="browserIndex"
             :aria-labelledby="`heading-${browser.id}`"
             class="flex flex-col space-y-4"
           >
@@ -783,13 +798,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                   class="inline-flex items-center gap-1 flex-shrink-0"
                                 >
                                   <UTooltip
-                                    v-if="
-                                      getFeatureSupport(
-                                        feature.id,
-                                        feature.canIUseId,
-                                        feature.mdnBcdPath
-                                      ).status?.experimental
-                                    "
+                                    v-if="getFeatureSupport(feature.id).status?.experimental"
                                     :text="t('features.experimental')"
                                   >
                                     <UIcon
@@ -799,16 +808,8 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                   </UTooltip>
                                   <UTooltip
                                     v-if="
-                                      getFeatureSupport(
-                                        feature.id,
-                                        feature.canIUseId,
-                                        feature.mdnBcdPath
-                                      ).status &&
-                                      !getFeatureSupport(
-                                        feature.id,
-                                        feature.canIUseId,
-                                        feature.mdnBcdPath
-                                      ).status?.standard_track
+                                      getFeatureSupport(feature.id).status &&
+                                      !getFeatureSupport(feature.id).status?.standard_track
                                     "
                                     :text="t('features.nonStandard')"
                                   >
@@ -818,13 +819,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                     />
                                   </UTooltip>
                                   <UTooltip
-                                    v-if="
-                                      getFeatureSupport(
-                                        feature.id,
-                                        feature.canIUseId,
-                                        feature.mdnBcdPath
-                                      ).status?.deprecated
-                                    "
+                                    v-if="getFeatureSupport(feature.id).status?.deprecated"
                                     :text="t('features.deprecated')"
                                   >
                                     <UIcon
@@ -884,26 +879,10 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             </div>
                             <div class="flex-shrink-0 -mt-1">
                               <UBadge
-                                :color="
-                                  getSupportBadgeColor(
-                                    getFeatureSupport(
-                                      feature.id,
-                                      feature.canIUseId,
-                                      feature.mdnBcdPath
-                                    )[browser.id]
-                                  )
-                                "
+                                :color="getSupportBadgeColor(getFeatureSupport(feature.id)[browser.id])"
                                 size="sm"
                               >
-                                {{
-                                  getSupportLabel(
-                                    getFeatureSupport(
-                                      feature.id,
-                                      feature.canIUseId,
-                                      feature.mdnBcdPath
-                                    )[browser.id]
-                                  )
-                                }}
+                                {{ getSupportLabel(getFeatureSupport(feature.id)[browser.id]) }}
                               </UBadge>
                             </div>
                           </div>

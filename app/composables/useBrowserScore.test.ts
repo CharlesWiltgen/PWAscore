@@ -50,6 +50,9 @@ describe('useBrowserScore', () => {
         chrome_android: feature?.supportLevel || 'unknown',
         firefox_android: feature?.supportLevel || 'unknown',
         safari_ios: feature?.supportLevel || 'unknown',
+        chrome: feature?.supportLevel || 'unknown',
+        firefox: feature?.supportLevel || 'unknown',
+        safari: feature?.supportLevel || 'unknown',
         status: {
           experimental: feature?.experimental ?? false,
           standard_track: feature?.standardTrack ?? true,
@@ -289,6 +292,9 @@ describe('useBrowserScore', () => {
           chrome_android: f?.supportLevel || 'unknown',
           firefox_android: f?.supportLevel || 'unknown',
           safari_ios: f?.supportLevel || 'unknown',
+          chrome: f?.supportLevel || 'unknown',
+          firefox: f?.supportLevel || 'unknown',
+          safari: f?.supportLevel || 'unknown',
           status: {
             experimental: f?.experimental ?? false,
             standard_track: f?.standardTrack ?? true,

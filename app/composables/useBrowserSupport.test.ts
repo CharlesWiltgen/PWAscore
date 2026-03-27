@@ -16,13 +16,19 @@ vi.mock('../utils/canIUseLoader', () => ({
         return {
           chrome_android: 'supported' as const,
           firefox_android: 'supported' as const,
-          safari_ios: 'supported' as const
+          safari_ios: 'supported' as const,
+          chrome: 'supported' as const,
+          firefox: 'supported' as const,
+          safari: 'supported' as const
         }
       }
       return {
         chrome_android: 'unknown' as const,
         firefox_android: 'unknown' as const,
-        safari_ios: 'unknown' as const
+        safari_ios: 'unknown' as const,
+        chrome: 'unknown' as const,
+        firefox: 'unknown' as const,
+        safari: 'unknown' as const
       }
     }
   ),
@@ -34,6 +40,9 @@ vi.mock('../utils/canIUseLoader', () => ({
           chrome_android: 'not-supported' as const,
           firefox_android: 'not-supported' as const,
           safari_ios: 'supported' as const,
+          chrome: 'not-supported' as const,
+          firefox: 'not-supported' as const,
+          safari: 'supported' as const,
           status: {
             experimental: false,
             standard_track: true,
@@ -44,7 +53,10 @@ vi.mock('../utils/canIUseLoader', () => ({
       return {
         chrome_android: 'unknown' as const,
         firefox_android: 'unknown' as const,
-        safari_ios: 'unknown' as const
+        safari_ios: 'unknown' as const,
+        chrome: 'unknown' as const,
+        firefox: 'unknown' as const,
+        safari: 'unknown' as const
       }
     }
   ),

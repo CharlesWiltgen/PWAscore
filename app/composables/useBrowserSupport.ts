@@ -187,8 +187,8 @@ export function useBrowserSupport() {
         if (hasKnownSupport) {
           // Merge with manual status override if provided
           const result = manualStatus
-            ? { ...support, status: manualStatus }
-            : support
+            ? { ...UNKNOWN_SUPPORT, ...support, status: manualStatus }
+            : { ...UNKNOWN_SUPPORT, ...support }
           supportCache.value[cacheKey] = result
           return result
         }
@@ -215,8 +215,8 @@ export function useBrowserSupport() {
         if (hasKnownSupport) {
           // Merge with manual status override if provided
           const result = manualStatus
-            ? { ...support, status: manualStatus }
-            : support
+            ? { ...UNKNOWN_SUPPORT, ...support, status: manualStatus }
+            : { ...UNKNOWN_SUPPORT, ...support }
           supportCache.value[cacheKey] = result
           return result
         }

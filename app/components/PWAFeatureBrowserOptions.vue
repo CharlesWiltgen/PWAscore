@@ -1,16 +1,20 @@
 <script setup lang="ts">
+import type { Platform } from '../composables/useBrowserSupport'
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 
 const props = defineProps<{
   isAllExpanded: boolean
   hideExperimental: boolean
+  platform: Platform
 }>()
 
 const emit = defineEmits<{
   expandAll: []
   collapseAll: []
   toggleHideExperimental: []
+  'update:platform': [platform: Platform]
 }>()
 
 function handleToggle() {
@@ -32,8 +36,22 @@ const isScoresInfoOpen = ref(false)
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <!-- Left: Hide Experimental checkbox -->
-      <div class="flex-1">
+      <!-- Left: Platform toggle + Hide Experimental -->
+      <div class="flex-1 flex items-center gap-4">
+        <UButtonGroup size="sm">
+          <UButton
+            :label="t('options.mobile')"
+            :color="props.platform === 'mobile' ? 'primary' : 'neutral'"
+            :variant="props.platform === 'mobile' ? 'solid' : 'outline'"
+            @click="emit('update:platform', 'mobile')"
+          />
+          <UButton
+            :label="t('options.desktop')"
+            :color="props.platform === 'desktop' ? 'primary' : 'neutral'"
+            :variant="props.platform === 'desktop' ? 'solid' : 'outline'"
+            @click="emit('update:platform', 'desktop')"
+          />
+        </UButtonGroup>
         <UCheckbox
           :model-value="hideExperimental"
           :label="t('options.hideExperimental')"

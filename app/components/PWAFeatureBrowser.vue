@@ -539,9 +539,11 @@ function createCategoryItems(group: PWAFeatureGroup) {
       <PWAFeatureBrowserOptions
         :is-all-expanded="isAllExpanded"
         :hide-experimental="hideExperimental"
+        :platform="activePlatform"
         @expand-all="expandAll"
         @collapse-all="collapseAll"
         @toggle-hide-experimental="toggleHideExperimental"
+        @update:platform="activePlatform = $event"
       />
     </div>
 

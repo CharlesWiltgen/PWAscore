@@ -25,8 +25,12 @@ export type Platform = 'mobile' | 'desktop'
  * Desktop: chrome, firefox, safari
  */
 export type BrowserId =
-  | 'chrome_android' | 'firefox_android' | 'safari_ios'
-  | 'chrome' | 'firefox' | 'safari'
+  | 'chrome_android'
+  | 'firefox_android'
+  | 'safari_ios'
+  | 'chrome'
+  | 'firefox'
+  | 'safari'
 
 export interface BrowserSupport {
   chrome_android: SupportLevel
@@ -58,7 +62,9 @@ const UNKNOWN_SUPPORT: BrowserSupport = {
  * Used for vendor-specific APIs that aren't tracked by standard databases
  * Validated at module load time to catch errors early
  */
-function normalizeManualSupport(data: Record<string, unknown>): Record<string, BrowserSupport> {
+function normalizeManualSupport(
+  data: Record<string, unknown>
+): Record<string, BrowserSupport> {
   const validated = validateManualSupport(data)
   const result: Record<string, BrowserSupport> = {}
   for (const [key, entry] of Object.entries(validated)) {
@@ -70,7 +76,8 @@ function normalizeManualSupport(data: Record<string, unknown>): Record<string, B
   return result
 }
 
-const MANUAL_SUPPORT: Record<string, BrowserSupport> = normalizeManualSupport(manualSupportData)
+const MANUAL_SUPPORT: Record<string, BrowserSupport> =
+  normalizeManualSupport(manualSupportData)
 
 /**
  * Default browser versions (used as fallback)
@@ -116,8 +123,8 @@ export function useBrowserSupport() {
     mdnBcdPath?: string
   ): BrowserSupport => {
     // Check cache first - use composite key when both IDs present to prevent collisions
-    const cacheKey
-      = mdnBcdPath && canIUseId
+    const cacheKey =
+      mdnBcdPath && canIUseId
         ? `${canIUseId}|${mdnBcdPath}`
         : canIUseId || mdnBcdPath || featureId
     const cached = supportCache.value[cacheKey]
@@ -148,8 +155,8 @@ export function useBrowserSupport() {
     manualStatus?: FeatureStatus
   ): Promise<BrowserSupport> => {
     // Use composite key when both IDs present to prevent collisions
-    const cacheKey
-      = mdnBcdPath && canIUseId
+    const cacheKey =
+      mdnBcdPath && canIUseId
         ? `${canIUseId}|${mdnBcdPath}`
         : canIUseId || mdnBcdPath || featureId
 
@@ -179,13 +186,13 @@ export function useBrowserSupport() {
         )
         // Only use MDN BCD data if at least one browser has known support
         // If all are 'unknown', fall back to CanIUse
-        const hasKnownSupport
-          = support.chrome_android !== 'unknown'
-            || support.firefox_android !== 'unknown'
-            || support.safari_ios !== 'unknown'
-            || support.chrome !== 'unknown'
-            || support.firefox !== 'unknown'
-            || support.safari !== 'unknown'
+        const hasKnownSupport =
+          support.chrome_android !== 'unknown' ||
+          support.firefox_android !== 'unknown' ||
+          support.safari_ios !== 'unknown' ||
+          support.chrome !== 'unknown' ||
+          support.firefox !== 'unknown' ||
+          support.safari !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided
@@ -210,13 +217,13 @@ export function useBrowserSupport() {
           browserVersions.value
         )
         // Only use Can I Use data if at least one browser has known support
-        const hasKnownSupport
-          = support.chrome_android !== 'unknown'
-            || support.firefox_android !== 'unknown'
-            || support.safari_ios !== 'unknown'
-            || support.chrome !== 'unknown'
-            || support.firefox !== 'unknown'
-            || support.safari !== 'unknown'
+        const hasKnownSupport =
+          support.chrome_android !== 'unknown' ||
+          support.firefox_android !== 'unknown' ||
+          support.safari_ios !== 'unknown' ||
+          support.chrome !== 'unknown' ||
+          support.firefox !== 'unknown' ||
+          support.safari !== 'unknown'
 
         if (hasKnownSupport) {
           // Merge with manual status override if provided
@@ -252,7 +259,7 @@ export function useBrowserSupport() {
     isLoading.value = true
     try {
       await Promise.all(
-        features.map(f =>
+        features.map((f) =>
           loadSupport(f.id, f.canIUseId, f.mdnBcdPath, f.status)
         )
       )

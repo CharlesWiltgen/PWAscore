@@ -67,7 +67,9 @@ const isScoresInfoOpen = ref(false)
               ? 'i-heroicons-chevron-double-up'
               : 'i-heroicons-chevron-double-down'
           "
-          :label="isAllExpanded ? t('options.collapseAll') : t('options.expandAll')"
+          :label="
+            isAllExpanded ? t('options.collapseAll') : t('options.expandAll')
+          "
           aria-keyshortcuts="Control+E"
           color="neutral"
           variant="ghost"
@@ -91,8 +93,9 @@ const isScoresInfoOpen = ref(false)
           :aria-expanded="isScoresInfoOpen"
           aria-controls="scores-info-content"
           :ui="{
-            trailingIcon: 'transition-transform duration-200 '
-              + (isScoresInfoOpen ? 'rotate-180' : ''),
+            trailingIcon:
+              'transition-transform duration-200 ' +
+              (isScoresInfoOpen ? 'rotate-180' : ''),
             base: 'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'
           }"
           @click="isScoresInfoOpen = !isScoresInfoOpen"
@@ -116,7 +119,9 @@ const isScoresInfoOpen = ref(false)
           <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             <strong>{{ t('scoresInfo.title') }}</strong>
           </p>
-          <ul class="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside">
+          <ul
+            class="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside"
+          >
             <li>{{ t('scoresInfo.weightedImportance') }}</li>
             <li>{{ t('scoresInfo.stableOnly') }}</li>
             <li>
@@ -133,8 +138,8 @@ const isScoresInfoOpen = ref(false)
               :to="localePath('/about')"
               class="text-primary-600 dark:text-primary-400 hover:underline"
             >
-              {{ t('scoresInfo.aboutPage') }}
-            </NuxtLink>.
+              {{ t('scoresInfo.aboutPage') }} </NuxtLink
+            >.
           </p>
         </div>
       </template>

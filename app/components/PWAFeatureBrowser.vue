@@ -55,14 +55,14 @@ const experimentalGroupIds = ref<Set<string>>(new Set())
 
 // Check if all groups and categories are expanded
 const isAllExpanded = computed(() => {
-  const allGroupIds = pwaFeatures.map(g => g.id)
-  const allCategoryIds = pwaFeatures.flatMap(g =>
-    g.categories.map(c => c.id)
+  const allGroupIds = pwaFeatures.map((g) => g.id)
+  const allCategoryIds = pwaFeatures.flatMap((g) =>
+    g.categories.map((c) => c.id)
   )
 
   return (
-    allGroupIds.every(id => openGroups.value.includes(id))
-    && allCategoryIds.every(id => openCategories.value.includes(id))
+    allGroupIds.every((id) => openGroups.value.includes(id)) &&
+    allCategoryIds.every((id) => openCategories.value.includes(id))
   )
 })
 
@@ -70,9 +70,9 @@ const isAllExpanded = computed(() => {
  * Expand all groups and categories
  */
 function expandAll(): void {
-  const allGroupIds = pwaFeatures.map(g => g.id)
-  const allCategoryIds = pwaFeatures.flatMap(g =>
-    g.categories.map(c => c.id)
+  const allGroupIds = pwaFeatures.map((g) => g.id)
+  const allCategoryIds = pwaFeatures.flatMap((g) =>
+    g.categories.map((c) => c.id)
   )
 
   openGroups.value = [...allGroupIds]
@@ -134,7 +134,11 @@ watch(hideExperimental, (newValue) => {
     delete query.hideExperimental
   }
   router.replace({ query })
-  announce(newValue ? t('features.experimentalHidden') : t('features.experimentalShown'))
+  announce(
+    newValue
+      ? t('features.experimentalHidden')
+      : t('features.experimentalShown')
+  )
 })
 
 // Load support data for all features on mount
@@ -200,7 +204,7 @@ onMounted(async () => {
     for (const category of group.categories) {
       // Check if ALL features in this category are experimental
       if (
-        category.features.every(feature =>
+        category.features.every((feature) =>
           experimentalFeatureIds.value.has(feature.id)
         )
       ) {
@@ -213,7 +217,7 @@ onMounted(async () => {
   for (const group of pwaFeatures) {
     // Check if ALL categories in this group are experimental
     if (
-      group.categories.every(category =>
+      group.categories.every((category) =>
         experimentalCategoryIds.value.has(category.id)
       )
     ) {
@@ -238,10 +242,10 @@ onUnmounted(() => {
 // Auto-expand all categories when a group is opened
 watch(openGroups, (newGroups, oldGroups) => {
   // Find newly opened groups
-  const newlyOpened = newGroups.filter(id => !oldGroups.includes(id))
+  const newlyOpened = newGroups.filter((id) => !oldGroups.includes(id))
 
   // Expand categories for each newly opened group
-  newlyOpened.forEach(groupId => expandGroupCategories(groupId))
+  newlyOpened.forEach((groupId) => expandGroupCategories(groupId))
 })
 
 interface BrowserColumn {
@@ -319,7 +323,7 @@ const activeBrowserConfig = computed(() =>
 )
 
 const browsers = computed(() =>
-  activeBrowserConfig.value.map(browser => ({
+  activeBrowserConfig.value.map((browser) => ({
     ...browser,
     scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
@@ -367,9 +371,15 @@ if (import.meta.client) {
     passive: true,
     onSwipeEnd() {
       if (!isLargeScreen.value) {
-        if (direction.value === 'left' && selectedBrowserIndex.value < browsers.value.length - 1) {
+        if (
+          direction.value === 'left' &&
+          selectedBrowserIndex.value < browsers.value.length - 1
+        ) {
           selectedBrowserIndex.value++
-        } else if (direction.value === 'right' && selectedBrowserIndex.value > 0) {
+        } else if (
+          direction.value === 'right' &&
+          selectedBrowserIndex.value > 0
+        ) {
           selectedBrowserIndex.value--
         }
       }
@@ -466,13 +476,13 @@ const hiddenGroupIds = computed<Set<string>>(() =>
  * Expand all categories for a given group
  */
 function expandGroupCategories(groupId: string): void {
-  const group = pwaFeatures.find(g => g.id === groupId)
+  const group = pwaFeatures.find((g) => g.id === groupId)
   if (!group) return
 
   // Add all category IDs to openCategories array
-  const categoryIds = group.categories.map(c => c.id)
+  const categoryIds = group.categories.map((c) => c.id)
   openCategories.value = [
-    ...openCategories.value.filter(id => !categoryIds.includes(id)),
+    ...openCategories.value.filter((id) => !categoryIds.includes(id)),
     ...categoryIds
   ]
 }
@@ -485,8 +495,9 @@ function handleGroupMetaClick(event: MouseEvent): void {
   if (!event.metaKey) return
 
   const target = event.target as HTMLElement
-  const groupEl = target.closest('[data-group-id]')
-    || target.closest('button')?.querySelector('[data-group-id]')
+  const groupEl =
+    target.closest('[data-group-id]') ||
+    target.closest('button')?.querySelector('[data-group-id]')
   if (!groupEl) return
 
   const groupId = groupEl.getAttribute('data-group-id')
@@ -499,7 +510,7 @@ function handleGroupMetaClick(event: MouseEvent): void {
  * Create accordion items for feature groups with translated labels
  */
 const groupItems = computed(() =>
-  pwaFeatures.map(group => ({
+  pwaFeatures.map((group) => ({
     label: t(`groups.${group.id}`),
     description: group.description,
     icon: group.icon,
@@ -513,7 +524,7 @@ const groupItems = computed(() =>
  * Create accordion items for categories within a group with translated labels
  */
 function createCategoryItems(group: PWAFeatureGroup) {
-  return group.categories.map(category => ({
+  return group.categories.map((category) => ({
     label: t(`categories.${category.id}`),
     description: category.description,
     slot: category.id,
@@ -525,12 +536,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
 
 <template>
   <div>
-    <div
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      class="sr-only"
-    >
+    <div role="status" aria-live="polite" aria-atomic="true" class="sr-only">
       {{ liveAnnouncement }}
     </div>
 
@@ -568,10 +574,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <ClientOnly>
-        <div
-          ref="swipeContainer"
-          class="grid grid-cols-1 lg:grid-cols-3 gap-8"
-        >
+        <div ref="swipeContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Browser Columns -->
           <section
             v-for="browser in visibleBrowsers"
@@ -579,11 +582,9 @@ function createCategoryItems(group: PWAFeatureGroup) {
             :aria-labelledby="`heading-${browser.id}`"
             class="flex flex-col space-y-4"
           >
-            <h2
-              :id="`heading-${browser.id}`"
-              class="sr-only"
-            >
-              {{ browser.name }} {{ t('browser.for') }} {{ browser.platformLabel }}
+            <h2 :id="`heading-${browser.id}`" class="sr-only">
+              {{ browser.name }} {{ t('browser.for') }}
+              {{ browser.platformLabel }}
             </h2>
             <!-- Browser Header Card -->
             <UCard>
@@ -608,7 +609,9 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             aria-hidden="true"
                             class="w-4 h-4"
                           />
-                          <span class="sr-only">{{ browser.platformLabel }}</span>
+                          <span class="sr-only">{{
+                            browser.platformLabel
+                          }}</span>
                         </span>
                       </div>
                       <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -625,18 +628,38 @@ function createCategoryItems(group: PWAFeatureGroup) {
                     <template #content>
                       <div class="text-xs">
                         <div class="mb-2">
-                          <span class="text-gray-400">{{ t('scores.stableFeatures') }}</span><br>
-                          {{ t('scores.raw', { score: browser.scores.unweighted }) }}
+                          <span class="text-gray-400">{{
+                            t('scores.stableFeatures')
+                          }}</span
+                          ><br />
+                          {{
+                            t('scores.raw', {
+                              score: browser.scores.unweighted
+                            })
+                          }}
                         </div>
                         <div>
-                          <span class="text-gray-400">{{ t('scores.withExperimental') }}</span><br>
-                          {{ t('scores.weightedAndRaw', { weighted: browser.scores.weightedFull, raw: browser.scores.unweightedFull }) }}
+                          <span class="text-gray-400">{{
+                            t('scores.withExperimental')
+                          }}</span
+                          ><br />
+                          {{
+                            t('scores.weightedAndRaw', {
+                              weighted: browser.scores.weightedFull,
+                              raw: browser.scores.unweightedFull
+                            })
+                          }}
                         </div>
                       </div>
                     </template>
                     <button
                       type="button"
-                      :aria-label="t('browser.scoreLabel', { name: browser.name, score: browser.scores.weighted })"
+                      :aria-label="
+                        t('browser.scoreLabel', {
+                          name: browser.name,
+                          score: browser.scores.weighted
+                        })
+                      "
                       :class="[
                         'appearance-none bg-transparent border-0 p-0 m-0 font-inherit text-4xl font-bold cursor-pointer border-b-2 border-dotted border-current border-opacity-50 hover:border-opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
                         browser.color
@@ -672,12 +695,32 @@ function createCategoryItems(group: PWAFeatureGroup) {
                       <template #content>
                         <div class="text-xs">
                           <div class="mb-2">
-                            <span class="text-gray-400">{{ t('scores.stableFeatures') }}</span><br>
-                            {{ t('scores.raw', { score: browser.scores.groupScores[item.value]?.unweighted }) }}
+                            <span class="text-gray-400">{{
+                              t('scores.stableFeatures')
+                            }}</span
+                            ><br />
+                            {{
+                              t('scores.raw', {
+                                score:
+                                  browser.scores.groupScores[item.value]
+                                    ?.unweighted
+                              })
+                            }}
                           </div>
                           <div>
-                            <span class="text-gray-400">{{ t('scores.withExperimental') }}</span><br>
-                            {{ t('scores.weightedAndRaw', { weighted: browser.scores.groupScores[item.value]?.weightedFull, raw: browser.scores.groupScores[item.value]?.unweightedFull }) }}
+                            <span class="text-gray-400">{{
+                              t('scores.withExperimental')
+                            }}</span
+                            ><br />
+                            {{
+                              t('scores.weightedAndRaw', {
+                                weighted:
+                                  browser.scores.groupScores[item.value]
+                                    ?.weightedFull,
+                                raw: browser.scores.groupScores[item.value]
+                                  ?.unweightedFull
+                              })
+                            }}
                           </div>
                         </div>
                       </template>
@@ -697,10 +740,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                   #[group.id]
                 >
                   <!-- Categories within this group -->
-                  <div
-                    v-show="!hiddenGroupIds.has(group.id)"
-                    class="pl-6"
-                  >
+                  <div v-show="!hiddenGroupIds.has(group.id)" class="pl-6">
                     <UAccordion
                       v-model="openCategories"
                       :items="createCategoryItems(group)"
@@ -760,12 +800,12 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                         feature.id,
                                         feature.canIUseId,
                                         feature.mdnBcdPath
-                                      ).status
-                                        && !getFeatureSupport(
-                                          feature.id,
-                                          feature.canIUseId,
-                                          feature.mdnBcdPath
-                                        ).status?.standard_track
+                                      ).status &&
+                                      !getFeatureSupport(
+                                        feature.id,
+                                        feature.canIUseId,
+                                        feature.mdnBcdPath
+                                      ).status?.standard_track
                                     "
                                     :text="t('features.nonStandard')"
                                   >
@@ -802,14 +842,20 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                       :href="getCanIUseUrl(feature.canIUseId)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      :aria-label="t('features.viewOnCIU', { name: feature.name })"
+                                      :aria-label="
+                                        t('features.viewOnCIU', {
+                                          name: feature.name
+                                        })
+                                      "
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       CIU
                                     </a>
                                   </UTooltip>
                                   <div
-                                    v-if="feature.canIUseId && feature.mdnBcdPath"
+                                    v-if="
+                                      feature.canIUseId && feature.mdnBcdPath
+                                    "
                                     class="w-px self-stretch bg-primary-500/20"
                                   />
                                   <UTooltip
@@ -820,7 +866,11 @@ function createCategoryItems(group: PWAFeatureGroup) {
                                       :href="getMdnUrl(feature.id)"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      :aria-label="t('features.viewOnMDN', { name: feature.name })"
+                                      :aria-label="
+                                        t('features.viewOnMDN', {
+                                          name: feature.name
+                                        })
+                                      "
                                       class="px-1 py-px text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50"
                                     >
                                       MDN

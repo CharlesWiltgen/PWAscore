@@ -58,14 +58,7 @@ useSeoMeta({
 
     <UBanner :ui="{ container: 'flex items-center justify-center gap-3 h-12', title: 'text-md', root: '-my-0.5' }">
       <template #title>
-        <i18n-t
-          keypath="banner.previewRelease"
-          tag="span"
-        >
-          <template #strong>
-            <strong>{{ t('banner.previewReleaseStrong') }}</strong>
-          </template>
-        </i18n-t><span class="hidden lg:inline"> &bull; {{ t('banner.reportIssuesAt') }}</span> <a
+        <span class="hidden lg:inline">{{ t('banner.reportIssuesAt') }}</span> <a
           href="https://github.com/charleswiltgen/pwascore/issues"
           target="_blank"
           rel="noopener noreferrer"

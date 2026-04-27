@@ -6,8 +6,6 @@
     "ogImageAlt": "PWAscore - Compare PWA support across mobile browsers"
   },
   "banner": {
-    "previewRelease": "This is a {strong} of PWAscore",
-    "previewReleaseStrong": "preview release",
     "reportIssuesAt": "Please report issues at",
     "reportIssuesGitHub": "Report issues on GitHub"
   },

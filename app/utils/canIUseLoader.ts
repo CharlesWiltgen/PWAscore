@@ -26,8 +26,8 @@ export interface BrowserVersions {
 }
 
 // GitHub URL for CanIUse data
-const CANIUSE_URL =
-  'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
+const CANIUSE_URL
+  = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Cache version - update this to force cache refresh
 const CACHE_VERSION = '2026-03-23'
@@ -58,10 +58,10 @@ async function loadCanIUseData(): Promise<CanIUseData> {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
-        import.meta.server &&
+        import.meta.server
         // @ts-expect-error - Cloudflare Workers specific properties
-        import.meta.prod &&
-        typeof caches !== 'undefined'
+          && import.meta.prod
+          && typeof caches !== 'undefined'
       ) {
         // @ts-expect-error - Cloudflare Workers cache API
         const cache = caches.default
@@ -190,8 +190,8 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
           if (!v.release_date) return false // Skip unreleased versions (TP, future releases)
           return true
         })
-        .map((v) => Number.parseFloat(v.version))
-        .filter((num) => !Number.isNaN(num))
+        .map(v => Number.parseFloat(v.version))
+        .filter(num => !Number.isNaN(num))
 
       if (versions.length > 0) {
         const maxVersion = Math.max(...versions)
@@ -284,12 +284,12 @@ function findBrowserVersion(
       if (versionKey.includes('-')) {
         const [rangeStart, rangeEnd] = versionKey
           .split('-')
-          .map((v) => Number.parseFloat(v))
+          .map(v => Number.parseFloat(v))
         if (
-          rangeStart !== undefined &&
-          rangeEnd !== undefined &&
-          !Number.isNaN(rangeStart) &&
-          !Number.isNaN(rangeEnd)
+          rangeStart !== undefined
+          && rangeEnd !== undefined
+          && !Number.isNaN(rangeStart)
+          && !Number.isNaN(rangeEnd)
         ) {
           // Check if target version is within the range (exact match required)
           if (targetMajor >= rangeStart && targetMajor <= rangeEnd) {
@@ -452,8 +452,8 @@ interface MdnBcdFeature {
 }
 
 // MDN BCD CDN URL
-const MDN_BCD_URL =
-  'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.3.8/data.json'
+const MDN_BCD_URL
+  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.3.8/data.json'
 
 // Cache version for MDN BCD
 const MDN_BCD_CACHE_VERSION = '2026-03-23'
@@ -493,10 +493,10 @@ async function loadMdnBcdData(): Promise<unknown> {
     try {
       // Use Cache API on server-side in production (Cloudflare Workers)
       if (
-        import.meta.server &&
+        import.meta.server
         // @ts-expect-error - Cloudflare Workers specific properties
-        import.meta.prod &&
-        typeof caches !== 'undefined'
+          && import.meta.prod
+          && typeof caches !== 'undefined'
       ) {
         // @ts-expect-error - Cloudflare Workers cache API
         const cache = caches.default
@@ -659,7 +659,7 @@ export function compareVersions(a: string, b: string): number {
 function isVersionSupported(
   support: MdnBcdSupport | MdnBcdSupport[],
   currentVersion: string
-): { level: SupportLevel; partial: boolean } {
+): { level: SupportLevel, partial: boolean } {
   // Handle array of support objects (multiple implementation attempts)
   // MDN BCD can return empty arrays when no support information is available
   const supportData = Array.isArray(support)
@@ -710,9 +710,9 @@ function isVersionSupported(
   // ≥X or >X means "requires at least version X" = need to compare
   let versionToCompare = requiredVersion
   if (
-    requiredVersion.startsWith('≥') ||
-    requiredVersion.startsWith('>') ||
-    requiredVersion.startsWith('<')
+    requiredVersion.startsWith('≥')
+    || requiredVersion.startsWith('>')
+    || requiredVersion.startsWith('<')
   ) {
     versionToCompare = requiredVersion.replace(/^[≥><]=?/, '')
   }

@@ -11,9 +11,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  expandAll: []
-  collapseAll: []
-  toggleHideExperimental: []
+  'expandAll': []
+  'collapseAll': []
+  'toggleHideExperimental': []
   'update:platform': [platform: Platform]
 }>()
 
@@ -106,8 +106,8 @@ const isScoresInfoOpen = ref(false)
           aria-controls="scores-info-content"
           :ui="{
             trailingIcon:
-              'transition-transform duration-200 ' +
-              (isScoresInfoOpen ? 'rotate-180' : ''),
+              'transition-transform duration-200 '
+              + (isScoresInfoOpen ? 'rotate-180' : ''),
             base: 'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'
           }"
           @click="isScoresInfoOpen = !isScoresInfoOpen"
@@ -150,8 +150,7 @@ const isScoresInfoOpen = ref(false)
               :to="localePath('/about')"
               class="text-primary-600 dark:text-primary-400 hover:underline"
             >
-              {{ t('scoresInfo.aboutPage') }} </NuxtLink
-            >.
+              {{ t('scoresInfo.aboutPage') }} </NuxtLink>.
           </p>
         </div>
       </template>

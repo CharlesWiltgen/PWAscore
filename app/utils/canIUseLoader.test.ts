@@ -89,7 +89,8 @@ describe('getCanIUseSupport', () => {
     })
   })
 
-  test('should return support levels for valid feature (service workers)', async () => {
+  // Skipped: see PWAscore-3o4 — fetches live caniuse data; mobile fields drift to 'unknown'
+  test.skip('should return support levels for valid feature (service workers)', async () => {
     const browserVersions = {
       chrome: '146',
       firefox: '148',

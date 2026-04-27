@@ -36,3 +36,9 @@ public/data/caniuse-data.json
 # Task tracking files (personal notes, not part of project)
 /*.md
 !README.md
+
+# Beads / Dolt files (added by bd init)
+.beads/
+.dolt/
+*.db
+.beads-credential-key

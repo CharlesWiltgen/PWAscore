@@ -114,7 +114,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     const releases = releasesByBrowser.value[browserId] ?? []
     await Promise.all(
       releases
-        .filter(r => r.releaseDate !== null && !isDefaultVersion(browserId, r.version))
+        .filter(r => !isDefaultVersion(browserId, r.version))
         .map(r => loadSupportAtVersion(features, browserId, r.version))
     )
     sparklineLoaded.value = new Set([...sparklineLoaded.value, browserId])
@@ -122,11 +122,6 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
 
   const sparklineSeries = (browserId: BrowserId): ScorePoint[] => {
     const releases = releasesByBrowser.value[browserId] ?? []
-    const versionedVersions = new Set(
-      releases
-        .filter(r => r.releaseDate !== null && !isDefaultVersion(browserId, r.version))
-        .map(r => r.version)
-    )
     return calculateScoreSeries(
       browserId,
       featureGroups,
@@ -137,7 +132,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
           featureId,
           canIUseId,
           mdnBcdPath,
-          versionedVersions.has(version) ? version : undefined
+          isDefaultVersion(browserId, version) ? undefined : version
         )
     )
   }

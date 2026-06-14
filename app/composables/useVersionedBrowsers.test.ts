@@ -120,9 +120,10 @@ describe('useVersionedBrowsers — sparkline series', () => {
   test('loadSparkline loads support at every non-default release version (once), then sparklineSeries returns a point per release', async () => {
     const vb = useVersionedBrowsers(GROUPS)
     await vb.init(['safari_ios'])
+    vi.clearAllMocks() // isolate loadSparkline's calls from init's current-version load
 
     await vb.loadSparkline('safari_ios')
-    // 18.5 and 26.5 are non-default; 26.4 is the default (current path, no load)
+    // 18.5 and 26.5 are both non-default -> each loaded at its own version
     expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
 
     const series = vb.sparklineSeries('safari_ios')

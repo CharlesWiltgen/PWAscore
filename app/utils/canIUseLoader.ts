@@ -902,7 +902,7 @@ export async function getBrowserReleases(
     }
 
     const atOrBelow = parsed.filter(r => compareVersions(r.version, currentVersion) <= 0)
-    const above = parsed.filter(r => compareVersions(r.version, currentVersion) > 0 && r.upcoming)
+    const above = parsed.filter(r => compareVersions(r.version, currentVersion) > 0)
 
     // Latest representative release per major, among atOrBelow.
     const latestPerMajor = new Map<number, Parsed>()

@@ -316,6 +316,52 @@ describe('useBrowserScore', () => {
         { version: '26', releaseDate: '2025-09-15', weighted: 100 }
       ])
     })
+
+    test('accepts BrowserRelease-shaped input (channel ignored, releaseDate carried through)', () => {
+      const groups: PWAFeatureGroup[] = [
+        {
+          id: 'g',
+          name: 'G',
+          description: 'G',
+          categories: [
+            {
+              id: 'c',
+              name: 'C',
+              description: 'C',
+              features: [
+                {
+                  id: 'feature-0',
+                  name: 'F0',
+                  description: 'F0',
+                  status: { experimental: false, standard_track: true, deprecated: false }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      const getSupportAt = () => (): BrowserSupport => ({
+        chrome_android: 'unknown',
+        firefox_android: 'unknown',
+        safari_ios: 'supported',
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown',
+        status: { experimental: false, standard_track: true, deprecated: false }
+      })
+      // Real getBrowserReleases output shape includes a `channel` field
+      const releases = [
+        { version: '26.4', releaseDate: '2026-03-24', channel: 'current' as const },
+        { version: '26.5', releaseDate: null, channel: 'beta' as const }
+      ]
+
+      const series = calculateScoreSeries('safari_ios', groups, releases, getSupportAt)
+
+      expect(series).toEqual([
+        { version: '26.4', releaseDate: '2026-03-24', weighted: 100 },
+        { version: '26.5', releaseDate: null, weighted: 100 }
+      ])
+    })
   })
 
   describe('groupScores', () => {

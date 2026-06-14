@@ -295,6 +295,7 @@ export function useBrowserSupport() {
    * Pins that browser's brand field of BrowserVersions; other brands stay current.
    * Writes into a version-keyed cache so versions never collide. Additive — the
    * current-version path (loadSupport/getSupport) is unchanged.
+   * Caveat: pinning a brand's version also re-resolves that brand's other platform variant (e.g. pinning chrome_android also sets desktop chrome's version, since both read BrowserVersions.chrome). The cached object is therefore only meaningful for support[browserId]; read only the queried browser's field.
    */
   const loadSupportAtVersion = async (
     features: FeatureInput[],

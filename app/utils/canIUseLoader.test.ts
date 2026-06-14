@@ -421,6 +421,29 @@ describe('getBrowserReleases', () => {
     vi.unstubAllGlobals()
     clearCaches()
   })
+
+  test('includes a shipping (dated) release above the CIU current_version', async () => {
+    stubBcd({
+      safari_ios: {
+        releases: {
+          26.4: { release_date: '2026-03-24', status: 'retired' },
+          26.5: { release_date: '2026-05-11', status: 'current' },
+          27: { release_date: null, status: 'beta' }
+        }
+      }
+    })
+
+    const releases = await getBrowserReleases('safari_ios', '26.4', 8)
+
+    expect(releases).toEqual([
+      { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
+      { version: '26.5', releaseDate: '2026-05-11', channel: 'released' },
+      { version: '27', releaseDate: null, channel: 'beta' }
+    ])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
 })
 
 describe('compareVersions', () => {

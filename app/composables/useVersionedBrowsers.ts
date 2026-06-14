@@ -48,7 +48,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
   const selectedVersion = ref<Partial<Record<BrowserId, string>>>({})
   const releasesByBrowser = ref<Partial<Record<BrowserId, BrowserRelease[]>>>({})
   const isVersionLoading = ref<Partial<Record<BrowserId, boolean>>>({})
-  const sparklineLoaded = ref<Set<BrowserId>>(new Set())
+  const sparklineLoaded = new Set<BrowserId>()
 
   const defaultVersionFor = (browserId: BrowserId): string =>
     browserVersions.value[BRAND_BY_BROWSER[browserId]]
@@ -110,14 +110,15 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     )
 
   const loadSparkline = async (browserId: BrowserId): Promise<void> => {
-    if (sparklineLoaded.value.has(browserId)) return
+    if (sparklineLoaded.has(browserId)) return
     const releases = releasesByBrowser.value[browserId] ?? []
+    if (releases.length === 0) return // not initialized yet — don't memoize an empty load
+    sparklineLoaded.add(browserId) // mark before await so concurrent calls don't double-fan-out
     await Promise.all(
       releases
         .filter(r => !isDefaultVersion(browserId, r.version))
         .map(r => loadSupportAtVersion(features, browserId, r.version))
     )
-    sparklineLoaded.value = new Set([...sparklineLoaded.value, browserId])
   }
 
   const sparklineSeries = (browserId: BrowserId): ScorePoint[] => {
@@ -125,7 +126,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     return calculateScoreSeries(
       browserId,
       featureGroups,
-      releases.map(r => ({ version: r.version, releaseDate: r.releaseDate })),
+      releases,
       version => (featureId, canIUseId, mdnBcdPath) =>
         getSupportAt(
           browserId,

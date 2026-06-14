@@ -81,7 +81,7 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport>
 
 type BrandKey = 'chrome' | 'firefox' | 'safari'
 
-const BRAND_BY_BROWSER: Record<BrowserId, BrandKey> = {
+export const BRAND_BY_BROWSER: Record<BrowserId, 'chrome' | 'firefox' | 'safari'> = {
   chrome: 'chrome',
   chrome_android: 'chrome',
   firefox: 'firefox',

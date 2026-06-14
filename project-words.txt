@@ -1,0 +1,4 @@
+Ascore
+googlechrome
+heroicons
+Nuxt

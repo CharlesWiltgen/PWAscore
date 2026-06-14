@@ -9,6 +9,9 @@ dist
 # Wrangler/Cloudflare Workers
 .wrangler
 
+# ck semantic search index (generated local cache)
+.ck/
+
 # Node dependencies
 node_modules
 

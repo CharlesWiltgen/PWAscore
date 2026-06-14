@@ -13,6 +13,7 @@
 ### Task 1: Expand BrowserId, Platform type, and BrowserSupport interface
 
 **Files:**
+
 - Modify: `app/composables/useBrowserSupport.ts:18-49`
 - Modify: `app/schemas/canIUse.ts:98-106`
 - Test: `app/composables/useBrowserSupport.test.ts`
@@ -55,8 +56,12 @@ export type Platform = 'mobile' | 'desktop'
  * Desktop: chrome, firefox, safari
  */
 export type BrowserId =
-  | 'chrome_android' | 'firefox_android' | 'safari_ios'
-  | 'chrome' | 'firefox' | 'safari'
+  | 'chrome_android'
+  | 'firefox_android'
+  | 'safari_ios'
+  | 'chrome'
+  | 'firefox'
+  | 'safari'
 
 /**
  * Browser support data for a feature across platforms
@@ -118,7 +123,9 @@ Note: Desktop fields in the schema are `v.optional()` because existing manual-br
 The `validateManualSupport` function returns data matching the schema (where desktop fields are optional), but `MANUAL_SUPPORT` is typed as `Record<string, BrowserSupport>` (where desktop fields are required). Add a transform after validation in `app/composables/useBrowserSupport.ts`:
 
 ```typescript
-function normalizeManualSupport(data: Record<string, unknown>): Record<string, BrowserSupport> {
+function normalizeManualSupport(
+  data: Record<string, unknown>
+): Record<string, BrowserSupport> {
   const validated = validateManualSupport(data)
   const result: Record<string, BrowserSupport> = {}
   for (const [key, entry] of Object.entries(validated)) {
@@ -130,7 +137,8 @@ function normalizeManualSupport(data: Record<string, unknown>): Record<string, B
   return result
 }
 
-const MANUAL_SUPPORT: Record<string, BrowserSupport> = normalizeManualSupport(manualSupportData)
+const MANUAL_SUPPORT: Record<string, BrowserSupport> =
+  normalizeManualSupport(manualSupportData)
 ```
 
 - [ ] **Step 5: Run test to verify it passes**
@@ -150,6 +158,7 @@ git commit -m "feat: expand BrowserId and BrowserSupport to include desktop brow
 ### Task 2: Add desktop support to CanIUse loader
 
 **Files:**
+
 - Modify: `app/utils/canIUseLoader.ts:317-391` (getCanIUseSupport)
 - Modify: `app/utils/canIUseLoader.ts:713-773` (getMdnBcdSupport)
 - Test: `app/utils/canIUseLoader.test.ts`
@@ -196,7 +205,10 @@ describe('getCanIUseSupport - desktop browsers', () => {
       safari: '26.3'
     }
 
-    const support = await getCanIUseSupport('non-existent-feature-xyz', browserVersions)
+    const support = await getCanIUseSupport(
+      'non-existent-feature-xyz',
+      browserVersions
+    )
 
     expect(support.chrome).toBe('unknown')
     expect(support.firefox).toBe('unknown')
@@ -213,7 +225,10 @@ describe('getMdnBcdSupport - desktop browsers', () => {
     }
 
     const { getMdnBcdSupport } = await import('./canIUseLoader')
-    const support = await getMdnBcdSupport('api.Navigator.setAppBadge', browserVersions)
+    const support = await getMdnBcdSupport(
+      'api.Navigator.setAppBadge',
+      browserVersions
+    )
 
     // Desktop Chrome supports setAppBadge (version 81+)
     expect(support.chrome).toBe('supported')
@@ -269,7 +284,9 @@ export async function getCanIUseSupport(
     const featureData = data.data[canIUseId]
     if (!featureData) {
       if (
-        !(UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(canIUseId)
+        !(UNIVERSALLY_SUPPORTED_FEATURES as readonly string[]).includes(
+          canIUseId
+        )
       ) {
         console.log(`CanIUse feature not found: ${canIUseId}`)
       }
@@ -401,7 +418,9 @@ export async function getMdnBcdSupport(
 
     return {
       chrome_android: chromeAndroid.partial ? 'partial' : chromeAndroid.level,
-      firefox_android: firefoxAndroid.partial ? 'partial' : firefoxAndroid.level,
+      firefox_android: firefoxAndroid.partial
+        ? 'partial'
+        : firefoxAndroid.level,
       safari_ios: safariIos.partial ? 'partial' : safariIos.level,
       chrome: chromeDesktop.partial ? 'partial' : chromeDesktop.level,
       firefox: firefoxDesktop.partial ? 'partial' : firefoxDesktop.level,
@@ -433,13 +452,13 @@ export async function getMdnBcdSupport(
 In `app/composables/useBrowserSupport.ts`, the `loadSupport` function checks `hasKnownSupport` by looking at only mobile fields. Update both checks to also include desktop fields:
 
 ```typescript
-const hasKnownSupport
-  = support.chrome_android !== 'unknown'
-    || support.firefox_android !== 'unknown'
-    || support.safari_ios !== 'unknown'
-    || support.chrome !== 'unknown'
-    || support.firefox !== 'unknown'
-    || support.safari !== 'unknown'
+const hasKnownSupport =
+  support.chrome_android !== 'unknown' ||
+  support.firefox_android !== 'unknown' ||
+  support.safari_ios !== 'unknown' ||
+  support.chrome !== 'unknown' ||
+  support.firefox !== 'unknown' ||
+  support.safari !== 'unknown'
 ```
 
 Apply this in both the MDN BCD check block (around line 165) and the CanIUse check block (around line 194).
@@ -461,6 +480,7 @@ git commit -m "feat: add desktop browser support to CanIUse and MDN BCD loaders"
 ### Task 3: Update useBrowserScore tests for desktop BrowserIds
 
 **Files:**
+
 - Test: `app/composables/useBrowserScore.test.ts`
 
 - [ ] **Step 1: Update test helper to include desktop fields in BrowserSupport**
@@ -551,6 +571,7 @@ git commit -m "test: add desktop browser scoring tests"
 ### Task 4: Add desktop entries to manual-browser-support.json
 
 **Files:**
+
 - Modify: `app/data/manual-browser-support.json`
 - Test: `app/data/manual-browser-support.data.test.ts` (existing tests should still pass)
 
@@ -618,6 +639,7 @@ git commit -m "feat: add desktop browser support data to manual entries"
 ### Task 5: Add getBrowsersForPlatform and platform-aware browser config
 
 **Files:**
+
 - Modify: `app/components/PWAFeatureBrowser.vue:246-280`
 - No new test file (this is Vue component config, tested via the component)
 
@@ -704,7 +726,7 @@ const activeBrowserConfig = computed(() =>
 )
 
 const browsers = computed(() =>
-  activeBrowserConfig.value.map(browser => ({
+  activeBrowserConfig.value.map((browser) => ({
     ...browser,
     scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
   }))
@@ -736,10 +758,7 @@ Replace the platform display logic in the template. Currently it checks `browser
 And update the `<h2>` screen-reader heading similarly:
 
 ```html
-<h2
-  :id="`heading-${browser.id}`"
-  class="sr-only"
->
+<h2 :id="`heading-${browser.id}`" class="sr-only">
   {{ browser.name }} {{ t('browser.for') }} {{ browser.platformLabel }}
 </h2>
 ```
@@ -761,6 +780,7 @@ git commit -m "feat: add platform-aware browser config with desktop entries"
 ### Task 6: Add segmented control to PWAFeatureBrowserOptions
 
 **Files:**
+
 - Modify: `app/components/PWAFeatureBrowserOptions.vue`
 - Modify: `app/components/PWAFeatureBrowser.vue` (pass platform prop)
 
@@ -862,6 +882,7 @@ git commit -m "feat: add Mobile/Desktop segmented control to options bar"
 ### Task 7: Add i18n translation keys
 
 **Files:**
+
 - Modify: `i18n/locales/en.json`
 - Modify: `i18n/locales/fr.json`
 
@@ -974,6 +995,7 @@ Expected: Build succeeds
 
 Run: `cd /Users/Charles/Projects/PWAscore && npx nuxt dev`
 Verify:
+
 - Default view shows "Mobile" selected with Chrome/Firefox/Safari for Android/iOS
 - Clicking "Desktop" switches to Chrome/Firefox/Safari for Cross-platform/macOS
 - Scores recalculate (desktop scores differ from mobile)

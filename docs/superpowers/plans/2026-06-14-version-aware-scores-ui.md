@@ -346,6 +346,21 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
     await vb.setVersion('safari_ios', '18.5')
     expect(vb.columnScores('safari_ios').weighted).toBe(0) // 18.5 -> not-supported
   })
+
+  test('setVersion keeps the previous score until the new version load resolves (no flash)', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    expect(vb.columnScores('safari_ios').weighted).toBe(100) // default 26.4 -> supported
+
+    const promise = vb.setVersion('safari_ios', '18.5')
+    // Before the load resolves: still the old version's score, NOT unknown/0.
+    expect(vb.columnScores('safari_ios').weighted).toBe(100)
+    expect(vb.selectedVersion.value.safari_ios).toBe('26.4')
+
+    await promise
+    expect(vb.selectedVersion.value.safari_ios).toBe('18.5')
+    expect(vb.columnScores('safari_ios').weighted).toBe(0) // now 18.5 -> not-supported
+  })
 })
 ```
 
@@ -380,15 +395,23 @@ const columnSupport = (
   )
 }
 
+// Load-then-swap: for a non-default version, fetch its support BEFORE
+// mutating selectedVersion, so the column keeps rendering the previous
+// (cached) version's data until the new one is ready — no flash of 163
+// unknown rows (spec Unit 2). The default version is already warm from init,
+// so it swaps synchronously.
 const setVersion = async (
   browserId: BrowserId,
   version: string
 ): Promise<void> => {
-  selectedVersion.value = { ...selectedVersion.value, [browserId]: version }
-  if (isDefaultVersion(browserId, version)) return
+  if (isDefaultVersion(browserId, version)) {
+    selectedVersion.value = { ...selectedVersion.value, [browserId]: version }
+    return
+  }
   isVersionLoading.value = { ...isVersionLoading.value, [browserId]: true }
   try {
     await loadSupportAtVersion(features, browserId, version)
+    selectedVersion.value = { ...selectedVersion.value, [browserId]: version }
   } finally {
     isVersionLoading.value = { ...isVersionLoading.value, [browserId]: false }
   }
@@ -739,12 +762,12 @@ const browsers = computed(() =>
 )
 ```
 
-Replace `featureSupportMap` + `getFeatureSupport` with a per-column getter (drop the precomputed map — `columnSupport` reads an in-memory cache, so per-call is fine):
+Replace `featureSupportMap` + `getFeatureSupport` with a per-column getter (drop the precomputed map — `columnSupport` reads an in-memory cache, so per-call is fine). **`browserId` is OPTIONAL** so the existing one-arg call sites that only read `.status` keep compiling — status is version- and column-independent (spec Unit 2), so the default browser is fine for them:
 
 ```ts
 function getFeatureSupport(
   featureId: string,
-  browserId: BrowserId
+  browserId: BrowserId = 'chrome_android'
 ): BrowserSupport {
   const feature = featureById.get(featureId)
   return columnSupport(
@@ -755,6 +778,8 @@ function getFeatureSupport(
   )
 }
 ```
+
+**Call-site audit (do NOT miss these — `turbo typecheck lint` gate G-2 will fail otherwise):** `getFeatureSupport(feature.id)` is called WITHOUT a browser id at three status-icon sites (`PWAFeatureBrowser.vue:811`, `:821-822`, `:832` — `.status?.experimental`, `.status?.standard_track`, `.status?.deprecated`). Those stay one-arg (they use the default and read `.status`, which is the same for every browser). Only the two support-badge sites (`:892`, `:895`) pass `browser.id`, updated in Step 4.
 
 Add a lookup map near the top of `<script setup>`:
 
@@ -790,7 +815,7 @@ with a select + sparkline block:
     }))"
     size="xs"
     :aria-label="t('browser.versionSelect', { name: browser.name })"
-    @update:model-value="(v: string) => setVersion(browser.id, v)"
+    @update:model-value="(v) => setVersion(browser.id, v as string)"
   />
   <span v-if="isVersionLoading[browser.id]" class="animate-pulse">{{ t('browser.loading') }}</span>
 </div>
@@ -818,12 +843,20 @@ and
 {{ getSupportLabel(getFeatureSupport(feature.id, browser.id)[browser.id]) }}
 ```
 
-- [ ] **Step 5: Trigger sparkline load on mount for visible browsers**
+- [ ] **Step 5: Trigger sparkline load for visible browsers (mount + mobile swipe)**
 
 At the end of `onMounted` (after `vb.init`), warm the sparkline for the browsers shown by default:
 
 ```ts
 visibleBrowsers.value.forEach((b) => loadSparkline(b.id))
+```
+
+The header's `@mouseenter="loadSparkline(browser.id)"` (Step 4) won't fire on touch, so on mobile (single-column, swipeable) the newly-shown browser's sparkline would stay empty until tapped. Add a watch so swiping/tab-switching warms it (place near the existing `watch(selectedBrowserIndex, ...)` announce watcher ~line 353):
+
+```ts
+watch(visibleBrowsers, (browsers) => {
+  browsers.forEach((b) => loadSparkline(b.id))
+})
 ```
 
 - [ ] **Step 6: Verify — full suite, gates, and a headless browser check**
@@ -953,7 +986,7 @@ git commit -m "feat(ui): add i18n strings for version selector and trend"
 - "Changing version recomputes that column's icons + headline + group badges" → Task 2 (`columnScores`/`columnSupport`) + Task 5 Step 3 (`browsers`/`getFeatureSupport` version-aware). ✓
 - "Recent window + beta/preview badged" → release list from foundation `getBrowserReleases`; badge rendering in Task 5 Step 4 (`channel` label). ✓
 - "Sparkline under the score, click to expand" → Task 4 (component) + Task 5 (render) + Task 6 (modal). ✓
-- "Derived, no storage; respects hide-experimental" → series uses `.weighted` (the always-stable primary score the headline shows) via `calculateScoreSeries`. ✓
+- "Derived, no storage" → series computed on the fly via `calculateScoreSeries`, no persistence. ✓ The sparkline tracks the same primary `.weighted` score as the headline number, which is invariant to the row-hiding "hide experimental" toggle (the toggle hides feature rows; it never switches the headline or sparkline to `weightedFull`). So the sparkline stays consistent with the headline — it does not visibly change when the toggle flips, which matches current headline behavior. ✓
 - "Async load protocol + per-column loading state" → Task 2 (`setVersion` + `isVersionLoading`) + Task 5 Step 4 (loading indicator). ✓
 - i18n → Task 7. ✓
 

@@ -1,0 +1,21 @@
+# Prettier formats only JSON/MD/YAML; ESLint (Nuxt Stylistic) owns JS/TS/Vue.
+
+# Generated outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+.wrangler
+
+# Dependencies
+node_modules
+
+# Lockfiles (machine-generated; never hand-format)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Local caches
+.ck/

@@ -1,6 +1,6 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
-import { getBrowserReleases } from '../utils/canIUseLoader'
+import { getBrowserReleases, getMdnBcdSupport } from '../utils/canIUseLoader'
 import { useVersionedBrowsers } from './useVersionedBrowsers'
 
 vi.mock('../utils/canIUseLoader', () => ({
@@ -57,5 +57,59 @@ describe('useVersionedBrowsers', () => {
     await vb.init(['safari_ios'])
     expect(vb.defaultVersionFor('safari_ios')).toBe('26.4')
     expect(vb.defaultVersionFor('chrome_android')).toBe('146')
+  })
+})
+
+describe('useVersionedBrowsers — version-aware support and scores', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  test('columnSupport at the default version uses the current path (no extra load)', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    expect(vb.columnSupport('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge').safari_ios).toBe('supported')
+  })
+
+  test('setVersion loads support at the chosen version and toggles isVersionLoading', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+
+    const promise = vb.setVersion('safari_ios', '18.5')
+    expect(vb.isVersionLoading.value.safari_ios).toBe(true)
+    await promise
+    expect(vb.isVersionLoading.value.safari_ios).toBe(false)
+
+    expect(vb.selectedVersion.value.safari_ios).toBe('18.5')
+    expect(vb.columnSupport('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge').safari_ios).toBe('not-supported')
+  })
+
+  test('setVersion back to the default does not trigger another load', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    vi.clearAllMocks()
+    await vb.setVersion('safari_ios', '26.4') // the default
+    expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
+  })
+
+  test('columnScores computes the weighted score for the column at its selected version', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    expect(vb.columnScores('safari_ios').weighted).toBe(100) // 26.4 -> supported
+    await vb.setVersion('safari_ios', '18.5')
+    expect(vb.columnScores('safari_ios').weighted).toBe(0) // 18.5 -> not-supported
+  })
+
+  test('setVersion keeps the previous score until the new version load resolves (no flash)', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    expect(vb.columnScores('safari_ios').weighted).toBe(100) // default 26.4 -> supported
+
+    const promise = vb.setVersion('safari_ios', '18.5')
+    // Before the load resolves: still the old version's score, NOT unknown/0.
+    expect(vb.columnScores('safari_ios').weighted).toBe(100)
+    expect(vb.selectedVersion.value.safari_ios).toBe('26.4')
+
+    await promise
+    expect(vb.selectedVersion.value.safari_ios).toBe('18.5')
+    expect(vb.columnScores('safari_ios').weighted).toBe(0) // now 18.5 -> not-supported
   })
 })

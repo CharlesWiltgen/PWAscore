@@ -1,8 +1,9 @@
 import { ref } from 'vue'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
-import type { BrowserId } from './useBrowserSupport'
+import type { BrowserId, BrowserSupport } from './useBrowserSupport'
 import { useBrowserSupport, BRAND_BY_BROWSER } from './useBrowserSupport'
 import { useBrowserScore } from './useBrowserScore'
+import type { BrowserScoreResult } from './useBrowserScore'
 import {
   getBrowserReleases,
   type BrowserRelease
@@ -66,6 +67,47 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     )
   }
 
+  const isDefaultVersion = (browserId: BrowserId, version: string | undefined): boolean =>
+    !version || version === defaultVersionFor(browserId)
+
+  const columnSupport = (
+    browserId: BrowserId,
+    featureId: string,
+    canIUseId?: string,
+    mdnBcdPath?: string
+  ): BrowserSupport => {
+    const version = selectedVersion.value[browserId]
+    return getSupportAt(
+      browserId,
+      featureId,
+      canIUseId,
+      mdnBcdPath,
+      isDefaultVersion(browserId, version) ? undefined : version
+    )
+  }
+
+  // Load-then-swap: for a non-default version, fetch its support BEFORE
+  // mutating selectedVersion, so the column keeps rendering the previous
+  // (cached) version until the new one is ready — no flash of unknown rows.
+  const setVersion = async (browserId: BrowserId, version: string): Promise<void> => {
+    if (isDefaultVersion(browserId, version)) {
+      selectedVersion.value = { ...selectedVersion.value, [browserId]: version }
+      return
+    }
+    isVersionLoading.value = { ...isVersionLoading.value, [browserId]: true }
+    try {
+      await loadSupportAtVersion(features, browserId, version)
+      selectedVersion.value = { ...selectedVersion.value, [browserId]: version }
+    } finally {
+      isVersionLoading.value = { ...isVersionLoading.value, [browserId]: false }
+    }
+  }
+
+  const columnScores = (browserId: BrowserId): BrowserScoreResult =>
+    calculateBrowserScore(browserId, featureGroups, (featureId, canIUseId, mdnBcdPath) =>
+      columnSupport(browserId, featureId, canIUseId, mdnBcdPath)
+    )
+
   return {
     selectedVersion,
     releasesByBrowser,
@@ -76,6 +118,9 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     loadSupportAtVersion,
     calculateBrowserScore,
     calculateScoreSeries,
-    features
+    features,
+    columnSupport,
+    setVersion,
+    columnScores
   }
 }

@@ -30,7 +30,7 @@ const CANIUSE_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Cache version - update this to force cache refresh
-const CACHE_VERSION = '2026-03-23'
+const CACHE_VERSION = '2026-06-14'
 
 // In-memory cache
 let canIUseData: CanIUseData | null = null
@@ -453,10 +453,10 @@ interface MdnBcdFeature {
 
 // MDN BCD CDN URL
 const MDN_BCD_URL
-  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@7.3.8/data.json'
+  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@8.0.3/data.json'
 
 // Cache version for MDN BCD
-const MDN_BCD_CACHE_VERSION = '2026-03-23'
+const MDN_BCD_CACHE_VERSION = '2026-06-14'
 
 // In-memory cache for MDN BCD data
 let mdnBcdData: unknown = null

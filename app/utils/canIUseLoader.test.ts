@@ -3,7 +3,8 @@ import {
   getBrowserVersions,
   getCanIUseSupport,
   compareVersions,
-  clearCaches
+  clearCaches,
+  getBrowserReleases
 } from './canIUseLoader'
 
 describe('getBrowserVersions', () => {
@@ -355,6 +356,70 @@ describe('getMdnBcdSupport - desktop browsers', () => {
     expect(support.chrome).toBe('supported')
     expect(support.firefox).toBe('not-supported')
     expect(support.safari).toBe('supported')
+  })
+})
+
+describe('getBrowserReleases', () => {
+  function stubBcd(browsers: Record<string, unknown>) {
+    clearCaches()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ browsers })
+      })
+    )
+  }
+
+  test('windows to recent majors, marks current, and surfaces beta/preview above current', async () => {
+    stubBcd({
+      safari_ios: {
+        releases: {
+          '17.0': { release_date: '2023-09-18', status: 'retired' },
+          '18.5': { release_date: '2025-05-12', status: 'retired' },
+          '26.3': { release_date: '2026-02-11', status: 'retired' },
+          '26.4': { release_date: '2026-03-24', status: 'current' },
+          '26.5': { release_date: null, status: 'beta' },
+          '27': { release_date: null, status: 'planned' }
+        }
+      }
+    })
+
+    const releases = await getBrowserReleases('safari_ios', '26.4', 8)
+
+    expect(releases).toEqual([
+      { version: '17.0', releaseDate: '2023-09-18', channel: 'released' },
+      { version: '18.5', releaseDate: '2025-05-12', channel: 'released' },
+      { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
+      { version: '26.5', releaseDate: null, channel: 'beta' },
+      { version: '27', releaseDate: null, channel: 'beta' }
+    ])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
+  test('limits to the last N distinct majors at or below current', async () => {
+    const releases: Record<string, unknown> = {}
+    for (let major = 1; major <= 12; major++) {
+      releases[`${major}`] = { release_date: `20${10 + major}-01-01`, status: 'retired' }
+    }
+    stubBcd({ chrome: { releases } })
+
+    const result = await getBrowserReleases('chrome', '12', 8)
+
+    expect(result.map(r => r.version)).toEqual(['5', '6', '7', '8', '9', '10', '11', '12'])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
+  test('returns [] when the browser key is absent', async () => {
+    stubBcd({})
+    const result = await getBrowserReleases('safari_ios', '26.4', 8)
+    expect(result).toEqual([])
+    vi.unstubAllGlobals()
+    clearCaches()
   })
 })
 

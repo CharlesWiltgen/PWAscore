@@ -3,10 +3,11 @@
  * Loads browser compatibility data from GitHub with edge caching
  */
 
-import type { SupportLevel } from '../composables/useBrowserSupport'
+import type { SupportLevel, BrowserId } from '../composables/useBrowserSupport'
 import {
   safeParseCanIUseData,
   safeParseMdnBcdFeature,
+  safeParseBcdRelease,
   type CanIUseData as ValidatedCanIUseData
 } from '../schemas/canIUse'
 
@@ -850,5 +851,85 @@ export async function getMdnUrlFromBcd(
   } catch (error) {
     console.error(`Error getting MDN URL for ${mdnBcdPath}:`, error)
     return undefined
+  }
+}
+
+export type ReleaseChannel = 'released' | 'current' | 'beta'
+
+export interface BrowserRelease {
+  version: string
+  releaseDate: string | null
+  channel: ReleaseChannel
+}
+
+const RECENT_MAJORS = 8
+const UPCOMING_STATUSES = new Set(['beta', 'nightly', 'planned'])
+
+function majorOf(version: string): number {
+  return Number.parseInt(version.split('.')[0] ?? '', 10)
+}
+
+/**
+ * Get a windowed, channel-classified release list for a browser from MDN BCD.
+ * Sourced from bcd.browsers[browserId].releases (CIU lacks mobile evergreen history).
+ * Returns ascending by version; [] on error or unknown browser key.
+ */
+export async function getBrowserReleases(
+  browserId: BrowserId,
+  currentVersion: string,
+  recentMajors: number = RECENT_MAJORS
+): Promise<BrowserRelease[]> {
+  try {
+    const data = (await loadMdnBcdData()) as {
+      browsers?: Record<string, { releases?: Record<string, unknown> }>
+    }
+    const rawReleases = data.browsers?.[browserId]?.releases
+    if (!rawReleases) {
+      return []
+    }
+
+    type Parsed = { version: string, releaseDate: string | null, upcoming: boolean }
+    const parsed: Parsed[] = []
+    for (const [version, info] of Object.entries(rawReleases)) {
+      if (Number.isNaN(majorOf(version))) continue // skip TP and non-numeric
+      const result = safeParseBcdRelease(info)
+      if (!result.success || !result.data) continue
+      const releaseDate = result.data.release_date ?? null
+      const upcoming
+        = releaseDate === null
+          || (result.data.status !== undefined && UPCOMING_STATUSES.has(result.data.status))
+      parsed.push({ version, releaseDate, upcoming })
+    }
+
+    const atOrBelow = parsed.filter(r => compareVersions(r.version, currentVersion) <= 0)
+    const above = parsed.filter(r => compareVersions(r.version, currentVersion) > 0 && r.upcoming)
+
+    // Latest representative release per major, among atOrBelow.
+    const latestPerMajor = new Map<number, Parsed>()
+    for (const r of atOrBelow) {
+      const major = majorOf(r.version)
+      const existing = latestPerMajor.get(major)
+      if (!existing || compareVersions(r.version, existing.version) > 0) {
+        latestPerMajor.set(major, r)
+      }
+    }
+    const windowedMajors = [...latestPerMajor.keys()]
+      .sort((a, b) => a - b)
+      .slice(-recentMajors)
+    const belowReleases = windowedMajors.map(m => latestPerMajor.get(m)!)
+
+    const combined = [...belowReleases, ...above].sort((a, b) =>
+      compareVersions(a.version, b.version)
+    )
+
+    return combined.map(r => ({
+      version: r.version,
+      releaseDate: r.releaseDate,
+      channel:
+        r.version === currentVersion ? 'current' : r.upcoming ? 'beta' : 'released'
+    }))
+  } catch (error) {
+    console.error(`[BCD] Error getting releases for ${browserId}:`, error)
+    return []
   }
 }

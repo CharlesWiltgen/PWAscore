@@ -30,7 +30,12 @@
       "ios": "iOS",
       "crossPlatform": "Cross-platform",
       "macos": "macOS"
-    }
+    },
+    "versionSelect": "Select {name} version",
+    "trendLabel": "{name} score over time. Press to expand.",
+    "trendTitle": "Score over time",
+    "loading": "Loading…",
+    "channel": { "beta": "beta", "released": "released", "current": "current" }
   },
   "scores": {
     "stableFeatures": "Stable features:",

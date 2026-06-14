@@ -30,7 +30,12 @@
       "ios": "iOS",
       "crossPlatform": "Multiplateforme",
       "macos": "macOS"
-    }
+    },
+    "versionSelect": "Choisir la version de {name}",
+    "trendLabel": "Score de {name} au fil du temps. Appuyez pour agrandir.",
+    "trendTitle": "Score au fil du temps",
+    "loading": "Chargement…",
+    "channel": { "beta": "bêta", "released": "stable", "current": "actuelle" }
   },
   "scores": {
     "stableFeatures": "Fonctionnalités stables :",

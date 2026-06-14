@@ -78,6 +78,17 @@ export const MdnBcdFeatureSchema = v.looseObject({
 export type MdnBcdFeature = v.InferOutput<typeof MdnBcdFeatureSchema>
 
 /**
+ * MDN BCD browser release entry: bcd.browsers[key].releases[version]
+ * Only the fields we consume are modeled; extra fields are ignored.
+ */
+export const BcdReleaseSchema = v.looseObject({
+  release_date: v.optional(v.nullable(v.string())),
+  status: v.optional(v.string())
+})
+
+export type BcdRelease = v.InferOutput<typeof BcdReleaseSchema>
+
+/**
  * Browser Support Schema
  * Used for validating MANUAL_SUPPORT entries
  */
@@ -167,6 +178,33 @@ export function safeParseMdnBcdFeature(data: unknown): {
     return {
       success: false,
       error: `MDN BCD feature validation error: ${error instanceof Error ? error.message : String(error)}`
+    }
+  }
+}
+
+/**
+ * Validate a single BCD browser release entry
+ */
+export function safeParseBcdRelease(data: unknown): {
+  success: boolean
+  data?: BcdRelease
+  error?: string
+} {
+  try {
+    const result = v.safeParse(BcdReleaseSchema, data)
+    if (result.success) {
+      return { success: true, data: result.output }
+    } else {
+      const errorMessage = v.flatten<typeof BcdReleaseSchema>(result.issues)
+      return {
+        success: false,
+        error: `BCD release validation failed: ${JSON.stringify(errorMessage, null, 2)}`
+      }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: `BCD release validation error: ${error instanceof Error ? error.message : String(error)}`
     }
   }
 }

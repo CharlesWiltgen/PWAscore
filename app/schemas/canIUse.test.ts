@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest'
 import {
   safeParseCanIUseData,
   safeParseMdnBcdFeature,
-  safeParseBrowserSupport
+  safeParseBrowserSupport,
+  safeParseBcdRelease
 } from './canIUse'
 
 describe('CanIUse schema validation', () => {
@@ -281,6 +282,38 @@ describe('CanIUse schema validation', () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toBeDefined()
+    })
+  })
+
+  describe('safeParseBcdRelease', () => {
+    test('accepts a dated released entry', () => {
+      const r = safeParseBcdRelease({ release_date: '2026-03-24', status: 'current' })
+      expect(r).toEqual({ success: true, data: { release_date: '2026-03-24', status: 'current' } })
+    })
+
+    test('accepts a null release_date (unreleased/preview)', () => {
+      const r = safeParseBcdRelease({ release_date: null, status: 'beta' })
+      expect(r.success).toBe(true)
+      expect(r.data).toEqual({ release_date: null, status: 'beta' })
+    })
+
+    test('accepts a missing status and missing release_date', () => {
+      const r = safeParseBcdRelease({})
+      expect(r.success).toBe(true)
+      expect(r.data).toEqual({})
+    })
+
+    test('rejects a numeric release_date (wrong type)', () => {
+      const invalidNumericDate = 20260324
+      const r = safeParseBcdRelease({ release_date: invalidNumericDate })
+      expect(r.success).toBe(false)
+      expect(typeof r.error).toBe('string')
+      expect(r.error!.length).toBeGreaterThan(0)
+    })
+
+    test('rejects a non-string status (wrong type)', () => {
+      const r = safeParseBcdRelease({ status: 123 })
+      expect(r.success).toBe(false)
     })
   })
 })

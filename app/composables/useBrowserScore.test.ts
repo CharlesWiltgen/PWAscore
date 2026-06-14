@@ -264,6 +264,60 @@ describe('useBrowserScore', () => {
     })
   })
 
+  describe('calculateScoreSeries', () => {
+    const { calculateScoreSeries } = useBrowserScore()
+
+    test('weighted score steps up at the version a feature is added', () => {
+      const groups: PWAFeatureGroup[] = [
+        {
+          id: 'g',
+          name: 'G',
+          description: 'G',
+          categories: [
+            {
+              id: 'c',
+              name: 'C',
+              description: 'C',
+              features: [
+                {
+                  id: 'feature-0',
+                  name: 'F0',
+                  description: 'F0',
+                  status: { experimental: false, standard_track: true, deprecated: false }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+
+      const getSupportAt = (version: string) => (): BrowserSupport => ({
+        chrome_android: 'unknown',
+        firefox_android: 'unknown',
+        safari_ios: Number(version) >= 18 ? 'supported' : 'not-supported',
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown',
+        status: { experimental: false, standard_track: true, deprecated: false }
+      })
+
+      // safari_ios gains support at v18, so 17 -> 0, 18 & 26 -> 100
+      const releases = [
+        { version: '17', releaseDate: '2023-09-18' },
+        { version: '18', releaseDate: '2024-09-16' },
+        { version: '26', releaseDate: '2025-09-15' }
+      ]
+
+      const series = calculateScoreSeries('safari_ios', groups, releases, getSupportAt)
+
+      expect(series).toEqual([
+        { version: '17', releaseDate: '2023-09-18', weighted: 0 },
+        { version: '18', releaseDate: '2024-09-16', weighted: 100 },
+        { version: '26', releaseDate: '2025-09-15', weighted: 100 }
+      ])
+    })
+  })
+
   describe('groupScores', () => {
     function createMultiGroupData(
       groups: Array<{

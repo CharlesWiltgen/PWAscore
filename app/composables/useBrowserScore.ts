@@ -31,6 +31,13 @@ export interface BrowserScoreResult extends BrowserScores {
   groupScores: Record<string, BrowserScores>
 }
 
+/** One point in a score-over-time series: a release version, its date, and the weighted score at that version. */
+export interface ScorePoint {
+  version: string
+  releaseDate: string | null
+  weighted: number
+}
+
 type ScoreAccumulator = {
   weightedPoints: number
   totalPossibleWeight: number
@@ -147,7 +154,22 @@ export function useBrowserScore() {
     }
   }
 
+  const calculateScoreSeries = (
+    browserId: BrowserId,
+    featureGroups: PWAFeatureGroup[],
+    releases: Array<{ version: string, releaseDate: string | null }>,
+    getSupportAt: (
+      version: string
+    ) => (featureId: string, canIUseId?: string, mdnBcdPath?: string) => BrowserSupport
+  ): ScorePoint[] =>
+    releases.map(r => ({
+      version: r.version,
+      releaseDate: r.releaseDate,
+      weighted: calculateBrowserScore(browserId, featureGroups, getSupportAt(r.version)).weighted
+    }))
+
   return {
-    calculateBrowserScore
+    calculateBrowserScore,
+    calculateScoreSeries
   }
 }

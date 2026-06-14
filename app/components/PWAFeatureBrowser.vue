@@ -414,7 +414,16 @@ function getFeatureSupport(featureId: string, browserId: BrowserId = 'chrome_and
   return columnSupport(browserId, featureId, feature?.canIUseId, feature?.mdnBcdPath)
 }
 
-function openTrend(_browserId: BrowserId): void {}
+const trendOpen = ref(false)
+const trendBrowserId = ref<BrowserId | null>(null)
+function openTrend(browserId: BrowserId): void {
+  loadSparkline(browserId)
+  trendBrowserId.value = browserId
+  trendOpen.value = true
+}
+const trendSeries = computed(() =>
+  trendBrowserId.value ? sparklineSeries(trendBrowserId.value) : []
+)
 
 /**
  * Get badge color based on support level
@@ -932,5 +941,30 @@ function createCategoryItems(group: PWAFeatureGroup) {
         </div>
       </ClientOnly>
     </div>
+
+    <UModal
+      v-model:open="trendOpen"
+      :title="t('browser.trendTitle')"
+    >
+      <template #body>
+        <div class="space-y-3">
+          <VersionScoreSparkline
+            :series="trendSeries"
+            :width="480"
+            :height="160"
+          />
+          <ul class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+            <li
+              v-for="point in trendSeries"
+              :key="point.version"
+              class="flex justify-between"
+            >
+              <span class="text-gray-500 dark:text-gray-400">{{ point.version }}</span>
+              <span class="font-medium tabular-nums">{{ point.weighted }}</span>
+            </li>
+          </ul>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

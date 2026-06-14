@@ -444,6 +444,26 @@ describe('getBrowserReleases', () => {
     vi.unstubAllGlobals()
     clearCaches()
   })
+
+  test('marks the current channel by semantic equality, not string equality', async () => {
+    // BCD stores a 3-part version key while CIU current_version is 2-part
+    stubBcd({
+      safari_ios: {
+        releases: {
+          '26.4.0': { release_date: '2026-03-24', status: 'current' }
+        }
+      }
+    })
+
+    const releases = await getBrowserReleases('safari_ios', '26.4', 8)
+
+    expect(releases).toEqual([
+      { version: '26.4.0', releaseDate: '2026-03-24', channel: 'current' }
+    ])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
 })
 
 describe('compareVersions', () => {

@@ -925,8 +925,13 @@ export async function getBrowserReleases(
     return combined.map(r => ({
       version: r.version,
       releaseDate: r.releaseDate,
-      channel:
-        r.version === currentVersion ? 'current' : r.upcoming ? 'beta' : 'released'
+      // Use compareVersions (not ===) so a semantically-equal version in a
+      // different format (e.g. '26.4.0' vs '26.4') still gets the current badge.
+      channel: compareVersions(r.version, currentVersion) === 0
+        ? 'current'
+        : r.upcoming
+          ? 'beta'
+          : 'released'
     }))
   } catch (error) {
     console.error(`[BCD] Error getting releases for ${browserId}:`, error)

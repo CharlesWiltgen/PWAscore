@@ -109,6 +109,49 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
     expect(vb.columnScores('safari_ios').weighted).toBe(0) // 18.5 -> not-supported
   })
 
+  test('concurrent setVersion: a slow earlier request never overwrites a later selection', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+
+    // Replace the immediate mock with deferred promises we resolve by hand,
+    // keyed by the pinned safari version, so we can control resolution order.
+    // vi.clearAllMocks() (beforeEach) clears calls but NOT implementations, so
+    // we capture and restore the default to avoid leaking into later tests.
+    const defaultImpl = vi.mocked(getMdnBcdSupport).getMockImplementation()
+    const resolvers: Record<string, () => void> = {}
+    vi.mocked(getMdnBcdSupport).mockImplementation(
+      (_path: string, versions: { safari: string }) =>
+        new Promise((resolve) => {
+          resolvers[versions.safari] = () =>
+            resolve({
+              chrome_android: 'unknown', firefox_android: 'unknown',
+              safari_ios: versions.safari === '18.5' ? 'not-supported' : 'supported',
+              chrome: 'unknown', firefox: 'unknown', safari: 'unknown'
+            })
+        })
+    )
+
+    try {
+      const slow = vb.setVersion('safari_ios', '18.5') // earlier request
+      const fast = vb.setVersion('safari_ios', '26.5') // later request (supersedes)
+      await vi.waitFor(() => {
+        expect(resolvers['18.5']).toBeDefined()
+        expect(resolvers['26.5']).toBeDefined()
+      })
+
+      // Resolve the LATER request first, then the earlier one.
+      resolvers['26.5']!()
+      resolvers['18.5']!()
+      await Promise.all([slow, fast])
+
+      // The latest selection (26.5) must win, even though 18.5 resolved last.
+      expect(vb.selectedVersion.value.safari_ios).toBe('26.5')
+      expect(vb.isVersionLoading.value.safari_ios).toBe(false)
+    } finally {
+      vi.mocked(getMdnBcdSupport).mockImplementation(defaultImpl!)
+    }
+  })
+
   test('setVersion keeps the previous score until the new version load resolves (no flash)', async () => {
     const vb = useVersionedBrowsers(GROUPS)
     await vb.init(['safari_ios'])

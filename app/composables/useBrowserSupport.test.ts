@@ -356,13 +356,13 @@ describe('loadSupportAtVersion', () => {
     await loadSupportAtVersion([feature], 'safari_ios', '18')
     await loadSupportAtVersion([feature], 'safari_ios', '26.4')
 
-    expect(getSupportAt('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge', '18').safari_ios).toBe('not-supported')
-    expect(getSupportAt('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge', '26.4').safari_ios).toBe('supported')
+    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'badging', mdnBcdPath: 'api.Navigator.setAppBadge', version: '18' }).safari_ios).toBe('not-supported')
+    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'badging', mdnBcdPath: 'api.Navigator.setAppBadge', version: '26.4' }).safari_ios).toBe('supported')
     expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
   })
 
   test('getSupportAt without a version delegates to the current-version getSupport', () => {
     const { getSupportAt } = useBrowserSupport()
-    expect(getSupportAt('safari_ios', 'unloaded').safari_ios).toBe('unknown')
+    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'unloaded' }).safari_ios).toBe('unknown')
   })
 })

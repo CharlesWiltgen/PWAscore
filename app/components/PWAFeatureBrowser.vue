@@ -414,6 +414,12 @@ function getFeatureSupport(featureId: string, browserId: BrowserId = 'chrome_and
   return columnSupport(browserId, featureId, feature?.canIUseId, feature?.mdnBcdPath)
 }
 
+// USelect emits the loosely-typed AcceptableValue; guard to a string before
+// committing a version (ignores null/undefined/array shapes).
+function onVersionSelect(browserId: BrowserId, value: unknown): void {
+  if (typeof value === 'string') setVersion(browserId, value)
+}
+
 const trendOpen = ref(false)
 const trendBrowserId = ref<BrowserId | null>(null)
 function openTrend(browserId: BrowserId): void {
@@ -664,7 +670,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                           }))"
                           size="xs"
                           :aria-label="t('browser.versionSelect', { name: browser.name })"
-                          @update:model-value="(v) => setVersion(browser.id, v as string)"
+                          @update:model-value="(v) => onVersionSelect(browser.id, v)"
                         />
                         <span
                           v-if="isVersionLoading[browser.id]"

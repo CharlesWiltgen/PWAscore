@@ -52,6 +52,17 @@ describe('useVersionedBrowsers', () => {
     expect(vi.mocked(getBrowserReleases)).toHaveBeenCalledWith('safari_ios', '26.4')
   })
 
+  test('init populates releases for ALL requested browsers (no last-writer-wins race)', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios', 'chrome_android', 'firefox_android'])
+
+    // Every requested browser must have BOTH a selected version and a releases list.
+    for (const id of ['safari_ios', 'chrome_android', 'firefox_android'] as const) {
+      expect(vb.selectedVersion.value[id]).toBeTruthy()
+      expect((vb.releasesByBrowser.value[id] ?? []).length).toBeGreaterThan(0)
+    }
+  })
+
   test('defaultVersionFor maps a browserId to its brand current version', async () => {
     const vb = useVersionedBrowsers(GROUPS)
     await vb.init(['safari_ios'])

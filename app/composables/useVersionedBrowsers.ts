@@ -56,16 +56,18 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
   const init = async (browserIds: BrowserId[]): Promise<void> => {
     await loadBrowserVersions()
     await loadMultipleSupport(features)
-    await Promise.all(
+    const results = await Promise.all(
       browserIds.map(async (id) => {
         const current = defaultVersionFor(id)
-        selectedVersion.value = { ...selectedVersion.value, [id]: current }
-        releasesByBrowser.value = {
-          ...releasesByBrowser.value,
-          [id]: await getBrowserReleases(id, current)
-        }
+        return { id, current, releases: await getBrowserReleases(id, current) }
       })
     )
+    selectedVersion.value = Object.fromEntries(
+      results.map(r => [r.id, r.current])
+    ) as Partial<Record<BrowserId, string>>
+    releasesByBrowser.value = Object.fromEntries(
+      results.map(r => [r.id, r.releases])
+    ) as Partial<Record<BrowserId, BrowserRelease[]>>
   }
 
   const isDefaultVersion = (browserId: BrowserId, version: string | undefined): boolean =>

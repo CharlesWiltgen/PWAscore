@@ -8,11 +8,21 @@ import type {
   Platform
 } from '../composables/useBrowserSupport'
 import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
+import { useVersionedBrowsers } from '../composables/useVersionedBrowsers'
 
 const { t } = useI18n()
 const { features: pwaFeatures } = usePWAFeatures()
-const { getSupport, loadMultipleSupport } = useBrowserSupport()
-const { calculateBrowserScore } = useBrowserScore()
+const vb = useVersionedBrowsers(pwaFeatures)
+const {
+  selectedVersion,
+  releasesByBrowser,
+  isVersionLoading,
+  columnSupport,
+  columnScores,
+  setVersion,
+  loadSparkline,
+  sparklineSeries
+} = vb
 const route = useRoute()
 const router = useRouter()
 
@@ -170,8 +180,9 @@ onMounted(async () => {
   }
 
   // Load support data and MDN URLs for all features in parallel
+  const allBrowserIds = [...mobileBrowserConfig, ...desktopBrowserConfig].map(b => b.id)
   await Promise.all([
-    loadMultipleSupport(allFeatures),
+    vb.init(allBrowserIds),
     ...allFeatures.map(async (feature) => {
       if (feature.mdnBcdPath) {
         const url = await getMdnUrlFromBcd(feature.mdnBcdPath)
@@ -184,11 +195,7 @@ onMounted(async () => {
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
       for (const feature of category.features) {
-        const support = getSupport(
-          feature.id,
-          feature.canIUseId,
-          feature.mdnBcdPath
-        )
+        const support = columnSupport('chrome_android', feature.id, feature.canIUseId, feature.mdnBcdPath)
         const status = support.status
 
         // Hide if experimental OR not on standards track (non-standard)
@@ -231,6 +238,9 @@ onMounted(async () => {
   // Initialize and listen for breakpoint changes
   updateBreakpoint()
   window.addEventListener('resize', updateBreakpoint)
+
+  // Warm sparkline data for currently visible browsers
+  visibleBrowsers.value.forEach(b => loadSparkline(b.id))
 })
 
 // Clean up event listeners on unmount
@@ -327,7 +337,8 @@ const activeBrowserConfig = computed(() =>
 const browsers = computed(() =>
   activeBrowserConfig.value.map(browser => ({
     ...browser,
-    scores: calculateBrowserScore(browser.id, pwaFeatures, getSupport)
+    version: selectedVersion.value[browser.id] ?? browser.version,
+    scores: columnScores(browser.id)
   }))
 )
 
@@ -355,6 +366,11 @@ watch(selectedBrowserIndex, (index) => {
     const browser = browsers.value[index]
     if (browser) announce(t('browser.showing', { name: browser.name }))
   }
+})
+
+// Warm sparkline data when visible browsers change (e.g. mobile swipe / platform switch)
+watch(visibleBrowsers, (browsers) => {
+  browsers.forEach(b => loadSparkline(b.id))
 })
 
 // Computed property for v-model binding (converts between string and number)
@@ -389,31 +405,16 @@ if (import.meta.client) {
   })
 }
 
-/**
- * Pre-computed support data for all features (avoids repeated lookups in template)
- */
-const featureSupportMap = computed(() => {
-  const map = new Map<string, BrowserSupport>()
-  for (const group of pwaFeatures) {
-    for (const category of group.categories) {
-      for (const feature of category.features) {
-        map.set(feature.id, getSupport(feature.id, feature.canIUseId, feature.mdnBcdPath))
-      }
-    }
-  }
-  return map
-})
+const featureById = new Map(
+  pwaFeatures.flatMap(g => g.categories.flatMap(c => c.features)).map(f => [f.id, f])
+)
 
-function getFeatureSupport(featureId: string): BrowserSupport {
-  return featureSupportMap.value.get(featureId) || {
-    chrome_android: 'unknown',
-    firefox_android: 'unknown',
-    safari_ios: 'unknown',
-    chrome: 'unknown',
-    firefox: 'unknown',
-    safari: 'unknown'
-  }
+function getFeatureSupport(featureId: string, browserId: BrowserId = 'chrome_android'): BrowserSupport {
+  const feature = featureById.get(featureId)
+  return columnSupport(browserId, featureId, feature?.canIUseId, feature?.mdnBcdPath)
 }
+
+function openTrend(_browserId: BrowserId): void {}
 
 /**
  * Get badge color based on support level
@@ -643,9 +644,33 @@ function createCategoryItems(group: PWAFeatureGroup) {
                           }}</span>
                         </span>
                       </div>
-                      <div class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ t('browser.version', { version: browser.version }) }}
+                      <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <USelect
+                          :model-value="selectedVersion[browser.id]"
+                          :items="(releasesByBrowser[browser.id] ?? []).map(r => ({
+                            label: r.channel === 'released' || r.channel === 'current'
+                              ? r.version
+                              : `${r.version} (${t('browser.channel.' + r.channel)})`,
+                            value: r.version
+                          }))"
+                          size="xs"
+                          :aria-label="t('browser.versionSelect', { name: browser.name })"
+                          @update:model-value="(v) => setVersion(browser.id, v as string)"
+                        />
+                        <span
+                          v-if="isVersionLoading[browser.id]"
+                          class="animate-pulse"
+                        >{{ t('browser.loading') }}</span>
                       </div>
+                      <button
+                        type="button"
+                        :class="['mt-1 block', browser.color]"
+                        :aria-label="t('browser.trendLabel', { name: browser.name })"
+                        @click="openTrend(browser.id)"
+                        @mouseenter="loadSparkline(browser.id)"
+                      >
+                        <VersionScoreSparkline :series="sparklineSeries(browser.id)" />
+                      </button>
                     </div>
                   </div>
                   <UTooltip
@@ -889,10 +914,10 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             </div>
                             <div class="flex-shrink-0 -mt-1">
                               <UBadge
-                                :color="getSupportBadgeColor(getFeatureSupport(feature.id)[browser.id])"
+                                :color="getSupportBadgeColor(getFeatureSupport(feature.id, browser.id)[browser.id])"
                                 size="sm"
                               >
-                                {{ getSupportLabel(getFeatureSupport(feature.id)[browser.id]) }}
+                                {{ getSupportLabel(getFeatureSupport(feature.id, browser.id)[browser.id]) }}
                               </UBadge>
                             </div>
                           </div>

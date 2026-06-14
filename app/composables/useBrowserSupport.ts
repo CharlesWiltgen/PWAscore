@@ -79,6 +79,45 @@ function normalizeManualSupport(
 const MANUAL_SUPPORT: Record<string, BrowserSupport>
   = normalizeManualSupport(manualSupportData)
 
+type BrandKey = 'chrome' | 'firefox' | 'safari'
+
+const BRAND_BY_BROWSER: Record<BrowserId, BrandKey> = {
+  chrome: 'chrome',
+  chrome_android: 'chrome',
+  firefox: 'firefox',
+  firefox_android: 'firefox',
+  safari: 'safari',
+  safari_ios: 'safari'
+}
+
+function baseKey(featureId: string, canIUseId?: string, mdnBcdPath?: string): string {
+  return mdnBcdPath && canIUseId
+    ? `${canIUseId}|${mdnBcdPath}`
+    : canIUseId || mdnBcdPath || featureId
+}
+
+function versionedKey(base: string, brand: BrandKey, version: string): string {
+  return `${base}@${brand}=${version}`
+}
+
+function hasKnownSupport(s: {
+  chrome_android: SupportLevel
+  firefox_android: SupportLevel
+  safari_ios: SupportLevel
+  chrome: SupportLevel
+  firefox: SupportLevel
+  safari: SupportLevel
+}): boolean {
+  return (
+    s.chrome_android !== 'unknown'
+    || s.firefox_android !== 'unknown'
+    || s.safari_ios !== 'unknown'
+    || s.chrome !== 'unknown'
+    || s.firefox !== 'unknown'
+    || s.safari !== 'unknown'
+  )
+}
+
 /**
  * Default browser versions (used as fallback)
  */
@@ -122,11 +161,7 @@ export function useBrowserSupport() {
     canIUseId?: string,
     mdnBcdPath?: string
   ): BrowserSupport => {
-    // Check cache first - use composite key when both IDs present to prevent collisions
-    const cacheKey
-      = mdnBcdPath && canIUseId
-        ? `${canIUseId}|${mdnBcdPath}`
-        : canIUseId || mdnBcdPath || featureId
+    const cacheKey = baseKey(featureId, canIUseId, mdnBcdPath)
     const cached = supportCache.value[cacheKey]
     if (cached) {
       return cached
@@ -154,11 +189,7 @@ export function useBrowserSupport() {
     mdnBcdPath?: string,
     manualStatus?: FeatureStatus
   ): Promise<BrowserSupport> => {
-    // Use composite key when both IDs present to prevent collisions
-    const cacheKey
-      = mdnBcdPath && canIUseId
-        ? `${canIUseId}|${mdnBcdPath}`
-        : canIUseId || mdnBcdPath || featureId
+    const cacheKey = baseKey(featureId, canIUseId, mdnBcdPath)
 
     // Check cache first
     const cached = supportCache.value[cacheKey]
@@ -186,15 +217,7 @@ export function useBrowserSupport() {
         )
         // Only use MDN BCD data if at least one browser has known support
         // If all are 'unknown', fall back to CanIUse
-        const hasKnownSupport
-          = support.chrome_android !== 'unknown'
-            || support.firefox_android !== 'unknown'
-            || support.safari_ios !== 'unknown'
-            || support.chrome !== 'unknown'
-            || support.firefox !== 'unknown'
-            || support.safari !== 'unknown'
-
-        if (hasKnownSupport) {
+        if (hasKnownSupport(support)) {
           // Merge with manual status override if provided
           const result = manualStatus
             ? { ...UNKNOWN_SUPPORT, ...support, status: manualStatus }
@@ -217,15 +240,7 @@ export function useBrowserSupport() {
           browserVersions.value
         )
         // Only use Can I Use data if at least one browser has known support
-        const hasKnownSupport
-          = support.chrome_android !== 'unknown'
-            || support.firefox_android !== 'unknown'
-            || support.safari_ios !== 'unknown'
-            || support.chrome !== 'unknown'
-            || support.firefox !== 'unknown'
-            || support.safari !== 'unknown'
-
-        if (hasKnownSupport) {
+        if (hasKnownSupport(support)) {
           // Merge with manual status override if provided
           const result = manualStatus
             ? { ...UNKNOWN_SUPPORT, ...support, status: manualStatus }
@@ -268,11 +283,94 @@ export function useBrowserSupport() {
     }
   }
 
+  type FeatureInput = {
+    id: string
+    canIUseId?: string
+    mdnBcdPath?: string
+    status?: FeatureStatus
+  }
+
+  /**
+   * Load support for features resolved at an explicit version of one browser.
+   * Pins that browser's brand field of BrowserVersions; other brands stay current.
+   * Writes into a version-keyed cache so versions never collide. Additive — the
+   * current-version path (loadSupport/getSupport) is unchanged.
+   */
+  const loadSupportAtVersion = async (
+    features: FeatureInput[],
+    browserId: BrowserId,
+    version: string
+  ): Promise<void> => {
+    await loadBrowserVersions()
+    const brand = BRAND_BY_BROWSER[browserId]
+    // Cast: spread + computed key widens away from BrowserVersions; the brand
+    // key is always one of chrome|firefox|safari, so this is sound.
+    const versions = { ...browserVersions.value, [brand]: version } as BrowserVersions
+
+    await Promise.all(
+      features.map(async (f) => {
+        const key = versionedKey(baseKey(f.id, f.canIUseId, f.mdnBcdPath), brand, version)
+        if (supportCache.value[key]) return
+
+        let resolved: BrowserSupport | null = null
+
+        if (f.mdnBcdPath) {
+          try {
+            const s = await getMdnBcdSupport(f.mdnBcdPath, versions)
+            if (hasKnownSupport(s)) {
+              resolved = f.status
+                ? { ...UNKNOWN_SUPPORT, ...s, status: f.status }
+                : { ...UNKNOWN_SUPPORT, ...s }
+            }
+          } catch (error) {
+            console.error(`Failed to load MDN BCD support for ${f.id}@${version}:`, error)
+          }
+        }
+
+        if (!resolved && f.canIUseId) {
+          try {
+            const s = await getCanIUseSupport(f.canIUseId, versions)
+            if (hasKnownSupport(s)) {
+              resolved = f.status
+                ? { ...UNKNOWN_SUPPORT, ...s, status: f.status }
+                : { ...UNKNOWN_SUPPORT, ...s }
+            }
+          } catch (error) {
+            console.error(`Failed to load CanIUse support for ${f.id}@${version}:`, error)
+          }
+        }
+
+        supportCache.value[key] = resolved ?? MANUAL_SUPPORT[f.id] ?? UNKNOWN_SUPPORT
+      })
+    )
+  }
+
+  /**
+   * Synchronously read support at an explicit version (after loadSupportAtVersion).
+   * With no version, delegates to the current-version getSupport.
+   */
+  const getSupportAt = (
+    browserId: BrowserId,
+    featureId: string,
+    canIUseId?: string,
+    mdnBcdPath?: string,
+    version?: string
+  ): BrowserSupport => {
+    if (!version) {
+      return getSupport(featureId, canIUseId, mdnBcdPath)
+    }
+    const brand = BRAND_BY_BROWSER[browserId]
+    const key = versionedKey(baseKey(featureId, canIUseId, mdnBcdPath), brand, version)
+    return supportCache.value[key] ?? MANUAL_SUPPORT[featureId] ?? UNKNOWN_SUPPORT
+  }
+
   return {
     getSupport,
     loadSupport,
     loadMultipleSupport,
     loadBrowserVersions,
+    loadSupportAtVersion,
+    getSupportAt,
     browserVersions,
     isLoading
   }

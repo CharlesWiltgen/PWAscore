@@ -1,6 +1,7 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
 import { useBrowserSupport } from './useBrowserSupport'
 import type { BrowserVersions } from '../utils/canIUseLoader'
+import { getMdnBcdSupport, getBrowserVersions } from '../utils/canIUseLoader'
 
 // Mock the canIUseLoader module
 vi.mock('../utils/canIUseLoader', () => ({
@@ -326,5 +327,42 @@ describe('useBrowserSupport', () => {
       const support = getSupport('google-pay')
       expect(support.chrome_android).toBe('supported')
     })
+  })
+})
+
+describe('loadSupportAtVersion', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  test('resolves and caches support at an explicit version, pinning the brand field', async () => {
+    vi.mocked(getBrowserVersions).mockResolvedValue({
+      chrome: '146',
+      firefox: '148',
+      safari: '26.4'
+    })
+    vi.mocked(getMdnBcdSupport).mockImplementation(async (_path, versions) => ({
+      chrome_android: 'unknown' as const,
+      firefox_android: 'unknown' as const,
+      safari_ios: versions.safari === '18' ? ('not-supported' as const) : ('supported' as const),
+      chrome: 'unknown' as const,
+      firefox: 'unknown' as const,
+      safari: 'unknown' as const
+    }))
+
+    const { loadSupportAtVersion, getSupportAt } = useBrowserSupport()
+    const feature = { id: 'badging', mdnBcdPath: 'api.Navigator.setAppBadge' }
+
+    await loadSupportAtVersion([feature], 'safari_ios', '18')
+    await loadSupportAtVersion([feature], 'safari_ios', '26.4')
+
+    expect(getSupportAt('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge', '18').safari_ios).toBe('not-supported')
+    expect(getSupportAt('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge', '26.4').safari_ios).toBe('supported')
+    expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
+  })
+
+  test('getSupportAt without a version delegates to the current-version getSupport', () => {
+    const { getSupportAt } = useBrowserSupport()
+    expect(getSupportAt('safari_ios', 'unloaded').safari_ios).toBe('unknown')
   })
 })

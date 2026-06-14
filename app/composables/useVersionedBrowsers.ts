@@ -3,7 +3,7 @@ import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import type { BrowserId, BrowserSupport } from './useBrowserSupport'
 import { useBrowserSupport, BRAND_BY_BROWSER } from './useBrowserSupport'
 import { useBrowserScore } from './useBrowserScore'
-import type { BrowserScoreResult } from './useBrowserScore'
+import type { BrowserScoreResult, ScorePoint } from './useBrowserScore'
 import {
   getBrowserReleases,
   type BrowserRelease
@@ -48,6 +48,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
   const selectedVersion = ref<Partial<Record<BrowserId, string>>>({})
   const releasesByBrowser = ref<Partial<Record<BrowserId, BrowserRelease[]>>>({})
   const isVersionLoading = ref<Partial<Record<BrowserId, boolean>>>({})
+  const sparklineLoaded = ref<Set<BrowserId>>(new Set())
 
   const defaultVersionFor = (browserId: BrowserId): string =>
     browserVersions.value[BRAND_BY_BROWSER[browserId]]
@@ -108,6 +109,39 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
       columnSupport(browserId, featureId, canIUseId, mdnBcdPath)
     )
 
+  const loadSparkline = async (browserId: BrowserId): Promise<void> => {
+    if (sparklineLoaded.value.has(browserId)) return
+    const releases = releasesByBrowser.value[browserId] ?? []
+    await Promise.all(
+      releases
+        .filter(r => r.releaseDate !== null && !isDefaultVersion(browserId, r.version))
+        .map(r => loadSupportAtVersion(features, browserId, r.version))
+    )
+    sparklineLoaded.value = new Set([...sparklineLoaded.value, browserId])
+  }
+
+  const sparklineSeries = (browserId: BrowserId): ScorePoint[] => {
+    const releases = releasesByBrowser.value[browserId] ?? []
+    const versionedVersions = new Set(
+      releases
+        .filter(r => r.releaseDate !== null && !isDefaultVersion(browserId, r.version))
+        .map(r => r.version)
+    )
+    return calculateScoreSeries(
+      browserId,
+      featureGroups,
+      releases.map(r => ({ version: r.version, releaseDate: r.releaseDate })),
+      version => (featureId, canIUseId, mdnBcdPath) =>
+        getSupportAt(
+          browserId,
+          featureId,
+          canIUseId,
+          mdnBcdPath,
+          versionedVersions.has(version) ? version : undefined
+        )
+    )
+  }
+
   return {
     selectedVersion,
     releasesByBrowser,
@@ -121,6 +155,8 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     features,
     columnSupport,
     setVersion,
-    columnScores
+    columnScores,
+    loadSparkline,
+    sparklineSeries
   }
 }

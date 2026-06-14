@@ -113,3 +113,32 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
     expect(vb.columnScores('safari_ios').weighted).toBe(0) // now 18.5 -> not-supported
   })
 })
+
+describe('useVersionedBrowsers — sparkline series', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  test('loadSparkline loads support at every non-default release version (once), then sparklineSeries returns a point per release', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+
+    await vb.loadSparkline('safari_ios')
+    // 18.5 and 26.5 are non-default; 26.4 is the default (current path, no load)
+    expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
+
+    const series = vb.sparklineSeries('safari_ios')
+    expect(series).toEqual([
+      { version: '18.5', releaseDate: '2025-05-12', weighted: 0 },
+      { version: '26.4', releaseDate: '2026-03-24', weighted: 100 },
+      { version: '26.5', releaseDate: null, weighted: 100 }
+    ])
+  })
+
+  test('loadSparkline is memoized — a second call does not reload', async () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    await vb.init(['safari_ios'])
+    await vb.loadSparkline('safari_ios')
+    vi.clearAllMocks()
+    await vb.loadSparkline('safari_ios')
+    expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
+  })
+})

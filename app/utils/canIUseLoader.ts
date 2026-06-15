@@ -938,3 +938,76 @@ export async function getBrowserReleases(
     return []
   }
 }
+
+export interface DatedRelease {
+  version: string
+  releaseDate: string
+}
+
+/**
+ * All dated, numeric-versioned releases for a browser from MDN BCD (unwindowed,
+ * unsorted). Skips Technology Preview and releases without a date. [] on error.
+ * Used by the build-time score-history generator to define a time-based window.
+ */
+export async function getBrowserReleaseDates(
+  browserId: BrowserId
+): Promise<DatedRelease[]> {
+  try {
+    const data = (await loadMdnBcdData()) as {
+      browsers?: Record<string, { releases?: Record<string, unknown> }>
+    }
+    const rawReleases = data.browsers?.[browserId]?.releases
+    if (!rawReleases) return []
+
+    const out: DatedRelease[] = []
+    for (const [version, info] of Object.entries(rawReleases)) {
+      if (Number.isNaN(majorOf(version))) continue
+      const result = safeParseBcdRelease(info)
+      if (!result.success || !result.data?.release_date) continue
+      out.push({ version, releaseDate: result.data.release_date })
+    }
+    return out
+  } catch (error) {
+    console.error(`[BCD] Error getting release dates for ${browserId}:`, error)
+    return []
+  }
+}
+
+/**
+ * Each major's LAUNCH (earliest-dated release) within [anchorDate - years,
+ * anchorDate], ascending by version. Pure: enables a time-based (not count-based)
+ * score-over-time window comparable across browsers with very different cadences.
+ *
+ * Uses the launch, not the latest patch: Safari backports security fixes to old
+ * majors for years, so "latest release of major N" can be dated long after N
+ * shipped (e.g. 15.6 in 2022 for a major that launched 2021-09) — which would
+ * leave the start of the window empty. The launch date is what belongs on a
+ * timeline. A major is included only if its launch falls inside the window.
+ */
+export function windowMajorLaunchesByDate(
+  releases: DatedRelease[],
+  anchorDate: Date,
+  years: number
+): DatedRelease[] {
+  const cutoff = new Date(anchorDate)
+  cutoff.setFullYear(cutoff.getFullYear() - years)
+  const anchorMs = anchorDate.getTime()
+  const cutoffMs = cutoff.getTime()
+
+  const launchPerMajor = new Map<number, DatedRelease>()
+  for (const r of releases) {
+    const ms = new Date(r.releaseDate).getTime()
+    if (Number.isNaN(ms)) continue
+    const major = majorOf(r.version)
+    const existing = launchPerMajor.get(major)
+    if (!existing || ms < new Date(existing.releaseDate).getTime()) {
+      launchPerMajor.set(major, r)
+    }
+  }
+  return [...launchPerMajor.values()]
+    .filter((r) => {
+      const ms = new Date(r.releaseDate).getTime()
+      return ms >= cutoffMs && ms <= anchorMs
+    })
+    .sort((a, b) => compareVersions(a.version, b.version))
+}

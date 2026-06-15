@@ -154,22 +154,7 @@ export function useBrowserScore() {
     }
   }
 
-  const calculateScoreSeries = (
-    browserId: BrowserId,
-    featureGroups: PWAFeatureGroup[],
-    releases: Array<{ version: string, releaseDate: string | null }>,
-    getSupportAt: (
-      version: string
-    ) => (featureId: string, canIUseId?: string, mdnBcdPath?: string) => BrowserSupport
-  ): ScorePoint[] =>
-    releases.map(r => ({
-      version: r.version,
-      releaseDate: r.releaseDate,
-      weighted: calculateBrowserScore(browserId, featureGroups, getSupportAt(r.version)).weighted
-    }))
-
   return {
-    calculateBrowserScore,
-    calculateScoreSeries
+    calculateBrowserScore
   }
 }

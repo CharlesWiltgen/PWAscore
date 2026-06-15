@@ -20,8 +20,8 @@ const {
   columnSupport,
   columnScores,
   setVersion,
-  loadSparkline,
-  sparklineSeries
+  sparklineSeries,
+  sparklineDomain
 } = vb
 const route = useRoute()
 const router = useRouter()
@@ -238,9 +238,6 @@ onMounted(async () => {
   // Initialize and listen for breakpoint changes
   updateBreakpoint()
   window.addEventListener('resize', updateBreakpoint)
-
-  // Warm sparkline data for currently visible browsers
-  visibleBrowsers.value.forEach(b => loadSparkline(b.id))
 })
 
 // Clean up event listeners on unmount
@@ -368,11 +365,6 @@ watch(selectedBrowserIndex, (index) => {
   }
 })
 
-// Warm sparkline data when visible browsers change (e.g. mobile swipe / platform switch)
-watch(visibleBrowsers, (browsers) => {
-  browsers.forEach(b => loadSparkline(b.id))
-})
-
 // Computed property for v-model binding (converts between string and number)
 const selectedBrowserTab = computed({
   get: () => String(selectedBrowserIndex.value),
@@ -423,7 +415,6 @@ function onVersionSelect(browserId: BrowserId, value: unknown): void {
 const trendOpen = ref(false)
 const trendBrowserId = ref<BrowserId | null>(null)
 function openTrend(browserId: BrowserId): void {
-  loadSparkline(browserId)
   trendBrowserId.value = browserId
   trendOpen.value = true
 }
@@ -682,9 +673,13 @@ function createCategoryItems(group: PWAFeatureGroup) {
                         :class="['mt-1 block', browser.color]"
                         :aria-label="t('browser.trendLabel', { name: browser.name })"
                         @click="openTrend(browser.id)"
-                        @mouseenter="loadSparkline(browser.id)"
                       >
-                        <VersionScoreSparkline :series="sparklineSeries(browser.id)" />
+                        <VersionScoreSparkline
+                          :series="sparklineSeries(browser.id)"
+                          :domain-start="sparklineDomain.start"
+                          :domain-end="sparklineDomain.end"
+                          :y-min="50"
+                        />
                       </button>
                     </div>
                   </div>
@@ -956,8 +951,12 @@ function createCategoryItems(group: PWAFeatureGroup) {
         <div class="space-y-3">
           <VersionScoreSparkline
             :series="trendSeries"
+            :domain-start="sparklineDomain.start"
+            :domain-end="sparklineDomain.end"
             :width="480"
             :height="160"
+            :show-markers="true"
+            :y-min="50"
           />
           <ul class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
             <li

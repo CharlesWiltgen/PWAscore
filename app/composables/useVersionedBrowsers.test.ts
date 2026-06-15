@@ -2,6 +2,7 @@ import { describe, expect, test, vi, beforeEach } from 'vitest'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
 import { getBrowserReleases, getMdnBcdSupport } from '../utils/canIUseLoader'
 import { useVersionedBrowsers } from './useVersionedBrowsers'
+import scoreHistory from '../data/score-history.json'
 
 vi.mock('../utils/canIUseLoader', () => ({
   getBrowserVersions: vi.fn(async () => ({ chrome: '146', firefox: '148', safari: '26.4' })),
@@ -168,32 +169,38 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
   })
 })
 
-describe('useVersionedBrowsers — sparkline series', () => {
+describe('useVersionedBrowsers — precomputed sparkline series', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  test('loadSparkline loads support at every non-default release version (once), then sparklineSeries returns a point per release', async () => {
+  test('sparklineSeries surfaces the build-time precomputed series for a browser (no runtime load)', () => {
     const vb = useVersionedBrowsers(GROUPS)
-    await vb.init(['safari_ios'])
-    vi.clearAllMocks() // isolate loadSparkline's calls from init's current-version load
-
-    await vb.loadSparkline('safari_ios')
-    // 18.5 and 26.5 are both non-default -> each loaded at its own version
-    expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
-
-    const series = vb.sparklineSeries('safari_ios')
-    expect(series).toEqual([
-      { version: '18.5', releaseDate: '2025-05-12', weighted: 0 },
-      { version: '26.4', releaseDate: '2026-03-24', weighted: 100 },
-      { version: '26.5', releaseDate: null, weighted: 100 }
-    ])
+    // Precomputed from real data, keyed by browser — independent of GROUPS and
+    // requiring no version loads, so getMdnBcdSupport is never called.
+    expect(vb.sparklineSeries('safari_ios')).toEqual(scoreHistory.series.safari_ios)
+    expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
   })
 
-  test('loadSparkline is memoized — a second call does not reload', async () => {
+  test('every precomputed point is a well-formed 0–100 score', () => {
     const vb = useVersionedBrowsers(GROUPS)
-    await vb.init(['safari_ios'])
-    await vb.loadSparkline('safari_ios')
-    vi.clearAllMocks()
-    await vb.loadSparkline('safari_ios')
-    expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
+    const series = vb.sparklineSeries('chrome_android')
+    expect(series.length).toBeGreaterThan(0)
+    expect(
+      series.every(
+        p =>
+          typeof p.version === 'string'
+          && typeof p.weighted === 'number'
+          && p.weighted >= 0
+          && p.weighted <= 100
+      )
+    ).toBe(true)
+  })
+
+  test('sparklineDomain exposes the shared 5-year date axis', () => {
+    const vb = useVersionedBrowsers(GROUPS)
+    expect(vb.sparklineDomain).toEqual({
+      start: scoreHistory.domainStart,
+      end: scoreHistory.domainEnd
+    })
+    expect(vb.sparklineDomain.start).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
 })

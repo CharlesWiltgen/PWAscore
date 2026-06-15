@@ -4,8 +4,10 @@ import {
   getCanIUseSupport,
   compareVersions,
   clearCaches,
-  getBrowserReleases
+  getBrowserReleases,
+  windowMajorLaunchesByDate
 } from './canIUseLoader'
+import type { DatedRelease } from './canIUseLoader'
 
 describe('getBrowserVersions', () => {
   test('should return current browser versions', async () => {
@@ -541,5 +543,46 @@ describe('compareVersions', () => {
     test('should compare versions with different part counts (18.4.1 > 18.4)', () => {
       expect(compareVersions('18.4.1', '18.4')).toBeGreaterThan(0)
     })
+  })
+})
+
+describe('windowMajorLaunchesByDate', () => {
+  const anchor = new Date('2026-01-01')
+
+  test('represents each major by its launch (earliest release), not a later patch', () => {
+    const releases: DatedRelease[] = [
+      { version: '10', releaseDate: '2018-06-01' }, // launch before the 5yr cutoff -> excluded
+      { version: '20', releaseDate: '2022-03-01' }, // major 20 launch
+      { version: '20.5', releaseDate: '2022-09-01' }, // later patch of major 20 -> ignored
+      { version: '21', releaseDate: '2023-05-01' }, // major 21 launch
+      { version: '22', releaseDate: '2026-02-01' } // launch after the anchor -> excluded
+    ]
+    expect(windowMajorLaunchesByDate(releases, anchor, 5)).toEqual([
+      { version: '20', releaseDate: '2022-03-01' },
+      { version: '21', releaseDate: '2023-05-01' }
+    ])
+  })
+
+  test('a major whose launch predates the cutoff is excluded even if it has in-window patches', () => {
+    // Mirrors Safari backporting to old majors: major 14 launched before the
+    // window; its late patch must not resurrect it inside the window.
+    const releases: DatedRelease[] = [
+      { version: '14', releaseDate: '2020-09-01' }, // launch before cutoff
+      { version: '14.8', releaseDate: '2021-09-01' }, // backport patch, in window
+      { version: '15', releaseDate: '2021-09-20' } // launch in window
+    ]
+    expect(windowMajorLaunchesByDate(releases, anchor, 5)).toEqual([
+      { version: '15', releaseDate: '2021-09-20' }
+    ])
+  })
+
+  test('excludes releases on the far side of the cutoff for a narrower window', () => {
+    const recent: DatedRelease[] = [
+      { version: '21', releaseDate: '2024-12-31' }, // launch just before the 1yr cutoff -> excluded
+      { version: '22', releaseDate: '2025-06-01' } // launch in window
+    ]
+    expect(windowMajorLaunchesByDate(recent, anchor, 1)).toEqual([
+      { version: '22', releaseDate: '2025-06-01' }
+    ])
   })
 })

@@ -150,7 +150,7 @@ export type SupportAtQuery = {
  * Shared by the current-version path (loadSupport) and the versioned path
  * (loadSupportAtVersion) so resolution order stays in one place.
  */
-async function resolveSupport(
+export async function resolveSupport(
   feature: FeatureInput,
   versions: BrowserVersions,
   label: string

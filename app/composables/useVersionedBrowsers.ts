@@ -8,6 +8,17 @@ import {
   getBrowserReleases,
   type BrowserRelease
 } from '../utils/canIUseLoader'
+import scoreHistoryData from '../data/score-history.json'
+
+// Build-time precomputed score-over-time series (see scripts/generate-score-history.ts).
+// A time-based 5-year window per browser, anchored at the newest release across
+// browsers so the sparklines are comparable across release cadences.
+type ScoreHistory = {
+  domainStart: string
+  domainEnd: string
+  series: Partial<Record<BrowserId, ScorePoint[]>>
+}
+const scoreHistory = scoreHistoryData as ScoreHistory
 
 function flattenFeatures(groups: PWAFeatureGroup[]): FeatureInput[] {
   const out: FeatureInput[] = []
@@ -34,14 +45,13 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     loadBrowserVersions,
     browserVersions
   } = useBrowserSupport()
-  const { calculateBrowserScore, calculateScoreSeries } = useBrowserScore()
+  const { calculateBrowserScore } = useBrowserScore()
 
   const features = flattenFeatures(featureGroups)
 
   const selectedVersion = ref<Partial<Record<BrowserId, string>>>({})
   const releasesByBrowser = ref<Partial<Record<BrowserId, BrowserRelease[]>>>({})
   const isVersionLoading = ref<Partial<Record<BrowserId, boolean>>>({})
-  const sparklineLoaded = new Set<BrowserId>()
 
   const defaultVersionFor = (browserId: BrowserId): string =>
     browserVersions.value[BRAND_BY_BROWSER[browserId]]
@@ -124,33 +134,15 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
       columnSupport(browserId, featureId, canIUseId, mdnBcdPath)
     )
 
-  const loadSparkline = async (browserId: BrowserId): Promise<void> => {
-    if (sparklineLoaded.has(browserId)) return
-    const releases = releasesByBrowser.value[browserId] ?? []
-    if (releases.length === 0) return // not initialized yet — don't memoize an empty load
-    sparklineLoaded.add(browserId) // mark before await so concurrent calls don't double-fan-out
-    await Promise.all(
-      releases
-        .filter(r => !isDefaultVersion(browserId, r.version))
-        .map(r => loadSupportAtVersion(features, browserId, r.version))
-    )
-  }
+  // Score-over-time series is precomputed at build time (no runtime fan-out).
+  const sparklineSeries = (browserId: BrowserId): ScorePoint[] =>
+    scoreHistory.series[browserId] ?? []
 
-  const sparklineSeries = (browserId: BrowserId): ScorePoint[] => {
-    const releases = releasesByBrowser.value[browserId] ?? []
-    return calculateScoreSeries(
-      browserId,
-      featureGroups,
-      releases,
-      version => (featureId, canIUseId, mdnBcdPath) =>
-        getSupportAt({
-          browserId,
-          featureId,
-          canIUseId,
-          mdnBcdPath,
-          version: isDefaultVersion(browserId, version) ? undefined : version
-        })
-    )
+  // Shared date domain for the x-axis so every column's sparkline is on the same
+  // 5-year timeline regardless of how many releases each browser shipped.
+  const sparklineDomain = {
+    start: scoreHistory.domainStart,
+    end: scoreHistory.domainEnd
   }
 
   return {
@@ -162,7 +154,7 @@ export function useVersionedBrowsers(featureGroups: PWAFeatureGroup[]) {
     columnSupport,
     setVersion,
     columnScores,
-    loadSparkline,
-    sparklineSeries
+    sparklineSeries,
+    sparklineDomain
   }
 }

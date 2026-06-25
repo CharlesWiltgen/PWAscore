@@ -1,10 +1,15 @@
 {
-  "generatedAt": "2026-06-15T00:30:33.607Z",
+  "generatedAt": "2026-06-15T01:33:16.058Z",
   "years": 5,
   "domainStart": "2021-06-15",
   "domainEnd": "2026-06-15",
   "series": {
     "chrome_android": [
+      {
+        "version": "91",
+        "releaseDate": "2021-06-15",
+        "weighted": 94
+      },
       {
         "version": "92",
         "releaseDate": "2021-07-20",
@@ -297,6 +302,11 @@
       }
     ],
     "firefox_android": [
+      {
+        "version": "89",
+        "releaseDate": "2021-06-15",
+        "weighted": 82
+      },
       {
         "version": "90",
         "releaseDate": "2021-07-13",
@@ -610,6 +620,11 @@
     ],
     "safari_ios": [
       {
+        "version": "14.5",
+        "releaseDate": "2021-06-15",
+        "weighted": 71
+      },
+      {
         "version": "15",
         "releaseDate": "2021-09-20",
         "weighted": 72
@@ -641,6 +656,11 @@
       }
     ],
     "chrome": [
+      {
+        "version": "91",
+        "releaseDate": "2021-06-15",
+        "weighted": 97
+      },
       {
         "version": "92",
         "releaseDate": "2021-07-20",
@@ -933,6 +953,11 @@
       }
     ],
     "firefox": [
+      {
+        "version": "89",
+        "releaseDate": "2021-06-15",
+        "weighted": 73
+      },
       {
         "version": "90",
         "releaseDate": "2021-07-13",
@@ -1245,6 +1270,11 @@
       }
     ],
     "safari": [
+      {
+        "version": "14.1",
+        "releaseDate": "2021-06-15",
+        "weighted": 64
+      },
       {
         "version": "15",
         "releaseDate": "2021-09-20",

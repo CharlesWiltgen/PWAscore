@@ -65,7 +65,9 @@ async function seriesForBrowser(
   browserId: BrowserId,
   launches: DatedRelease[],
   current: { chrome: string, firefox: string, safari: string },
-  todayISO: string
+  todayISO: string,
+  domainStartISO: string,
+  startVersion: string | undefined
 ): Promise<ScorePoint[]> {
   const { calculateBrowserScore } = useBrowserScore()
   const brand = BRAND_BY_BROWSER[browserId]
@@ -87,6 +89,19 @@ async function seriesForBrowser(
   }
 
   const points: ScorePoint[] = []
+
+  // Anchor the LEFT edge: plot the version live at the window start so every
+  // browser's line begins at the same x, regardless of when its first in-window
+  // major happened to ship (otherwise Safari, whose majors land in September,
+  // starts visibly later than Chrome/Firefox).
+  if (startVersion) {
+    points.push({
+      version: startVersion,
+      releaseDate: domainStartISO,
+      weighted: await scoreAtVersion(startVersion)
+    })
+  }
+
   for (const release of launches) {
     points.push({
       version: release.version,
@@ -127,15 +142,32 @@ async function main(): Promise<void> {
   const todayISO = anchorDate.toISOString().slice(0, 10)
   const domainStart = new Date(anchorDate)
   domainStart.setFullYear(domainStart.getFullYear() - WINDOW_YEARS)
+  const domainStartISO = domainStart.toISOString().slice(0, 10)
+  const domainStartMs = domainStart.getTime()
+
+  // The version live at the window start (latest release on or before domainStart).
+  const versionAtOrBefore = (releases: DatedRelease[]): string | undefined => {
+    let best: DatedRelease | undefined
+    for (const r of releases) {
+      const ms = new Date(r.releaseDate).getTime()
+      if (Number.isNaN(ms) || ms > domainStartMs) continue
+      if (!best || ms > new Date(best.releaseDate).getTime()) best = r
+    }
+    return best?.version
+  }
 
   const series: Record<string, ScorePoint[]> = {}
   for (const browserId of BROWSERS) {
-    const windowed = windowMajorLaunchesByDate(
-      releaseDates.get(browserId) ?? [],
-      anchorDate,
-      WINDOW_YEARS
+    const releases = releaseDates.get(browserId) ?? []
+    const windowed = windowMajorLaunchesByDate(releases, anchorDate, WINDOW_YEARS)
+    series[browserId] = await seriesForBrowser(
+      browserId,
+      windowed,
+      current,
+      todayISO,
+      domainStartISO,
+      versionAtOrBefore(releases)
     )
-    series[browserId] = await seriesForBrowser(browserId, windowed, current, todayISO)
     const pts = series[browserId]
     console.log(
       `${browserId}: ${pts.length} points, score ${pts[0]?.weighted ?? '-'} -> ${pts.at(-1)?.weighted ?? '-'}`

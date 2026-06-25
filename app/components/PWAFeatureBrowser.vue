@@ -632,7 +632,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                       class="w-10 h-10"
                     />
                     <div>
-                      <div class="text-lg flex items-center gap-1">
+                      <div class="text-lg flex items-center gap-2">
                         <span class="font-semibold">{{ browser.name }}</span>
                         <span
                           class="font-normal text-gray-500 dark:text-gray-400 flex items-center gap-1"
@@ -649,8 +649,6 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             browser.platformLabel
                           }}</span>
                         </span>
-                      </div>
-                      <div class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                         <USelect
                           :model-value="selectedVersion[browser.id]"
                           :items="(releasesByBrowser[browser.id] ?? []).map(r => ({
@@ -660,12 +658,13 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             value: r.version
                           }))"
                           size="xs"
+                          :ui="{ content: 'w-fit min-w-(--reka-select-trigger-width) dark:ring-gray-500' }"
                           :aria-label="t('browser.versionSelect', { name: browser.name })"
                           @update:model-value="(v) => onVersionSelect(browser.id, v)"
                         />
                         <span
                           v-if="isVersionLoading[browser.id]"
-                          class="animate-pulse"
+                          class="text-sm text-gray-500 dark:text-gray-400 animate-pulse"
                         >{{ t('browser.loading') }}</span>
                       </div>
                       <button

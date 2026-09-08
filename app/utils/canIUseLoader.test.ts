@@ -13,22 +13,55 @@ import { join } from 'node:path'
 
 // Deterministic fixtures: frozen snapshots of caniuse data-2.0.json (2026-08-24)
 // and MDN BCD 8.1.0, so tests never depend on live upstream data (PWAscore-3o4).
-// import.meta.url is not file:// under the nuxt test env, so resolve from cwd.
-const fixturePath = (name: string) => join(process.cwd(), 'app/utils/fixtures', name)
-const caniuseFixture = JSON.parse(
-  readFileSync(fixturePath('caniuse-data.fixture.json'), 'utf8')
-)
-const mdnBcdFixture = JSON.parse(
-  readFileSync(fixturePath('mdn-bcd.fixture.json'), 'utf8')
-)
-
-// Current versions per the frozen fixture. Must exist as exact stats keys:
-// chrome/and_chr 151, firefox/and_ff 153, safari/ios_saf 26.6 all resolve 'y'.
-const CURRENT_VERSIONS = {
-  chrome: '151',
-  firefox: '153',
-  safari: '26.6'
+function loadFixture(name: string): string {
+  // import.meta.url is not file:// under the nuxt test env, so resolve from cwd
+  const cwdPath = join(process.cwd(), 'app/utils/fixtures', name)
+  try {
+    return readFileSync(cwdPath, 'utf8')
+  } catch (error) {
+    if ((error as { code?: string }).code !== 'ENOENT') {
+      throw error
+    }
+  }
+  // Where import.meta.url IS a file URL (plain vitest runs), fall back to it so
+  // the file does not depend on the invocation cwd.
+  try {
+    return readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
+  } catch {
+    throw new Error(
+      `Cannot locate fixture '${name}' (tried '${cwdPath}' and module-relative)`
+    )
+  }
 }
+
+interface FixtureAgent {
+  current_version?: string
+}
+
+const caniuseFixture = JSON.parse(
+  loadFixture('caniuse-data.fixture.json')
+) as { agents: Record<string, FixtureAgent> }
+const mdnBcdFixture = JSON.parse(loadFixture('mdn-bcd.fixture.json')) as Record<
+  string,
+  unknown
+>
+
+// Versions under test derive from the fixture itself, so a snapshot refresh can
+// never desync these tests from its agents (the PWAscore-3o4 drift class).
+// Service workers resolves 'y' for every agent at its current_version.
+function fixtureCurrentVersion(agentId: string): string {
+  const version = caniuseFixture.agents[agentId]?.current_version
+  if (!version) {
+    throw new Error(`Fixture agent '${agentId}' is missing current_version`)
+  }
+  return version
+}
+
+const CURRENT_VERSIONS = {
+  chrome: fixtureCurrentVersion('and_chr'),
+  firefox: fixtureCurrentVersion('and_ff'),
+  safari: fixtureCurrentVersion('ios_saf')
+} as const
 
 /** Route loader fetches to the committed fixtures; reject anything unexpected. */
 function stubFixtureFetch(): void {

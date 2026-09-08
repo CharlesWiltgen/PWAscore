@@ -1,0 +1,37 @@
+# Weekly live-data curation check (PWAscore-3o4 follow-up).
+#
+# The default suite is offline-deterministic: unit tests serve frozen caniuse/
+# BCD fixtures, and the live-caniuse ID check in canIUseLoader.integration.test.ts
+# is gated behind RUN_INTEGRATION=1. This job runs that check weekly (and on
+# demand) so curation drift against upstream data still surfaces without making
+# `pnpm test` network-dependent.
+
+name: live-data
+
+on:
+  schedule:
+    - cron: '23 3 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  live-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Live caniuse/BCD curation checks
+        run: RUN_INTEGRATION=1 pnpm run test app/utils/canIUseLoader.integration.test.ts

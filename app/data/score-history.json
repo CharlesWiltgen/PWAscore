@@ -1,23 +1,13 @@
 {
-  "generatedAt": "2026-06-15T01:33:16.058Z",
+  "generatedAt": "2026-09-08T16:19:25.133Z",
   "years": 5,
-  "domainStart": "2021-06-15",
-  "domainEnd": "2026-06-15",
+  "domainStart": "2021-09-08",
+  "domainEnd": "2026-09-08",
   "series": {
     "chrome_android": [
       {
-        "version": "91",
-        "releaseDate": "2021-06-15",
-        "weighted": 94
-      },
-      {
-        "version": "92",
-        "releaseDate": "2021-07-20",
-        "weighted": 94
-      },
-      {
         "version": "93",
-        "releaseDate": "2021-08-31",
+        "releaseDate": "2021-09-08",
         "weighted": 94
       },
       {
@@ -297,29 +287,39 @@
       },
       {
         "version": "149",
-        "releaseDate": "2026-06-15",
+        "releaseDate": "2026-06-02",
+        "weighted": 96
+      },
+      {
+        "version": "150",
+        "releaseDate": "2026-06-30",
+        "weighted": 96
+      },
+      {
+        "version": "151",
+        "releaseDate": "2026-07-28",
+        "weighted": 96
+      },
+      {
+        "version": "152",
+        "releaseDate": "2026-08-25",
+        "weighted": 96
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-09-08",
+        "weighted": 96
+      },
+      {
+        "version": "151",
+        "releaseDate": "2026-09-08",
         "weighted": 96
       }
     ],
     "firefox_android": [
       {
-        "version": "89",
-        "releaseDate": "2021-06-15",
-        "weighted": 82
-      },
-      {
-        "version": "90",
-        "releaseDate": "2021-07-13",
-        "weighted": 82
-      },
-      {
-        "version": "91",
-        "releaseDate": "2021-08-10",
-        "weighted": 82
-      },
-      {
         "version": "92",
-        "releaseDate": "2021-09-07",
+        "releaseDate": "2021-09-08",
         "weighted": 84
       },
       {
@@ -614,15 +614,40 @@
       },
       {
         "version": "151",
-        "releaseDate": "2026-06-15",
+        "releaseDate": "2026-05-19",
         "weighted": 88
+      },
+      {
+        "version": "152",
+        "releaseDate": "2026-06-16",
+        "weighted": 89
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-07-21",
+        "weighted": 89
+      },
+      {
+        "version": "154",
+        "releaseDate": "2026-08-18",
+        "weighted": 89
+      },
+      {
+        "version": "155",
+        "releaseDate": "2026-09-01",
+        "weighted": 89
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-09-08",
+        "weighted": 89
       }
     ],
     "safari_ios": [
       {
         "version": "14.5",
-        "releaseDate": "2021-06-15",
-        "weighted": 71
+        "releaseDate": "2021-09-08",
+        "weighted": 70
       },
       {
         "version": "15",
@@ -632,7 +657,7 @@
       {
         "version": "16",
         "releaseDate": "2022-09-12",
-        "weighted": 79
+        "weighted": 78
       },
       {
         "version": "17",
@@ -650,25 +675,15 @@
         "weighted": 87
       },
       {
-        "version": "26.4",
-        "releaseDate": "2026-06-15",
+        "version": "26.6",
+        "releaseDate": "2026-09-08",
         "weighted": 87
       }
     ],
     "chrome": [
       {
-        "version": "91",
-        "releaseDate": "2021-06-15",
-        "weighted": 97
-      },
-      {
-        "version": "92",
-        "releaseDate": "2021-07-20",
-        "weighted": 97
-      },
-      {
         "version": "93",
-        "releaseDate": "2021-08-31",
+        "releaseDate": "2021-09-08",
         "weighted": 97
       },
       {
@@ -948,29 +963,39 @@
       },
       {
         "version": "149",
-        "releaseDate": "2026-06-15",
+        "releaseDate": "2026-06-02",
+        "weighted": 100
+      },
+      {
+        "version": "150",
+        "releaseDate": "2026-06-30",
+        "weighted": 100
+      },
+      {
+        "version": "151",
+        "releaseDate": "2026-07-28",
+        "weighted": 100
+      },
+      {
+        "version": "152",
+        "releaseDate": "2026-08-25",
+        "weighted": 100
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-09-08",
+        "weighted": 100
+      },
+      {
+        "version": "151",
+        "releaseDate": "2026-09-08",
         "weighted": 100
       }
     ],
     "firefox": [
       {
-        "version": "89",
-        "releaseDate": "2021-06-15",
-        "weighted": 73
-      },
-      {
-        "version": "90",
-        "releaseDate": "2021-07-13",
-        "weighted": 73
-      },
-      {
-        "version": "91",
-        "releaseDate": "2021-08-10",
-        "weighted": 73
-      },
-      {
         "version": "92",
-        "releaseDate": "2021-09-07",
+        "releaseDate": "2021-09-08",
         "weighted": 73
       },
       {
@@ -1265,25 +1290,50 @@
       },
       {
         "version": "151",
-        "releaseDate": "2026-06-15",
+        "releaseDate": "2026-05-19",
         "weighted": 78
+      },
+      {
+        "version": "152",
+        "releaseDate": "2026-06-16",
+        "weighted": 78
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-07-21",
+        "weighted": 79
+      },
+      {
+        "version": "154",
+        "releaseDate": "2026-08-18",
+        "weighted": 79
+      },
+      {
+        "version": "155",
+        "releaseDate": "2026-09-01",
+        "weighted": 79
+      },
+      {
+        "version": "153",
+        "releaseDate": "2026-09-08",
+        "weighted": 79
       }
     ],
     "safari": [
       {
         "version": "14.1",
-        "releaseDate": "2021-06-15",
+        "releaseDate": "2021-09-08",
         "weighted": 64
       },
       {
         "version": "15",
         "releaseDate": "2021-09-20",
-        "weighted": 65
+        "weighted": 64
       },
       {
         "version": "16",
         "releaseDate": "2022-09-12",
-        "weighted": 72
+        "weighted": 71
       },
       {
         "version": "17",
@@ -1301,8 +1351,8 @@
         "weighted": 90
       },
       {
-        "version": "26.4",
-        "releaseDate": "2026-06-15",
+        "version": "26.6",
+        "releaseDate": "2026-09-08",
         "weighted": 90
       }
     ]

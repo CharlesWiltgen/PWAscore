@@ -23,7 +23,7 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'cloudflare-module',
     prerender: {
-      routes: ['/', '/fr', '/fr/about']
+      routes: ['/', '/about', '/fr', '/fr/about']
     }
   },
 

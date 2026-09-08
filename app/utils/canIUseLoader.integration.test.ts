@@ -1,68 +1,80 @@
 import { describe, expect, test } from 'vitest'
 import { usePWAFeatures } from '../composables/usePWAFeatures'
 
+const runIntegration = (globalThis as {
+  process?: { env: Record<string, string | undefined> }
+}).process?.env?.RUN_INTEGRATION
+
 const CANIUSE_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Special cases that are handled in code (see canIUseLoader.ts:12)
 const UNIVERSALLY_SUPPORTED_FEATURES = ['web-app-manifest']
 
-describe('canIUseId integration', () => {
-  test(
-    'all canIUseIds in pwa-features.json should be valid',
-    { timeout: 30000 },
-    async () => {
-      // Fetch CanIUse data from GitHub
-      const response = await fetch(CANIUSE_URL)
-      expect(response.ok).toBe(true)
+// The live-caniuse check is network-dependent; the default suite must stay
+// offline-deterministic (PWAscore-3o4). Run it explicitly with:
+//   RUN_INTEGRATION=1 pnpm run test app/utils/canIUseLoader.integration.test.ts
+describe.skipIf(runIntegration !== '1')(
+  'canIUseId integration (live caniuse)',
+  () => {
+    test(
+      'all canIUseIds in pwa-features.json should be valid',
+      { timeout: 30000 },
+      async () => {
+        // Fetch CanIUse data from GitHub
+        const response = await fetch(CANIUSE_URL)
+        expect(response.ok).toBe(true)
 
-      const canIUseData = await response.json()
-      expect(canIUseData).toHaveProperty('data')
+        const canIUseData = await response.json()
+        expect(canIUseData).toHaveProperty('data')
 
-      // Extract all canIUseId values from pwa-features.json
-      const { getAllFeatures } = usePWAFeatures()
-      const allFeatures = getAllFeatures()
+        // Extract all canIUseId values from pwa-features.json
+        const { getAllFeatures } = usePWAFeatures()
+        const allFeatures = getAllFeatures()
 
-      const canIUseIds = new Set<string>()
-      allFeatures.forEach((feature) => {
-        if (feature.canIUseId) {
-          canIUseIds.add(feature.canIUseId)
+        const canIUseIds = new Set<string>()
+        allFeatures.forEach((feature) => {
+          if (feature.canIUseId) {
+            canIUseIds.add(feature.canIUseId)
+          }
+        })
+
+        expect(canIUseIds.size).toBeGreaterThan(0)
+
+        // Validate each ID
+        const invalidIds: string[] = []
+        const validIds: string[] = []
+        const specialCaseIds: string[] = []
+
+        for (const id of canIUseIds) {
+          if (UNIVERSALLY_SUPPORTED_FEATURES.includes(id)) {
+            specialCaseIds.push(id)
+          } else if (canIUseData.data[id]) {
+            validIds.push(id)
+          } else {
+            invalidIds.push(id)
+          }
         }
-      })
 
-      expect(canIUseIds.size).toBeGreaterThan(0)
-
-      // Validate each ID
-      const invalidIds: string[] = []
-      const validIds: string[] = []
-      const specialCaseIds: string[] = []
-
-      for (const id of canIUseIds) {
-        if (UNIVERSALLY_SUPPORTED_FEATURES.includes(id)) {
-          specialCaseIds.push(id)
-        } else if (canIUseData.data[id]) {
-          validIds.push(id)
-        } else {
-          invalidIds.push(id)
+        // Log summary for debugging
+        if (invalidIds.length > 0) {
+          console.error('Invalid canIUseIds found:', invalidIds)
         }
+
+        // All IDs must be either valid or special cases
+        expect(invalidIds).toEqual([])
+        expect(validIds.length + specialCaseIds.length).toBe(canIUseIds.size)
       }
+    )
+  }
+)
 
-      // Log summary for debugging
-      if (invalidIds.length > 0) {
-        console.error('Invalid canIUseIds found:', invalidIds)
-      }
-
-      // All IDs must be either valid or special cases
-      expect(invalidIds).toEqual([])
-      expect(validIds.length + specialCaseIds.length).toBe(canIUseIds.size)
-    }
-  )
-
+describe('mdnBcdPath integration (installed @mdn/browser-compat-data)', () => {
   test(
     'all mdnBcdPaths in pwa-features.json should be valid',
     { timeout: 30000 },
     async () => {
-      // Load MDN BCD data
+      // Load MDN BCD data from the lockfile-pinned local package (offline)
       const bcd = await import('@mdn/browser-compat-data')
       const bcdData = bcd.default || bcd
 

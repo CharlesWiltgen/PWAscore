@@ -1,0 +1,2724 @@
+{
+  "api": {
+    "Navigator": {
+      "setAppBadge": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/Navigator/setAppBadge",
+          "source_file": "api/Navigator.json",
+          "spec_url": "https://w3c.github.io/badging/#setappbadge-method",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "notes": [
+                "Windows and macOS since Chrome 81.",
+                "ChromeOS since Chrome 91.",
+                "Linux offers no universal badging API on the operating system level."
+              ],
+              "version_added": "81"
+            },
+            "chrome_android": {
+              "version_added": false
+            },
+            "edge": {
+              "notes": [
+                "Windows and macOS since Edge 81.",
+                "ChromeOS since Edge 91.",
+                "Linux offers no universal badging API on the operating system level."
+              ],
+              "version_added": "81"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "nodejs": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "notes": [
+                "Badging is supported for installed web apps on macOS Sonoma and higher.",
+                "Passing <code>0</code> as an argument will clear the badge instead of displaying an unnumbered dot."
+              ],
+              "version_added": "17"
+            },
+            "safari_ios": {
+              "notes": [
+                "Badging is supported for web apps saved to the home screen.",
+                "Passing <code>0</code> as an argument will clear the badge instead of displaying an unnumbered dot."
+              ],
+              "version_added": "16.4"
+            },
+            "samsunginternet_android": {
+              "version_added": false
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "notes": "Badging is supported for web apps saved to the home screen.",
+              "version_added": false
+            }
+          },
+          "tags": ["web-features:badging"]
+        }
+      }
+    },
+    "BackgroundFetchManager": {
+      "__compat": {
+        "mdn_url": "https://developer.mozilla.org/docs/Web/API/BackgroundFetchManager",
+        "source_file": "api/BackgroundFetchManager.json",
+        "spec_url": "https://wicg.github.io/background-fetch/#background-fetch-manager",
+        "status": {
+          "deprecated": false,
+          "experimental": true,
+          "standard_track": true
+        },
+        "support": {
+          "chrome": {
+            "version_added": "74"
+          },
+          "chrome_android": {
+            "version_added": "74"
+          },
+          "edge": {
+            "version_added": "79"
+          },
+          "firefox": {
+            "version_added": false
+          },
+          "firefox_android": {
+            "version_added": false
+          },
+          "ie": {
+            "version_added": false
+          },
+          "oculus": {
+            "version_added": "6.0"
+          },
+          "opera": {
+            "version_added": "62"
+          },
+          "opera_android": {
+            "version_added": "53"
+          },
+          "safari": {
+            "version_added": false
+          },
+          "safari_ios": {
+            "version_added": false
+          },
+          "samsunginternet_android": {
+            "version_added": "11.0"
+          },
+          "webview_android": {
+            "version_added": false
+          },
+          "webview_ios": {
+            "version_added": false
+          }
+        },
+        "tags": ["web-features:background-fetch"]
+      },
+      "fetch": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/BackgroundFetchManager/fetch",
+          "source_file": "api/BackgroundFetchManager.json",
+          "spec_url": "https://wicg.github.io/background-fetch/#background-fetch-manager-fetch",
+          "status": {
+            "deprecated": false,
+            "experimental": true,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "74"
+            },
+            "chrome_android": {
+              "version_added": "74"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "6.0"
+            },
+            "opera": {
+              "version_added": "62"
+            },
+            "opera_android": {
+              "version_added": "53"
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "11.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": false
+            }
+          },
+          "tags": ["web-features:background-fetch"]
+        }
+      },
+      "get": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/BackgroundFetchManager/get",
+          "source_file": "api/BackgroundFetchManager.json",
+          "spec_url": "https://wicg.github.io/background-fetch/#background-fetch-manager-get",
+          "status": {
+            "deprecated": false,
+            "experimental": true,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "74"
+            },
+            "chrome_android": {
+              "version_added": "74"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "6.0"
+            },
+            "opera": {
+              "version_added": "62"
+            },
+            "opera_android": {
+              "version_added": "53"
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "11.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": false
+            }
+          },
+          "tags": ["web-features:background-fetch"]
+        }
+      },
+      "getIds": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/BackgroundFetchManager/getIds",
+          "source_file": "api/BackgroundFetchManager.json",
+          "spec_url": "https://wicg.github.io/background-fetch/#background-fetch-manager-get-ids",
+          "status": {
+            "deprecated": false,
+            "experimental": true,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "74"
+            },
+            "chrome_android": {
+              "version_added": "74"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "6.0"
+            },
+            "opera": {
+              "version_added": "62"
+            },
+            "opera_android": {
+              "version_added": "53"
+            },
+            "safari": {
+              "version_added": false
+            },
+            "safari_ios": {
+              "version_added": false
+            },
+            "samsunginternet_android": {
+              "version_added": "11.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": false
+            }
+          },
+          "tags": ["web-features:background-fetch"]
+        }
+      }
+    },
+    "MediaSession": {
+      "__compat": {
+        "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession",
+        "source_file": "api/MediaSession.json",
+        "spec_url": "https://w3c.github.io/mediasession/#the-mediasession-interface",
+        "status": {
+          "deprecated": false,
+          "experimental": false,
+          "standard_track": true
+        },
+        "support": {
+          "chrome": {
+            "version_added": "73"
+          },
+          "chrome_android": {
+            "version_added": "57"
+          },
+          "edge": {
+            "version_added": "79"
+          },
+          "firefox": {
+            "version_added": "82"
+          },
+          "firefox_android": {
+            "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+            "partial_implementation": true,
+            "version_added": "82"
+          },
+          "ie": {
+            "version_added": false
+          },
+          "oculus": {
+            "version_added": "5.0"
+          },
+          "opera": {
+            "version_added": "60"
+          },
+          "opera_android": {
+            "version_added": "43"
+          },
+          "safari": {
+            "version_added": "15"
+          },
+          "safari_ios": {
+            "version_added": "15"
+          },
+          "samsunginternet_android": {
+            "version_added": "7.0"
+          },
+          "webview_android": {
+            "impl_url": "https://crbug.com/40611412",
+            "version_added": false
+          },
+          "webview_ios": {
+            "version_added": "15"
+          }
+        },
+        "tags": ["web-features:media-session"]
+      },
+      "metadata": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/metadata",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-metadata",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "73"
+            },
+            "chrome_android": {
+              "version_added": "57"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": "82"
+            },
+            "firefox_android": {
+              "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+              "partial_implementation": true,
+              "version_added": "82"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "5.0"
+            },
+            "opera": {
+              "version_added": "60"
+            },
+            "opera_android": {
+              "version_added": "43"
+            },
+            "safari": {
+              "version_added": "15"
+            },
+            "safari_ios": {
+              "version_added": "15"
+            },
+            "samsunginternet_android": {
+              "version_added": "7.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "15"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      },
+      "playbackState": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/playbackState",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-playbackstate",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "73"
+            },
+            "chrome_android": {
+              "version_added": "57"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": "82"
+            },
+            "firefox_android": {
+              "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+              "partial_implementation": true,
+              "version_added": "82"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "5.0"
+            },
+            "opera": {
+              "version_added": "60"
+            },
+            "opera_android": {
+              "version_added": "43"
+            },
+            "safari": {
+              "version_added": "15"
+            },
+            "safari_ios": {
+              "version_added": "15"
+            },
+            "samsunginternet_android": {
+              "version_added": "7.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "15"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      },
+      "setActionHandler": {
+        "__compat": {
+          "description": "<code>setActionHandler()</code>",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/setActionHandler",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-setactionhandler",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "73"
+            },
+            "chrome_android": {
+              "version_added": "57"
+            },
+            "edge": {
+              "version_added": "79"
+            },
+            "firefox": {
+              "version_added": "82"
+            },
+            "firefox_android": {
+              "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+              "partial_implementation": true,
+              "version_added": "82"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "5.0"
+            },
+            "opera": {
+              "version_added": "60"
+            },
+            "opera_android": {
+              "version_added": "43"
+            },
+            "safari": {
+              "version_added": "15"
+            },
+            "safari_ios": {
+              "version_added": "15"
+            },
+            "samsunginternet_android": {
+              "version_added": "7.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "15"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        },
+        "callback": {
+          "__compat": {
+            "description": "Action handler callback",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionactionhandler-details",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+                "partial_implementation": true,
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          },
+          "enterPictureInPictureReason": {
+            "__compat": {
+              "description": "<code>enterPictureInPictureReason</code> callback option",
+              "source_file": "api/MediaSession.json",
+              "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionactiondetails-enterpictureinpicturereason",
+              "status": {
+                "deprecated": false,
+                "experimental": true,
+                "standard_track": true
+              },
+              "support": {
+                "chrome": {
+                  "version_added": "142"
+                },
+                "chrome_android": {
+                  "version_added": "142"
+                },
+                "edge": {
+                  "version_added": "142"
+                },
+                "firefox": {
+                  "version_added": false
+                },
+                "firefox_android": {
+                  "version_added": false
+                },
+                "ie": {
+                  "version_added": false
+                },
+                "oculus": {
+                  "version_added": "42.0"
+                },
+                "opera": {
+                  "version_added": "126"
+                },
+                "opera_android": {
+                  "version_added": "93"
+                },
+                "safari": {
+                  "version_added": false
+                },
+                "safari_ios": {
+                  "version_added": false
+                },
+                "samsunginternet_android": {
+                  "version_added": false
+                },
+                "webview_android": {
+                  "version_added": false
+                },
+                "webview_ios": {
+                  "version_added": false
+                }
+              },
+              "tags": ["web-features:media-session"]
+            }
+          }
+        },
+        "enterpictureinpicture_type": {
+          "__compat": {
+            "description": "<code>\"enterpictureinpicture\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-enterpictureinpicture",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "120"
+              },
+              "chrome_android": {
+                "version_added": "120"
+              },
+              "edge": {
+                "version_added": "120"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "106"
+              },
+              "opera_android": {
+                "version_added": "80"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "25.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "hangup_type": {
+          "__compat": {
+            "description": "<code>\"hangup\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-hangup",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "93"
+              },
+              "chrome_android": {
+                "version_added": "93"
+              },
+              "edge": {
+                "version_added": "93"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "17.0"
+              },
+              "opera": {
+                "version_added": "79"
+              },
+              "opera_android": {
+                "version_added": "66"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "17.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "nextslide_type": {
+          "__compat": {
+            "description": "<code>\"nextslide\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-nextslide",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "111"
+              },
+              "chrome_android": {
+                "version_added": "111"
+              },
+              "edge": {
+                "version_added": "111"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "97"
+              },
+              "opera_android": {
+                "version_added": "75"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "22.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "nexttrack_type": {
+          "__compat": {
+            "description": "<code>\"nexttrack\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-nexttrack",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "pause_type": {
+          "__compat": {
+            "description": "<code>\"pause\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-pause",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "play_type": {
+          "__compat": {
+            "description": "<code>\"play\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-play",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "previousslide_type": {
+          "__compat": {
+            "description": "<code>\"previousslide\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-previousslide",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "111"
+              },
+              "chrome_android": {
+                "version_added": "111"
+              },
+              "edge": {
+                "version_added": "111"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "97"
+              },
+              "opera_android": {
+                "version_added": "75"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "22.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "previoustrack_type": {
+          "__compat": {
+            "description": "<code>\"previoustrack\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-previoustrack",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "seekbackward_type": {
+          "__compat": {
+            "description": "<code>\"seekbackward\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-seekbackward",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "seekforward_type": {
+          "__compat": {
+            "description": "<code>\"seekforward\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-seekforward",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "73"
+              },
+              "chrome_android": {
+                "version_added": "57"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "5.0"
+              },
+              "opera": {
+                "version_added": "60"
+              },
+              "opera_android": {
+                "version_added": "43"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "7.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "seekto_type": {
+          "__compat": {
+            "description": "<code>\"seekto\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-seekto",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "78"
+              },
+              "chrome_android": {
+                "version_added": "78"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "8.0"
+              },
+              "opera": {
+                "version_added": "65"
+              },
+              "opera_android": {
+                "version_added": "56"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "12.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "skipad_type": {
+          "__compat": {
+            "description": "<code>\"skipad\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-skipad",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "128"
+              },
+              "chrome_android": {
+                "version_added": "128"
+              },
+              "edge": {
+                "version_added": "128"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "35"
+              },
+              "opera": {
+                "version_added": "114"
+              },
+              "opera_android": {
+                "version_added": "85"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "28.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "stop_type": {
+          "__compat": {
+            "description": "<code>\"stop\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-stop",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "77"
+              },
+              "chrome_android": {
+                "version_added": "77"
+              },
+              "edge": {
+                "version_added": "79"
+              },
+              "firefox": {
+                "version_added": "82"
+              },
+              "firefox_android": {
+                "version_added": "82"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "7.0"
+              },
+              "opera": {
+                "version_added": "64"
+              },
+              "opera_android": {
+                "version_added": "55"
+              },
+              "safari": {
+                "version_added": "15"
+              },
+              "safari_ios": {
+                "version_added": "15"
+              },
+              "samsunginternet_android": {
+                "version_added": "12.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "15"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "togglecamera_type": {
+          "__compat": {
+            "description": "<code>\"togglecamera\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-togglecamera",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "93"
+              },
+              "chrome_android": {
+                "version_added": "93"
+              },
+              "edge": {
+                "version_added": "93"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "17.0"
+              },
+              "opera": {
+                "version_added": "79"
+              },
+              "opera_android": {
+                "version_added": "66"
+              },
+              "safari": {
+                "version_added": "18.4"
+              },
+              "safari_ios": {
+                "version_added": "18.4"
+              },
+              "samsunginternet_android": {
+                "version_added": "17.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "18.4"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        },
+        "togglemicrophone_type": {
+          "__compat": {
+            "description": "<code>\"togglemicrophone\"</code> type",
+            "source_file": "api/MediaSession.json",
+            "spec_url": "https://w3c.github.io/mediasession/#dom-mediasessionaction-togglemicrophone",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "93"
+              },
+              "chrome_android": {
+                "version_added": "93"
+              },
+              "edge": {
+                "version_added": "93"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "17.0"
+              },
+              "opera": {
+                "version_added": "79"
+              },
+              "opera_android": {
+                "version_added": "66"
+              },
+              "safari": {
+                "version_added": "18.4"
+              },
+              "safari_ios": {
+                "version_added": "18.4"
+              },
+              "samsunginternet_android": {
+                "version_added": "17.0"
+              },
+              "webview_android": {
+                "version_added": false
+              },
+              "webview_ios": {
+                "version_added": "18.4"
+              }
+            },
+            "tags": ["web-features:media-session"]
+          }
+        }
+      },
+      "setCameraActive": {
+        "__compat": {
+          "description": "<code>setCameraActive()</code>",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/setCameraActive",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-setcameraactive",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "93"
+            },
+            "chrome_android": {
+              "version_added": "93"
+            },
+            "edge": {
+              "version_added": "93"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "17.0"
+            },
+            "opera": {
+              "version_added": "79"
+            },
+            "opera_android": {
+              "version_added": "66"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "17.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      },
+      "setMicrophoneActive": {
+        "__compat": {
+          "description": "<code>setMicrophoneActive()</code>",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/setMicrophoneActive",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-setmicrophoneactive",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "93"
+            },
+            "chrome_android": {
+              "version_added": "93"
+            },
+            "edge": {
+              "version_added": "93"
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "17.0"
+            },
+            "opera": {
+              "version_added": "79"
+            },
+            "opera_android": {
+              "version_added": "66"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "17.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      },
+      "setPositionState": {
+        "__compat": {
+          "description": "<code>setPositionState()</code>",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/setPositionState",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-setpositionstate",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "81"
+            },
+            "chrome_android": {
+              "version_added": "57"
+            },
+            "edge": {
+              "version_added": "81"
+            },
+            "firefox": {
+              "version_added": "82"
+            },
+            "firefox_android": {
+              "notes": "Firefox exposes the API, but does not provide a corresponding user-facing media control interface.",
+              "partial_implementation": true,
+              "version_added": "82"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "5.0"
+            },
+            "opera": {
+              "version_added": "68"
+            },
+            "opera_android": {
+              "version_added": "43"
+            },
+            "safari": {
+              "version_added": "15"
+            },
+            "safari_ios": {
+              "version_added": "15"
+            },
+            "samsunginternet_android": {
+              "version_added": "7.0"
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "15"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      },
+      "setScreenshareActive": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/MediaSession/setScreenshareActive",
+          "source_file": "api/MediaSession.json",
+          "spec_url": "https://w3c.github.io/mediasession/#dom-mediasession-setscreenshareactive",
+          "status": {
+            "deprecated": false,
+            "experimental": true,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": false
+            },
+            "chrome_android": {
+              "version_added": false
+            },
+            "edge": {
+              "version_added": false
+            },
+            "firefox": {
+              "version_added": false
+            },
+            "firefox_android": {
+              "version_added": false
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": false
+            },
+            "opera": {
+              "version_added": false
+            },
+            "opera_android": {
+              "version_added": false
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": false
+            },
+            "webview_android": {
+              "version_added": false
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:media-session"]
+        }
+      }
+    },
+    "CookieStore": {
+      "__compat": {
+        "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore",
+        "source_file": "api/CookieStore.json",
+        "spec_url": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "status": {
+          "deprecated": false,
+          "experimental": false,
+          "standard_track": true
+        },
+        "support": {
+          "chrome": {
+            "version_added": "87"
+          },
+          "chrome_android": {
+            "version_added": "87"
+          },
+          "edge": {
+            "version_added": "87"
+          },
+          "firefox": {
+            "version_added": "140"
+          },
+          "firefox_android": {
+            "version_added": "140"
+          },
+          "ie": {
+            "version_added": false
+          },
+          "oculus": {
+            "version_added": "13.0"
+          },
+          "opera": {
+            "version_added": "73"
+          },
+          "opera_android": {
+            "version_added": "62"
+          },
+          "safari": {
+            "impl_url": "https://webkit.org/b/231750",
+            "version_added": "18.4"
+          },
+          "safari_ios": {
+            "impl_url": "https://webkit.org/b/231750",
+            "version_added": "18.4"
+          },
+          "samsunginternet_android": {
+            "version_added": "14.0"
+          },
+          "webview_android": {
+            "version_added": "87"
+          },
+          "webview_ios": {
+            "impl_url": "https://webkit.org/b/231750",
+            "version_added": "18.4"
+          }
+        },
+        "tags": ["web-features:cookie-store"]
+      },
+      "change_event": {
+        "__compat": {
+          "description": "<code>change</code> event",
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore/change_event",
+          "source_file": "api/CookieStore.json",
+          "spec_url": [
+            "https://cookiestore.spec.whatwg.org/#intro-monitor",
+            "https://cookiestore.spec.whatwg.org/#dom-cookiestore-onchange"
+          ],
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "87"
+            },
+            "chrome_android": {
+              "version_added": "87"
+            },
+            "edge": {
+              "version_added": "87"
+            },
+            "firefox": {
+              "version_added": "140"
+            },
+            "firefox_android": {
+              "version_added": "140"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "13.0"
+            },
+            "opera": {
+              "version_added": "73"
+            },
+            "opera_android": {
+              "version_added": "62"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "14.0"
+            },
+            "webview_android": {
+              "version_added": "87"
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:cookie-store"]
+        }
+      },
+      "delete": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore/delete",
+          "source_file": "api/CookieStore.json",
+          "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-delete",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "87"
+            },
+            "chrome_android": {
+              "version_added": "87"
+            },
+            "edge": {
+              "version_added": "87"
+            },
+            "firefox": {
+              "version_added": "140"
+            },
+            "firefox_android": {
+              "version_added": "140"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "13.0"
+            },
+            "opera": {
+              "version_added": "73"
+            },
+            "opera_android": {
+              "version_added": "62"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "14.0"
+            },
+            "webview_android": {
+              "version_added": "87"
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:cookie-store"]
+        },
+        "partitioned_option": {
+          "__compat": {
+            "description": "<code>partitioned</code> option",
+            "source_file": "api/CookieStore.json",
+            "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestoredeleteoptions-partitioned",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "114"
+              },
+              "chrome_android": {
+                "version_added": "114"
+              },
+              "edge": {
+                "version_added": "114"
+              },
+              "firefox": {
+                "version_added": "140"
+              },
+              "firefox_android": {
+                "version_added": "140"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "100"
+              },
+              "opera_android": {
+                "version_added": "76"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "23.0"
+              },
+              "webview_android": {
+                "version_added": "114"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:partitioned-cookies"]
+          }
+        }
+      },
+      "get": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore/get",
+          "source_file": "api/CookieStore.json",
+          "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "87"
+            },
+            "chrome_android": {
+              "version_added": "87"
+            },
+            "edge": {
+              "version_added": "87"
+            },
+            "firefox": {
+              "version_added": "140"
+            },
+            "firefox_android": {
+              "version_added": "140"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "13.0"
+            },
+            "opera": {
+              "version_added": "73"
+            },
+            "opera_android": {
+              "version_added": "62"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "14.0"
+            },
+            "webview_android": {
+              "version_added": "87"
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:cookie-store"]
+        },
+        "domain_return_property": {
+          "__compat": {
+            "description": "<code>domain</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "expires_return_property": {
+          "__compat": {
+            "description": "<code>expires</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "name_return_property": {
+          "__compat": {
+            "description": "<code>name</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": "140"
+              },
+              "firefox_android": {
+                "version_added": "140"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": "18.4"
+              },
+              "safari_ios": {
+                "version_added": "18.4"
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": "18.4"
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "partitioned_return_property": {
+          "__compat": {
+            "description": "<code>partitioned</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "114"
+              },
+              "chrome_android": {
+                "version_added": "114"
+              },
+              "edge": {
+                "version_added": "114"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "100"
+              },
+              "opera_android": {
+                "version_added": "76"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "23.0"
+              },
+              "webview_android": {
+                "version_added": "114"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:partitioned-cookies"]
+          }
+        },
+        "path_return_property": {
+          "__compat": {
+            "description": "<code>path</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "sameSite_return_property": {
+          "__compat": {
+            "description": "<code>sameSite</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "secure_return_property": {
+          "__compat": {
+            "description": "<code>secure</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "status": {
+              "deprecated": false,
+              "experimental": true,
+              "standard_track": false
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": false
+              },
+              "firefox_android": {
+                "version_added": false
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        },
+        "value_return_property": {
+          "__compat": {
+            "description": "<code>value</code> in return value",
+            "source_file": "api/CookieStore.json",
+            "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "87"
+              },
+              "chrome_android": {
+                "version_added": "87"
+              },
+              "edge": {
+                "version_added": "87"
+              },
+              "firefox": {
+                "version_added": "140"
+              },
+              "firefox_android": {
+                "version_added": "140"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "13.0"
+              },
+              "opera": {
+                "version_added": "73"
+              },
+              "opera_android": {
+                "version_added": "62"
+              },
+              "safari": {
+                "version_added": "18.4"
+              },
+              "safari_ios": {
+                "version_added": "18.4"
+              },
+              "samsunginternet_android": {
+                "version_added": "14.0"
+              },
+              "webview_android": {
+                "version_added": "87"
+              },
+              "webview_ios": {
+                "version_added": "18.4"
+              }
+            },
+            "tags": ["web-features:cookie-store"]
+          }
+        }
+      },
+      "getAll": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore/getAll",
+          "source_file": "api/CookieStore.json",
+          "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-getall",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "87"
+            },
+            "chrome_android": {
+              "version_added": "87"
+            },
+            "edge": {
+              "version_added": "87"
+            },
+            "firefox": {
+              "version_added": "140"
+            },
+            "firefox_android": {
+              "version_added": "140"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "13.0"
+            },
+            "opera": {
+              "version_added": "73"
+            },
+            "opera_android": {
+              "version_added": "62"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "14.0"
+            },
+            "webview_android": {
+              "version_added": "87"
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:cookie-store"]
+        }
+      },
+      "set": {
+        "__compat": {
+          "mdn_url": "https://developer.mozilla.org/docs/Web/API/CookieStore/set",
+          "source_file": "api/CookieStore.json",
+          "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set",
+          "status": {
+            "deprecated": false,
+            "experimental": false,
+            "standard_track": true
+          },
+          "support": {
+            "chrome": {
+              "version_added": "87"
+            },
+            "chrome_android": {
+              "version_added": "87"
+            },
+            "edge": {
+              "version_added": "87"
+            },
+            "firefox": {
+              "version_added": "140"
+            },
+            "firefox_android": {
+              "version_added": "140"
+            },
+            "ie": {
+              "version_added": false
+            },
+            "oculus": {
+              "version_added": "13.0"
+            },
+            "opera": {
+              "version_added": "73"
+            },
+            "opera_android": {
+              "version_added": "62"
+            },
+            "safari": {
+              "version_added": "18.4"
+            },
+            "safari_ios": {
+              "version_added": "18.4"
+            },
+            "samsunginternet_android": {
+              "version_added": "14.0"
+            },
+            "webview_android": {
+              "version_added": "87"
+            },
+            "webview_ios": {
+              "version_added": "18.4"
+            }
+          },
+          "tags": ["web-features:cookie-store"]
+        },
+        "maxAge_option": {
+          "__compat": {
+            "description": "<code>maxAge</code> option",
+            "source_file": "api/CookieStore.json",
+            "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-maxage",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "145"
+              },
+              "chrome_android": {
+                "version_added": "145"
+              },
+              "edge": {
+                "version_added": "145"
+              },
+              "firefox": {
+                "version_added": "148"
+              },
+              "firefox_android": {
+                "version_added": "148"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": false
+              },
+              "opera": {
+                "version_added": "129"
+              },
+              "opera_android": {
+                "version_added": "96"
+              },
+              "safari": {
+                "version_added": "27"
+              },
+              "safari_ios": {
+                "version_added": "27"
+              },
+              "samsunginternet_android": {
+                "version_added": false
+              },
+              "webview_android": {
+                "version_added": "145"
+              },
+              "webview_ios": {
+                "version_added": "27"
+              }
+            }
+          }
+        },
+        "partitioned_option": {
+          "__compat": {
+            "description": "<code>partitioned</code> option",
+            "source_file": "api/CookieStore.json",
+            "spec_url": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-partitioned",
+            "status": {
+              "deprecated": false,
+              "experimental": false,
+              "standard_track": true
+            },
+            "support": {
+              "chrome": {
+                "version_added": "114"
+              },
+              "chrome_android": {
+                "version_added": "114"
+              },
+              "edge": {
+                "version_added": "114"
+              },
+              "firefox": {
+                "version_added": "140"
+              },
+              "firefox_android": {
+                "version_added": "140"
+              },
+              "ie": {
+                "version_added": false
+              },
+              "oculus": {
+                "version_added": "31.2"
+              },
+              "opera": {
+                "version_added": "100"
+              },
+              "opera_android": {
+                "version_added": "76"
+              },
+              "safari": {
+                "version_added": false
+              },
+              "safari_ios": {
+                "version_added": false
+              },
+              "samsunginternet_android": {
+                "version_added": "23.0"
+              },
+              "webview_android": {
+                "version_added": "114"
+              },
+              "webview_ios": {
+                "version_added": false
+              }
+            },
+            "tags": ["web-features:partitioned-cookies"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest'
 import {
   getBrowserVersions,
   getCanIUseSupport,
@@ -8,6 +8,54 @@ import {
   windowMajorLaunchesByDate
 } from './canIUseLoader'
 import type { DatedRelease } from './canIUseLoader'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+// Deterministic fixtures: frozen snapshots of caniuse data-2.0.json (2026-08-24)
+// and MDN BCD 8.1.0, so tests never depend on live upstream data (PWAscore-3o4).
+// import.meta.url is not file:// under the nuxt test env, so resolve from cwd.
+const fixturePath = (name: string) => join(process.cwd(), 'app/utils/fixtures', name)
+const caniuseFixture = JSON.parse(
+  readFileSync(fixturePath('caniuse-data.fixture.json'), 'utf8')
+)
+const mdnBcdFixture = JSON.parse(
+  readFileSync(fixturePath('mdn-bcd.fixture.json'), 'utf8')
+)
+
+// Current versions per the frozen fixture. Must exist as exact stats keys:
+// chrome/and_chr 151, firefox/and_ff 153, safari/ios_saf 26.6 all resolve 'y'.
+const CURRENT_VERSIONS = {
+  chrome: '151',
+  firefox: '153',
+  safari: '26.6'
+}
+
+/** Route loader fetches to the committed fixtures; reject anything unexpected. */
+function stubFixtureFetch(): void {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (input: unknown) => {
+      const url = String(input)
+      if (url.includes('raw.githubusercontent.com/Fyrd/caniuse')) {
+        return { ok: true, json: async () => caniuseFixture }
+      }
+      if (url.includes('jsdelivr')) {
+        return { ok: true, json: async () => mdnBcdFixture }
+      }
+      throw new Error(`Unexpected fetch in unit tests: ${url}`)
+    })
+  )
+}
+
+beforeEach(() => {
+  clearCaches()
+  stubFixtureFetch()
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  clearCaches()
+})
 
 describe('getBrowserVersions', () => {
   test('should return current browser versions', async () => {
@@ -92,13 +140,10 @@ describe('getCanIUseSupport', () => {
     })
   })
 
-  // Skipped: see PWAscore-3o4 — fetches live caniuse data; mobile fields drift to 'unknown'
-  test.skip('should return support levels for valid feature (service workers)', async () => {
-    const browserVersions = {
-      chrome: '146',
-      firefox: '148',
-      safari: '26.3'
-    }
+  // Was flaky against live caniuse (PWAscore-3o4): mobile stats maps had no
+  // exact keys for the passed versions. Now served from the frozen fixture.
+  test('should return support levels for valid feature (service workers)', async () => {
+    const browserVersions = CURRENT_VERSIONS
 
     const support = await getCanIUseSupport('serviceworkers', browserVersions)
 
@@ -302,11 +347,7 @@ describe('getMdnBcdSupport - edge cases', () => {
 
 describe('getCanIUseSupport - desktop browsers', () => {
   test('should return desktop support for service workers', async () => {
-    const browserVersions = {
-      chrome: '146',
-      firefox: '148',
-      safari: '26.3'
-    }
+    const browserVersions = CURRENT_VERSIONS
 
     const support = await getCanIUseSupport('serviceworkers', browserVersions)
 

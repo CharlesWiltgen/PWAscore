@@ -1,5 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  // @nuxt/content is used only for the <MDC> component + code highlighting —
+  // pages render bundled i18n MDC strings, no content collections exist
+  // (PWAscore-uof). Expected build-time noise: the module's "no content
+  // configuration" and "switching to D1 binding DB" warnings are module-level
+  // on the cloudflare-module preset; nothing queries content at runtime, so no
+  // D1 binding is needed.
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@nuxt/content', '@nuxtjs/i18n'],
 
   devtools: {

@@ -139,9 +139,10 @@ function handleKeydown(event: KeyboardEvent): void {
 /**
  * Apply the ?showExperimental=true deep link.
  *
- * Watches the query instead of reading it once at mount: on prerendered pages the
- * router settles the initial URL's query a moment after this component mounts, so a
- * mount-time read sees an empty query and silently ignores the link.
+ * Watches the query instead of reading it once at mount. A prerendered page hydrates
+ * against the query-less payload route and gets the real route back later
+ * (nuxt/nuxt#35355, nuxt/nuxt#35442), so a mount-time read sees an empty query and
+ * silently ignores the link.
  */
 watch(
   () => route.query.showExperimental,
@@ -152,21 +153,28 @@ watch(
 )
 
 /**
- * Toggle showExperimental state and update URL
+ * Toggle the filter and record it in the URL.
+ *
+ * The URL write lives here rather than in the state watcher. On a prerendered page Nuxt
+ * parks the URL at the payload path while hydrating and restores the real one on suspense
+ * resolve (nuxt/nuxt#35355, nuxt/nuxt#35442); a navigation issued from a watcher inside
+ * that window supersedes the restore, so the query never makes it back into the address
+ * bar. A deep link has nothing to write — the URL already carries the parameter — so only
+ * a user action writes it, and the restore stays free to finish its job.
  */
 function toggleShowExperimental(): void {
   showExperimental.value = !showExperimental.value
-}
-
-// Watch showExperimental and sync to URL
-watch(showExperimental, (newValue) => {
   const query = { ...route.query }
-  if (newValue) {
+  if (showExperimental.value) {
     query.showExperimental = 'true'
   } else {
     delete query.showExperimental
   }
   router.replace({ query })
+}
+
+// Announce the state, whether a user toggled it or a deep link applied it
+watch(showExperimental, (newValue) => {
   announce(
     newValue
       ? t('features.experimentalShown')

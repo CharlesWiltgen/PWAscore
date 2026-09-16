@@ -17,3 +17,5 @@ compatibility_flags = ["nodejs_compat"]
 # Assets configuration
 [assets]
 directory = ".output/public"
+binding = "ASSETS"
+run_worker_first = ["/"]

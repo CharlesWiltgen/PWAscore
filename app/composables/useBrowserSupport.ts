@@ -168,7 +168,7 @@ function hasKnownSupport(s: {
 /**
  * Default browser versions (used as fallback)
  */
-const DEFAULT_BROWSER_VERSIONS: BrowserVersions = {
+export const DEFAULT_BROWSER_VERSIONS: BrowserVersions = {
   chrome: '141',
   firefox: '143',
   safari: '18.4'

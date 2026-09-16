@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import manualSupportData from './manual-browser-support.json'
 import { validateManualSupport } from './manual-browser-support.schema'
+import {
+  honorManualAnchors,
+  DEFAULT_BROWSER_VERSIONS,
+  type BrowserSupport
+} from '../composables/useBrowserSupport'
 
 describe('Manual Browser Support Data Integrity', () => {
   test('should validate entire dataset without errors', () => {
@@ -101,7 +106,10 @@ describe('Manual Browser Support Data Integrity', () => {
 
     Object.entries(data).forEach(([_id, support]) => {
       // If chrome_android is supported, version may be present
-      if (support.chrome_android === 'supported' && support.chrome_androidVersion) {
+      if (
+        support.chrome_android === 'supported'
+        && support.chrome_androidVersion
+      ) {
         expect(typeof support.chrome_androidVersion).toBe('string')
         expect(support.chrome_androidVersion.length).toBeGreaterThan(0)
       }
@@ -153,5 +161,62 @@ describe('Manual Browser Support Data Integrity', () => {
     const uniqueIds = new Set(ids)
 
     expect(uniqueIds.size).toBe(ids.length)
+  })
+})
+
+/**
+ * Anchor guards. These are tripwires, not behaviour tests: they hold on today's
+ * dataset by construction and fail when the data or the fallback constants drift.
+ */
+describe('manual-browser-support anchors', () => {
+  const ANCHORS = [
+    'chrome_androidVersion',
+    'firefox_androidVersion',
+    'safari_iosVersion',
+    'chromeVersion',
+    'firefoxVersion',
+    'safariVersion'
+  ] as const
+
+  const entries = Object.entries(
+    manualSupportData as Record<string, BrowserSupport>
+  )
+  const withAnchors = entries.flatMap(([id, entry]) =>
+    ANCHORS.flatMap(anchor => (entry[anchor] ? [{ id, entry, anchor }] : []))
+  )
+
+  test('the guard itself is not vacuous: 19 anchors are enumerated', () => {
+    // Update this number when anchors are added — an empty or partial list would
+    // make the two guards below pass without checking anything.
+    expect(withAnchors).toHaveLength(19)
+  })
+
+  test('every anchor accompanies a supported/partial level on the same key', () => {
+    const offenders = withAnchors.filter(({ entry, anchor }) => {
+      const level
+        = entry[anchor.replace(/Version$/, '') as keyof BrowserSupport]
+      return level !== 'supported' && level !== 'partial'
+    })
+
+    expect(offenders.map(o => `${o.id}.${o.anchor}`)).toEqual([])
+  })
+
+  test('honoring is a no-op at DEFAULT_BROWSER_VERSIONS (so also at any shipping version)', () => {
+    // Fails when an anchor is newer than the pre-load fallback — e.g. a shipped
+    // safari_iosVersion "26" against the default Safari 18.4. Fix by refreshing
+    // DEFAULT_BROWSER_VERSIONS in useBrowserSupport.ts, not by relaxing this.
+    const offenders: string[] = []
+
+    for (const [id, entry] of entries) {
+      const honored = honorManualAnchors(entry, DEFAULT_BROWSER_VERSIONS)
+      for (const anchor of ANCHORS) {
+        const key = anchor.replace(/Version$/, '') as keyof BrowserSupport
+        if (entry[anchor] && honored[key] !== entry[key]) {
+          offenders.push(`${id}.${key} vs ${entry[anchor]}`)
+        }
+      }
+    }
+
+    expect(offenders).toEqual([])
   })
 })

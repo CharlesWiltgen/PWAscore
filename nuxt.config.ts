@@ -24,6 +24,14 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    public: {
+      // Cookie the language switcher writes to record an *explicit* choice;
+      // read by server/plugins/locale-choice.ts for the "/" decision.
+      langChoiceCookie: 'pwascore_lang'
+    }
+  },
+
   compatibilityDate: '2026-09-08',
 
   nitro: {
@@ -47,10 +55,13 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
     langDir: 'locales',
     baseUrl: 'https://pwascore.com',
-    detectBrowserLanguage: {
-      useCookie: true,
-      redirectOn: 'root'
-    },
+    // Off on purpose: the module mirrors the locale of every URL it serves into
+    // its cookie (server-side on /fr and its payloads, client-side on hydration),
+    // so any stray French URL load re-armed it and the next "/" visit redirected
+    // to /fr with no user action (verified from request logs, 2026-09-16). The
+    // root decision now lives in server/plugins/locale-choice.ts and honours only
+    // an explicit choice, else Accept-Language.
+    detectBrowserLanguage: false,
     locales: [
       {
         code: 'en',

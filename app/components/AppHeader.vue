@@ -8,12 +8,14 @@ const otherLocale = computed(() =>
     .find(l => l.code !== locale.value)!
 )
 
-// Use setLocale (writes the i18n_redirected cookie BEFORE navigating) rather than
-// letting the link navigate on its own. With detectBrowserLanguage.redirectOn:
-// 'root', a plain switchLocalePath('en') link lands on '/', which re-runs the
-// root redirect against the still-stale 'fr' cookie and bounces back to /fr.
-// Keep the href for SEO/right-click; intercept the normal click.
+// Use setLocale (navigates to the chosen locale) and record the choice in the
+// cookie the root decision reads (server/plugins/locale-choice.ts) — without it,
+// "/" would fall back to Accept-Language on the next visit and a French-preferring
+// browser could never stay on English. Keep the href for SEO/right-click;
+// intercept the normal click.
 function changeLocale(code: 'en' | 'fr'): void {
+  const { langChoiceCookie } = useRuntimeConfig().public
+  document.cookie = `${langChoiceCookie}=${code}; path=/; max-age=31536000; samesite=lax`
   setLocale(code)
 }
 </script>

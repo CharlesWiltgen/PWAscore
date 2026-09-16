@@ -271,11 +271,16 @@ export function useBrowserSupport() {
       return cached
     }
 
-    // Check manual support and cache it
+    // Check manual support. Honor the entry's anchors with whatever versions
+    // are known, but only cache once real versions have loaded: a pre-load read
+    // is answered from DEFAULT_BROWSER_VERSIONS and must not pin that onto the key.
     const manual = MANUAL_SUPPORT[featureId]
     if (manual) {
-      supportCache.value[cacheKey] = manual
-      return manual
+      const honored = honorManualAnchors(manual, browserVersions.value)
+      if (versionsLoaded.value) {
+        supportCache.value[cacheKey] = honored
+      }
+      return honored
     }
 
     // Return unknown if not in cache or manual support

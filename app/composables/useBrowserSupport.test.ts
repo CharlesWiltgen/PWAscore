@@ -1,4 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
+import { isReactive } from 'vue'
 import { resolveSupport, useBrowserSupport } from './useBrowserSupport'
 import type { BrowserVersions } from '../utils/canIUseLoader'
 import type * as CanIUseLoader from '../utils/canIUseLoader'
@@ -113,17 +114,39 @@ describe('useBrowserSupport', () => {
       expect(support.status?.standard_track).toBe(false)
     })
 
-    test('should cache manual support lookups', () => {
-      const { getSupport } = useBrowserSupport()
+    test('does not cache default-derived levels before versions load', async () => {
+      vi.mocked(getBrowserVersions).mockResolvedValueOnce({
+        chrome: '1',
+        firefox: '1',
+        safari: '1'
+      })
+      const { getSupport, loadBrowserVersions } = useBrowserSupport()
 
-      // First call
+      // Pre-load: defaults (chrome 141) are above google-pay's anchor 61, so the
+      // read is answered from DEFAULT_BROWSER_VERSIONS — and must not be cached.
+      expect(getSupport('google-pay').chrome_android).toBe('supported')
+
+      await loadBrowserVersions()
+
+      // Post-load the real version is 1 → below the anchor. A cached pre-load
+      // read would still answer 'supported' here.
+      expect(getSupport('google-pay').chrome_android).toBe('not-supported')
+    })
+
+    test('should cache manual support lookups', async () => {
+      const { getSupport, loadBrowserVersions } = useBrowserSupport()
+      await loadBrowserVersions() // the write only happens once versions are real
+
       const support1 = getSupport('google-pay')
-      // Second call should use cache
       const support2 = getSupport('google-pay')
 
-      expect(support1).toEqual(support2)
       expect(support1.chrome_android).toBe('supported')
       expect(support1.safari_ios).toBe('not-supported')
+      expect(support2).toStrictEqual(support1)
+      // The second read must be served from the cache, not recomputed: the cache
+      // is a Vue ref, so a hit hands back the entry's reactive proxy while a miss
+      // returns the raw object — identity (`toBe`) cannot hold across that pair.
+      expect(isReactive(support2)).toBe(true)
     })
   })
 

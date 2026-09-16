@@ -44,3 +44,5 @@ logs
 .dolt/
 *.db
 .beads-credential-key
+# Gate lock bd leaves in the repo root after runs with configured quality gates
+.beads.gate.lock

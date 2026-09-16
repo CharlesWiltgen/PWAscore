@@ -1,6 +1,11 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
-import { isReactive } from 'vue'
-import { resolveSupport, useBrowserSupport } from './useBrowserSupport'
+import { toRaw } from 'vue'
+import {
+  honorManualAnchors,
+  resolveSupport,
+  useBrowserSupport,
+  type BrowserSupport
+} from './useBrowserSupport'
 import type { BrowserVersions } from '../utils/canIUseLoader'
 import type * as CanIUseLoader from '../utils/canIUseLoader'
 import { getMdnBcdSupport, getBrowserVersions } from '../utils/canIUseLoader'
@@ -143,10 +148,11 @@ describe('useBrowserSupport', () => {
       expect(support1.chrome_android).toBe('supported')
       expect(support1.safari_ios).toBe('not-supported')
       expect(support2).toStrictEqual(support1)
-      // The second read must be served from the cache, not recomputed: the cache
-      // is a Vue ref, so a hit hands back the entry's reactive proxy while a miss
-      // returns the raw object — identity (`toBe`) cannot hold across that pair.
-      expect(isReactive(support2)).toBe(true)
+      // The second read must be the cached entry, not a recompute. The cache is a
+      // Vue ref, so the hit may wrap the first object in a proxy — unwrap via
+      // toRaw (identity across the proxy boundary is a Vue detail, this is the
+      // actual invariant) and assert it is the very object the miss produced.
+      expect(toRaw(support2)).toBe(support1)
     })
   })
 
@@ -435,12 +441,18 @@ describe('loadSupportAtVersion', () => {
     const { getSupportAt } = useBrowserSupport()
 
     expect(
-      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.0' })
-        .safari_ios
+      getSupportAt({
+        browserId: 'safari_ios',
+        featureId: 'apple-pay',
+        version: '10.0'
+      }).safari_ios
     ).toBe('not-supported')
     expect(
-      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.1' })
-        .safari_ios
+      getSupportAt({
+        browserId: 'safari_ios',
+        featureId: 'apple-pay',
+        version: '10.1'
+      }).safari_ios
     ).toBe('supported')
 
     // The read answers from manual data only — it must not trigger a load.
@@ -449,24 +461,33 @@ describe('loadSupportAtVersion', () => {
   })
 
   test('a pinned read does not disturb the current-version read for a path-less feature', async () => {
-    const { loadSupport, loadSupportAtVersion, getSupportAt } = useBrowserSupport()
+    const { loadSupport, loadSupportAtVersion, getSupportAt }
+      = useBrowserSupport()
 
     await loadSupport('apple-pay') // current version (defaults: safari 18.4)
     await loadSupportAtVersion([{ id: 'apple-pay' }], 'safari_ios', '10.0')
 
     expect(
-      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.0' })
-        .safari_ios
+      getSupportAt({
+        browserId: 'safari_ios',
+        featureId: 'apple-pay',
+        version: '10.0'
+      }).safari_ios
     ).toBe('not-supported')
     // The unversioned key is separate and keeps the current-version answer.
     expect(
-      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay' }).safari_ios
+      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay' })
+        .safari_ios
     ).toBe('supported')
   })
 })
 
 describe('resolveSupport — manual *Version anchors', () => {
-  const versions = (safari: string) => ({ chrome: '141', firefox: '143', safari })
+  const versions = (safari: string) => ({
+    chrome: '141',
+    firefox: '143',
+    safari
+  })
 
   test('resolves a path-less feature against its per-browser anchor', async () => {
     expect(
@@ -478,15 +499,62 @@ describe('resolveSupport — manual *Version anchors', () => {
         .safari_ios
     ).toBe('supported')
     expect(
-      (await resolveSupport({ id: 'apple-pay' }, versions('26'), 't')).safari_ios
+      (await resolveSupport({ id: 'apple-pay' }, versions('26'), 't'))
+        .safari_ios
     ).toBe('supported')
   })
 
   test('each key is compared against its own anchor, not the brand anchor', async () => {
     // apple-pay: safari_iosVersion 10.1, safariVersion 11.1 — 11 splits them.
-    const support = await resolveSupport({ id: 'apple-pay' }, versions('11'), 't')
+    const support = await resolveSupport(
+      { id: 'apple-pay' },
+      versions('11'),
+      't'
+    )
     expect(support.safari).toBe('not-supported')
     expect(support.safari_ios).toBe('supported')
+  })
+
+  test('partial anchors like supported, and an anchor on a non-supported level is inert', () => {
+    const entry = (over: Partial<BrowserSupport>): BrowserSupport => ({
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown',
+      ...over
+    })
+    const partial = entry({
+      chrome_android: 'partial',
+      chrome_androidVersion: '61'
+    })
+
+    // manual data has no partial entries today — this pins the documented rule
+    // before the first curated one (BCD already reports notification-api partial).
+    expect(
+      honorManualAnchors(partial, {
+        chrome: '60',
+        firefox: '143',
+        safari: '18.4'
+      }).chrome_android
+    ).toBe('not-supported')
+    expect(
+      honorManualAnchors(partial, {
+        chrome: '61',
+        firefox: '143',
+        safari: '18.4'
+      }).chrome_android
+    ).toBe('partial')
+
+    const inert = entry({ chrome: 'not-supported', chromeVersion: '61' })
+    expect(
+      honorManualAnchors(inert, {
+        chrome: '10',
+        firefox: '143',
+        safari: '18.4'
+      }).chrome
+    ).toBe('not-supported')
   })
 
   test('a key without an anchor is version-invariant', async () => {

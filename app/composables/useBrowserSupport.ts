@@ -82,7 +82,10 @@ const MANUAL_SUPPORT: Record<string, BrowserSupport>
 
 type BrandKey = 'chrome' | 'firefox' | 'safari'
 
-export const BRAND_BY_BROWSER: Record<BrowserId, 'chrome' | 'firefox' | 'safari'> = {
+export const BRAND_BY_BROWSER: Record<
+  BrowserId,
+  'chrome' | 'firefox' | 'safari'
+> = {
   chrome: 'chrome',
   chrome_android: 'chrome',
   firefox: 'firefox',
@@ -107,7 +110,7 @@ const BROWSER_KEYS = [
  * version-invariant. Only supported/partial carry meaning with an anchor; an
  * anchor on any other level is data noise (guarded by a dataset test).
  */
-export function levelAtAnchor(
+function levelAtAnchor(
   level: SupportLevel,
   anchor: string | undefined,
   version: string
@@ -137,7 +140,11 @@ export function honorManualAnchors(
   return out
 }
 
-function baseKey(featureId: string, canIUseId?: string, mdnBcdPath?: string): string {
+function baseKey(
+  featureId: string,
+  canIUseId?: string,
+  mdnBcdPath?: string
+): string {
   return mdnBcdPath && canIUseId
     ? `${canIUseId}|${mdnBcdPath}`
     : canIUseId || mdnBcdPath || featureId
@@ -202,7 +209,9 @@ export async function resolveSupport(
   versions: BrowserVersions,
   label: string
 ): Promise<BrowserSupport> {
-  const merge = (s: Awaited<ReturnType<typeof getMdnBcdSupport>>): BrowserSupport =>
+  const merge = (
+    s: Awaited<ReturnType<typeof getMdnBcdSupport>>
+  ): BrowserSupport =>
     feature.status
       ? { ...UNKNOWN_SUPPORT, ...s, status: feature.status }
       : { ...UNKNOWN_SUPPORT, ...s }
@@ -352,13 +361,24 @@ export function useBrowserSupport() {
     const brand = BRAND_BY_BROWSER[browserId]
     // Cast: spread + computed key widens away from BrowserVersions; the brand
     // key is always one of chrome|firefox|safari, so this is sound.
-    const versions = { ...browserVersions.value, [brand]: version } as BrowserVersions
+    const versions = {
+      ...browserVersions.value,
+      [brand]: version
+    } as BrowserVersions
 
     await Promise.all(
       features.map(async (f) => {
-        const key = versionedKey(baseKey(f.id, f.canIUseId, f.mdnBcdPath), brand, version)
+        const key = versionedKey(
+          baseKey(f.id, f.canIUseId, f.mdnBcdPath),
+          brand,
+          version
+        )
         if (supportCache.value[key]) return
-        supportCache.value[key] = await resolveSupport(f, versions, `${f.id}@${version}`)
+        supportCache.value[key] = await resolveSupport(
+          f,
+          versions,
+          `${f.id}@${version}`
+        )
       })
     )
   }
@@ -373,7 +393,11 @@ export function useBrowserSupport() {
       return getSupport(featureId, canIUseId, mdnBcdPath)
     }
     const brand = BRAND_BY_BROWSER[browserId]
-    const key = versionedKey(baseKey(featureId, canIUseId, mdnBcdPath), brand, version)
+    const key = versionedKey(
+      baseKey(featureId, canIUseId, mdnBcdPath),
+      brand,
+      version
+    )
     const cached = supportCache.value[key]
     if (cached) return cached
     const manual = MANUAL_SUPPORT[featureId]

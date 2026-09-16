@@ -5,18 +5,25 @@ const colorMode = useColorMode()
 
 const color = computed(() => (colorMode.value === 'dark' ? '#171717' : 'white'))
 
+// `head` is computed, so every entry derived from it has to stay reactive:
+// reading `head.value` into plain values here would freeze lang/og:locale at the
+// locale the app started in — a client-side switch (the header's language link,
+// which does not remount app.vue) would leave an English /fr page declaring
+// lang="en-US" (and vice versa), which also makes Chrome offer to translate.
 useHead({
-  meta: [
+  meta: computed(() => [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-    { key: 'theme-color', name: 'theme-color', content: color },
+    { key: 'theme-color', name: 'theme-color', content: color.value },
     ...(head.value.meta || [])
-  ],
-  link: [
+  ]),
+  link: computed(() => [
     { rel: 'icon', href: '/favicon.ico' },
     ...(head.value.link || [])
-  ],
+  ]),
   htmlAttrs: {
-    lang: head.value.htmlAttrs?.lang
+    // Getter (not a snapshot, and not a whole-object computed — unhead types a
+    // ref only per property) so the attribute tracks locale changes.
+    lang: () => head.value.htmlAttrs?.lang
   }
 })
 

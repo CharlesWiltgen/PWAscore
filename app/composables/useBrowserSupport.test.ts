@@ -1,68 +1,74 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
 import { useBrowserSupport } from './useBrowserSupport'
 import type { BrowserVersions } from '../utils/canIUseLoader'
+import type * as CanIUseLoader from '../utils/canIUseLoader'
 import { getMdnBcdSupport, getBrowserVersions } from '../utils/canIUseLoader'
 
-// Mock the canIUseLoader module
-vi.mock('../utils/canIUseLoader', () => ({
-  getBrowserVersions: vi.fn(async () => ({
-    chrome: '141',
-    firefox: '143',
-    safari: '18.4'
-  })),
-  getCanIUseSupport: vi.fn(
-    async (canIUseId: string, _versions: BrowserVersions) => {
-      // Mock CanIUse data
-      if (canIUseId === 'serviceworkers') {
-        return {
-          chrome_android: 'supported' as const,
-          firefox_android: 'supported' as const,
-          safari_ios: 'supported' as const,
-          chrome: 'supported' as const,
-          firefox: 'supported' as const,
-          safari: 'supported' as const
-        }
-      }
-      return {
-        chrome_android: 'unknown' as const,
-        firefox_android: 'unknown' as const,
-        safari_ios: 'unknown' as const,
-        chrome: 'unknown' as const,
-        firefox: 'unknown' as const,
-        safari: 'unknown' as const
-      }
-    }
-  ),
-  getMdnBcdSupport: vi.fn(
-    async (mdnBcdPath: string, _versions: BrowserVersions) => {
-      // Mock MDN BCD data
-      if (mdnBcdPath === 'api.Navigator.setAppBadge') {
-        return {
-          chrome_android: 'not-supported' as const,
-          firefox_android: 'not-supported' as const,
-          safari_ios: 'supported' as const,
-          chrome: 'not-supported' as const,
-          firefox: 'not-supported' as const,
-          safari: 'supported' as const,
-          status: {
-            experimental: false,
-            standard_track: true,
-            deprecated: false
+// Mock the canIUseLoader module — partial: the data sources are stubbed, pure
+// helpers (compareVersions) stay real for the composable under test.
+vi.mock('../utils/canIUseLoader', async (importOriginal) => {
+  const actual = await importOriginal<typeof CanIUseLoader>()
+  return {
+    ...actual,
+    getBrowserVersions: vi.fn(async () => ({
+      chrome: '141',
+      firefox: '143',
+      safari: '18.4'
+    })),
+    getCanIUseSupport: vi.fn(
+      async (canIUseId: string, _versions: BrowserVersions) => {
+        // Mock CanIUse data
+        if (canIUseId === 'serviceworkers') {
+          return {
+            chrome_android: 'supported' as const,
+            firefox_android: 'supported' as const,
+            safari_ios: 'supported' as const,
+            chrome: 'supported' as const,
+            firefox: 'supported' as const,
+            safari: 'supported' as const
           }
         }
+        return {
+          chrome_android: 'unknown' as const,
+          firefox_android: 'unknown' as const,
+          safari_ios: 'unknown' as const,
+          chrome: 'unknown' as const,
+          firefox: 'unknown' as const,
+          safari: 'unknown' as const
+        }
       }
-      return {
-        chrome_android: 'unknown' as const,
-        firefox_android: 'unknown' as const,
-        safari_ios: 'unknown' as const,
-        chrome: 'unknown' as const,
-        firefox: 'unknown' as const,
-        safari: 'unknown' as const
+    ),
+    getMdnBcdSupport: vi.fn(
+      async (mdnBcdPath: string, _versions: BrowserVersions) => {
+        // Mock MDN BCD data
+        if (mdnBcdPath === 'api.Navigator.setAppBadge') {
+          return {
+            chrome_android: 'not-supported' as const,
+            firefox_android: 'not-supported' as const,
+            safari_ios: 'supported' as const,
+            chrome: 'not-supported' as const,
+            firefox: 'not-supported' as const,
+            safari: 'supported' as const,
+            status: {
+              experimental: false,
+              standard_track: true,
+              deprecated: false
+            }
+          }
+        }
+        return {
+          chrome_android: 'unknown' as const,
+          firefox_android: 'unknown' as const,
+          safari_ios: 'unknown' as const,
+          chrome: 'unknown' as const,
+          firefox: 'unknown' as const,
+          safari: 'unknown' as const
+        }
       }
-    }
-  ),
-  getMdnUrlFromBcd: vi.fn(async () => undefined)
-}))
+    ),
+    getMdnUrlFromBcd: vi.fn(async () => undefined)
+  }
+})
 
 describe('useBrowserSupport', () => {
   beforeEach(() => {
@@ -344,7 +350,10 @@ describe('loadSupportAtVersion', () => {
     vi.mocked(getMdnBcdSupport).mockImplementation(async (_path, versions) => ({
       chrome_android: 'unknown' as const,
       firefox_android: 'unknown' as const,
-      safari_ios: versions.safari === '18' ? ('not-supported' as const) : ('supported' as const),
+      safari_ios:
+        versions.safari === '18'
+          ? ('not-supported' as const)
+          : ('supported' as const),
       chrome: 'unknown' as const,
       firefox: 'unknown' as const,
       safari: 'unknown' as const
@@ -356,13 +365,30 @@ describe('loadSupportAtVersion', () => {
     await loadSupportAtVersion([feature], 'safari_ios', '18')
     await loadSupportAtVersion([feature], 'safari_ios', '26.4')
 
-    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'badging', mdnBcdPath: 'api.Navigator.setAppBadge', version: '18' }).safari_ios).toBe('not-supported')
-    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'badging', mdnBcdPath: 'api.Navigator.setAppBadge', version: '26.4' }).safari_ios).toBe('supported')
+    expect(
+      getSupportAt({
+        browserId: 'safari_ios',
+        featureId: 'badging',
+        mdnBcdPath: 'api.Navigator.setAppBadge',
+        version: '18'
+      }).safari_ios
+    ).toBe('not-supported')
+    expect(
+      getSupportAt({
+        browserId: 'safari_ios',
+        featureId: 'badging',
+        mdnBcdPath: 'api.Navigator.setAppBadge',
+        version: '26.4'
+      }).safari_ios
+    ).toBe('supported')
     expect(vi.mocked(getMdnBcdSupport)).toHaveBeenCalledTimes(2)
   })
 
   test('getSupportAt without a version delegates to the current-version getSupport', () => {
     const { getSupportAt } = useBrowserSupport()
-    expect(getSupportAt({ browserId: 'safari_ios', featureId: 'unloaded' }).safari_ios).toBe('unknown')
+    expect(
+      getSupportAt({ browserId: 'safari_ios', featureId: 'unloaded' })
+        .safari_ios
+    ).toBe('unknown')
   })
 })

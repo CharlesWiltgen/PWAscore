@@ -1,39 +1,72 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
 import type { PWAFeatureGroup } from '../data/pwa-features.schema'
+import type * as CanIUseLoader from '../utils/canIUseLoader'
 import { getBrowserReleases, getMdnBcdSupport } from '../utils/canIUseLoader'
 import { useVersionedBrowsers } from './useVersionedBrowsers'
 import scoreHistory from '../data/score-history.json'
 
-vi.mock('../utils/canIUseLoader', () => ({
-  getBrowserVersions: vi.fn(async () => ({ chrome: '146', firefox: '148', safari: '26.4' })),
-  getBrowserReleases: vi.fn(async () => [
-    { version: '18.5', releaseDate: '2025-05-12', channel: 'released' },
-    { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
-    { version: '26.5', releaseDate: null, channel: 'beta' }
-  ]),
-  getCanIUseSupport: vi.fn(async () => ({
-    chrome_android: 'unknown', firefox_android: 'unknown', safari_ios: 'unknown',
-    chrome: 'unknown', firefox: 'unknown', safari: 'unknown'
-  })),
-  getMdnBcdSupport: vi.fn(async (_path: string, versions: { safari: string }) => ({
-    chrome_android: 'unknown', firefox_android: 'unknown',
-    safari_ios: versions.safari === '18.5' ? 'not-supported' : 'supported',
-    chrome: 'unknown', firefox: 'unknown', safari: 'unknown'
-  })),
-  getMdnUrlFromBcd: vi.fn(async () => undefined)
-}))
+// Partial mock: data sources stubbed, pure helpers (compareVersions) stay real.
+vi.mock('../utils/canIUseLoader', async (importOriginal) => {
+  const actual = await importOriginal<typeof CanIUseLoader>()
+  return {
+    ...actual,
+    getBrowserVersions: vi.fn(async () => ({
+      chrome: '146',
+      firefox: '148',
+      safari: '26.4'
+    })),
+    getBrowserReleases: vi.fn(async () => [
+      { version: '18.5', releaseDate: '2025-05-12', channel: 'released' },
+      { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
+      { version: '26.5', releaseDate: null, channel: 'beta' }
+    ]),
+    getCanIUseSupport: vi.fn(async () => ({
+      chrome_android: 'unknown',
+      firefox_android: 'unknown',
+      safari_ios: 'unknown',
+      chrome: 'unknown',
+      firefox: 'unknown',
+      safari: 'unknown'
+    })),
+    getMdnBcdSupport: vi.fn(
+      async (_path: string, versions: { safari: string }) => ({
+        chrome_android: 'unknown',
+        firefox_android: 'unknown',
+        safari_ios: versions.safari === '18.5' ? 'not-supported' : 'supported',
+        chrome: 'unknown',
+        firefox: 'unknown',
+        safari: 'unknown'
+      })
+    ),
+    getMdnUrlFromBcd: vi.fn(async () => undefined)
+  }
+})
 
 const GROUPS: PWAFeatureGroup[] = [
   {
-    id: 'g', name: 'G', description: 'G',
-    categories: [{
-      id: 'c', name: 'C', description: 'C',
-      features: [{
-        id: 'badging', name: 'Badging', description: 'Badging',
-        mdnBcdPath: 'api.Navigator.setAppBadge',
-        status: { experimental: false, standard_track: true, deprecated: false }
-      }]
-    }]
+    id: 'g',
+    name: 'G',
+    description: 'G',
+    categories: [
+      {
+        id: 'c',
+        name: 'C',
+        description: 'C',
+        features: [
+          {
+            id: 'badging',
+            name: 'Badging',
+            description: 'Badging',
+            mdnBcdPath: 'api.Navigator.setAppBadge',
+            status: {
+              experimental: false,
+              standard_track: true,
+              deprecated: false
+            }
+          }
+        ]
+      }
+    ]
   }
 ]
 
@@ -50,7 +83,10 @@ describe('useVersionedBrowsers', () => {
       { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
       { version: '26.5', releaseDate: null, channel: 'beta' }
     ])
-    expect(vi.mocked(getBrowserReleases)).toHaveBeenCalledWith('safari_ios', '26.4')
+    expect(vi.mocked(getBrowserReleases)).toHaveBeenCalledWith(
+      'safari_ios',
+      '26.4'
+    )
   })
 
   test('init populates releases for ALL requested browsers (no last-writer-wins race)', async () => {
@@ -58,7 +94,11 @@ describe('useVersionedBrowsers', () => {
     await vb.init(['safari_ios', 'chrome_android', 'firefox_android'])
 
     // Every requested browser must have BOTH a selected version and a releases list.
-    for (const id of ['safari_ios', 'chrome_android', 'firefox_android'] as const) {
+    for (const id of [
+      'safari_ios',
+      'chrome_android',
+      'firefox_android'
+    ] as const) {
       expect(vb.selectedVersion.value[id]).toBeTruthy()
       expect((vb.releasesByBrowser.value[id] ?? []).length).toBeGreaterThan(0)
     }
@@ -78,7 +118,14 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
   test('columnSupport at the default version uses the current path (no extra load)', async () => {
     const vb = useVersionedBrowsers(GROUPS)
     await vb.init(['safari_ios'])
-    expect(vb.columnSupport('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge').safari_ios).toBe('supported')
+    expect(
+      vb.columnSupport(
+        'safari_ios',
+        'badging',
+        undefined,
+        'api.Navigator.setAppBadge'
+      ).safari_ios
+    ).toBe('supported')
   })
 
   test('setVersion loads support at the chosen version and toggles isVersionLoading', async () => {
@@ -91,7 +138,14 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
     expect(vb.isVersionLoading.value.safari_ios).toBe(false)
 
     expect(vb.selectedVersion.value.safari_ios).toBe('18.5')
-    expect(vb.columnSupport('safari_ios', 'badging', undefined, 'api.Navigator.setAppBadge').safari_ios).toBe('not-supported')
+    expect(
+      vb.columnSupport(
+        'safari_ios',
+        'badging',
+        undefined,
+        'api.Navigator.setAppBadge'
+      ).safari_ios
+    ).toBe('not-supported')
   })
 
   test('setVersion back to the default does not trigger another load', async () => {
@@ -125,9 +179,13 @@ describe('useVersionedBrowsers — version-aware support and scores', () => {
         new Promise((resolve) => {
           resolvers[versions.safari] = () =>
             resolve({
-              chrome_android: 'unknown', firefox_android: 'unknown',
-              safari_ios: versions.safari === '18.5' ? 'not-supported' : 'supported',
-              chrome: 'unknown', firefox: 'unknown', safari: 'unknown'
+              chrome_android: 'unknown',
+              firefox_android: 'unknown',
+              safari_ios:
+                versions.safari === '18.5' ? 'not-supported' : 'supported',
+              chrome: 'unknown',
+              firefox: 'unknown',
+              safari: 'unknown'
             })
         })
     )
@@ -176,7 +234,9 @@ describe('useVersionedBrowsers — precomputed sparkline series', () => {
     const vb = useVersionedBrowsers(GROUPS)
     // Precomputed from real data, keyed by browser — independent of GROUPS and
     // requiring no version loads, so getMdnBcdSupport is never called.
-    expect(vb.sparklineSeries('safari_ios')).toEqual(scoreHistory.series.safari_ios)
+    expect(vb.sparklineSeries('safari_ios')).toEqual(
+      scoreHistory.series.safari_ios
+    )
     expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
   })
 

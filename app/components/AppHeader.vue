@@ -9,7 +9,7 @@ const otherLocale = computed(() =>
 )
 
 // Use setLocale (navigates to the chosen locale) and record the choice in the
-// cookie the root decision reads (server/plugins/locale-choice.ts) — without it,
+// cookie the root decision reads (server/middleware/root-locale.ts) — without it,
 // "/" would fall back to Accept-Language on the next visit and a French-preferring
 // browser could never stay on English. Keep the href for SEO/right-click;
 // intercept the normal click.

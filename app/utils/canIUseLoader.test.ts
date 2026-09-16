@@ -136,6 +136,9 @@ describe('getBrowserVersions', () => {
                 releases: {
                   153: { release_date: '2026-08-04', status: 'retired' },
                   155: { release_date: '2026-09-01', status: 'current' },
+                  // Dated on purpose: only its status can exclude it, which is
+                  // the half of the rule the date filter would otherwise cover.
+                  156: { release_date: '2026-09-15', status: 'beta' },
                   158: { release_date: null, status: 'beta' }
                 }
               },

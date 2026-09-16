@@ -12,7 +12,16 @@ import { pickLocaleFromAcceptLanguage } from '../utils/locale-choice'
  * here (`run_worker_first = ["/"]` in wrangler.toml). When it does run and no
  * redirect applies, it answers with the prerendered `index.html` through the
  * ASSETS binding, so making the root reachable by the Worker does not turn the
- * landing page into a per-request SSR render.
+ * landing page into a per-request SSR render. Methods other than GET/HEAD return
+ * before that delegation, so a POST to `/` gets a rendered page rather than the
+ * asset layer's method handling.
+ *
+ * Cache invariant: the 200/304 for `/` carries the asset store's own headers and
+ * has no `Vary` of its own (a returned response's headers are immutable here, and
+ * rebuilding one risks an encoding mismatch). That is safe only while `/` stays
+ * `max-age=0, must-revalidate`: any future positive freshness for `/` must also
+ * make the response vary on `Accept-Language, Cookie`, or the root's locale
+ * decision goes sticky. The 302 below sets both headers itself.
  */
 export default defineEventHandler(async (event) => {
   // HEAD is treated like GET so monitors and link checkers do not trigger a render.
@@ -80,10 +89,16 @@ export default defineEventHandler(async (event) => {
   const buildId = String(useRuntimeConfig(event).app?.buildId ?? '')
   const assetUrl = buildId ? new URL(request.url) : null
   assetUrl?.searchParams.set('_b', buildId)
-  const response = await assets.fetch(
-    assetUrl ? new Request(assetUrl.toString(), request) : request
-  )
-  // Fall back to the app render if the asset store cannot answer, so this can
-  // never be worse than the SSR path it replaces.
+  const response = await assets
+    .fetch(assetUrl ? new Request(assetUrl.toString(), request) : request)
+    .catch(() => undefined)
+  // A throwing binding is a failed answer, not an exception worth a 500: fall
+  // through to the app render like any other miss.
+  if (!response) return
+  // A conditional request the store answers with 304 is a successful answer, not
+  // a miss: `Response.ok` is false for it, and dropping it would turn every
+  // revalidating visit to `/` into a full SSR render — the cost this routing
+  // exists to avoid. Everything else non-2xx (404/405/416) really is a miss.
+  if (response.status === 304) return response
   return response.ok ? response : undefined
 })

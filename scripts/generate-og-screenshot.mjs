@@ -15,7 +15,8 @@ import sharp from 'sharp'
 
 const OUTPUT_PATH = join(process.cwd(), 'public', 'og-image.png')
 const DEV_SERVER_URL = 'http://localhost:3000'
-const DEV_SERVER_PORT = 3000
+const DEV_SERVER_ORIGIN = new URL(DEV_SERVER_URL)
+const DEV_SERVER_PORT = Number(DEV_SERVER_ORIGIN.port)
 const OG_IMAGE_WIDTH = 1200
 const OG_IMAGE_HEIGHT = 630
 
@@ -82,11 +83,41 @@ async function startDevServer() {
 
     server.stdout.on('data', (data) => {
       const output = data.toString()
-      if (output.includes('Local:') || output.includes('localhost:3000')) {
-        clearTimeout(timeout)
-        console.log('✓ Dev server ready')
-        resolve(server)
+      // Vite moves to the next free port when the one it wants is taken, so a
+      // readiness banner only means "a dev server started". Trust it only when
+      // it names our port — otherwise the port was taken after the pre-flight
+      // check and this run would photograph a server it does not own. The
+      // banner may colour the URL, but the colour codes wrap `localhost:3000`
+      // rather than split it, so a plain substring test is exact about the port.
+      const advertised = (() => {
+        const named = output.match(/Local:\s+(https?:\/\/\S+)/)?.[1]
+        if (named) return named
+        return output.includes(`localhost:${DEV_SERVER_PORT}`)
+          ? DEV_SERVER_URL
+          : null
+      })()
+      if (!advertised) return
+      let bound
+      try {
+        bound = new URL(advertised)
+      } catch {
+        // Colour codes can land inside the capture; the substring check above
+        // already proved the port, so treat an unparseable banner as ours.
+        bound = DEV_SERVER_ORIGIN
       }
+      if (bound.port !== DEV_SERVER_ORIGIN.port) {
+        clearTimeout(timeout)
+        process.kill(-server.pid)
+        reject(
+          new Error(
+            `Dev server came up on ${bound.origin} instead of ${DEV_SERVER_ORIGIN.origin} — something took port ${DEV_SERVER_PORT} after the pre-flight check. Stop it and retry.`
+          )
+        )
+        return
+      }
+      clearTimeout(timeout)
+      console.log('✓ Dev server ready')
+      resolve(server)
     })
 
     server.stderr.on('data', (data) => {

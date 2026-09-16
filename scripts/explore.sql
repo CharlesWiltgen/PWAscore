@@ -5,7 +5,7 @@
 --   • app/data/pwa-features.json          (the ~163 curated features + weights)
 --   • app/data/manual-browser-support.json (hand-authored vendor support)
 --   • node_modules/@mdn/browser-compat-data/data.json (full MDN BCD universe)
---   • public/data/caniuse-data.json        (full caniuse universe)
+--   • .cache/caniuse-data.json (full caniuse universe)
 -- DuckDB is NOT a storage engine here — nothing it produces is committed. It
 -- reads the raw files in place to answer editorial questions like "what should
 -- we add/drop/reweight?" and "where is our curation drifting from upstream?".
@@ -60,7 +60,7 @@ CREATE OR REPLACE VIEW caniuse AS
 SELECT e.key AS caniuse_id, e.value AS feat
 FROM (
   SELECT unnest(map_entries(CAST(content::JSON -> '$.data' AS MAP(VARCHAR, JSON)))) AS e
-  FROM read_text('public/data/caniuse-data.json')
+  FROM read_text('.cache/caniuse-data.json')
 ) t;
 
 
@@ -119,7 +119,7 @@ FROM compat;
 
 
 -- ── C. caniuse discovery: what we DON'T track yet ────────────────────────────
--- (requires public/data/caniuse-data.json — see PREREQUISITES)
+-- (requires .cache/caniuse-data.json — see PREREQUISITES)
 -- Every caniuse feature not referenced by our curation, ranked by global
 -- "fully supported" usage %. Surface `categories` so you can ignore the generic
 -- CSS/Canvas noise and zero in on PWA-relevant APIs.

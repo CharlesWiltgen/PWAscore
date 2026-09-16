@@ -27,7 +27,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Cookie the language switcher writes to record an *explicit* choice;
-      // read by server/plugins/locale-choice.ts for the "/" decision.
+      // read by server/middleware/root-locale.ts for the "/" decision.
       langChoiceCookie: 'pwascore_lang'
     }
   },
@@ -60,8 +60,9 @@ export default defineNuxtConfig({
     // and its client plugin then redirected root visits — so a stray French URL
     // load changed what "/" served with no user action (verified from request
     // logs, 2026-09-16). With detection off, "/" is English unless the visitor
-    // picked a language: server/plugins/locale-choice.ts decides that in dev,
-    // while in production "/" is a prerendered asset the Worker never sees.
+    // picked a language: server/middleware/root-locale.ts decides that in dev
+    // and in production (wrangler.toml routes "/" to the Worker), while every
+    // other path is a prerendered asset.
     detectBrowserLanguage: false,
     locales: [
       {

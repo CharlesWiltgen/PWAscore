@@ -17,6 +17,7 @@ import {
   getBrowserVersions,
   getBrowserReleaseDates,
   windowMajorLaunchesByDate,
+  compareVersions,
   type DatedRelease
 } from '../app/utils/canIUseLoader'
 import {
@@ -140,6 +141,21 @@ async function main(): Promise<void> {
     if (releases.length === 0) {
       throw new Error(
         `No release data for ${browserId} (likely a BCD fetch failure) — aborting without writing.`
+      )
+    }
+    // getBrowserVersions swallows a caniuse failure and falls back to hardcoded
+    // versions that lag these releases, which would append a trailing point
+    // stepping *backwards* in version (seen 2026-09-16: a CIU failure ended the
+    // chrome series 153 -> 146). getBrowserReleaseDates only returns shipped,
+    // dated releases, so the newest of those is the floor the current version
+    // must clear.
+    const newest = releases.reduce((a, b) =>
+      compareVersions(b.version, a.version) > 0 ? b : a
+    )
+    const brand = BRAND_BY_BROWSER[browserId]
+    if (compareVersions(current[brand], newest.version) < 0) {
+      throw new Error(
+        `Current ${brand} version ${current[brand]} is older than the newest dated release ${newest.version} (likely a caniuse fetch failure) — aborting without writing.`
       )
     }
     releaseDates.set(browserId, releases)

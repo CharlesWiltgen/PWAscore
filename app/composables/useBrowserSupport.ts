@@ -301,14 +301,6 @@ export function useBrowserSupport() {
       return cached
     }
 
-    // If no data sources, check manual support first
-    if (!canIUseId && !mdnBcdPath) {
-      const manual = MANUAL_SUPPORT[featureId]
-      const result = manual || UNKNOWN_SUPPORT
-      supportCache.value[cacheKey] = result
-      return result
-    }
-
     // Ensure browser versions are loaded
     await loadBrowserVersions()
 

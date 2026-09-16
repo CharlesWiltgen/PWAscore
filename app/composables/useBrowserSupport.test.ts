@@ -206,6 +206,22 @@ describe('useBrowserSupport', () => {
       expect(support.safari_ios).toBe('supported')
       expect(support.status).toEqual(manualStatus)
     })
+
+    test('a path-less feature resolves through the general path, not a raw manual shortcut', async () => {
+      // google-pay anchor: chrome_android 61. Mock a *below-anchor* current
+      // version, so a raw shortcut (which ignores versions) would read supported.
+      vi.mocked(getBrowserVersions).mockResolvedValueOnce({
+        chrome: '1',
+        firefox: '143',
+        safari: '18.4'
+      })
+
+      const { loadSupport } = useBrowserSupport()
+
+      expect((await loadSupport('google-pay')).chrome_android).toBe(
+        'not-supported'
+      )
+    })
   })
 
   describe('loadMultipleSupport', () => {

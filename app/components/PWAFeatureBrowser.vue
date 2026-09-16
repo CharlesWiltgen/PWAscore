@@ -30,8 +30,8 @@ const router = useRouter()
 const openGroups = ref<string[]>([])
 const openCategories = ref<string[]>([])
 
-// Hide experimental features state
-const hideExperimental = ref<boolean>(false)
+// Show experimental features state (hidden by default)
+const showExperimental = ref<boolean>(false)
 
 // Screen reader announcements
 const liveAnnouncement = ref<string>('')
@@ -63,30 +63,51 @@ const experimentalFeatureIds = ref<Set<string>>(new Set())
 const experimentalCategoryIds = ref<Set<string>>(new Set())
 const experimentalGroupIds = ref<Set<string>>(new Set())
 
-// Check if all groups and categories are expanded
-const isAllExpanded = computed(() => {
-  const allGroupIds = pwaFeatures.map(g => g.id)
-  const allCategoryIds = pwaFeatures.flatMap(g =>
-    g.categories.map(c => c.id)
-  )
-
-  return (
-    allGroupIds.every(id => openGroups.value.includes(id))
-    && allCategoryIds.every(id => openCategories.value.includes(id))
-  )
-})
+/**
+ * Lightweight computeds that return the pre-computed experimental IDs, or an empty
+ * set when experimental features are being shown. O(1) - swaps the Set reference.
+ * Headings always render, so an all-experimental area stays discoverable: a category
+ * whose every feature is filtered out is closed and disabled, and a group with no
+ * stable features at all carries a dash badge instead of a meaningless "0".
+ */
+const hiddenFeatureIds = computed<Set<string>>(() =>
+  showExperimental.value ? new Set() : experimentalFeatureIds.value
+)
+const hiddenCategoryIds = computed<Set<string>>(() =>
+  showExperimental.value ? new Set() : experimentalCategoryIds.value
+)
 
 /**
- * Expand all groups and categories
+ * Categories the current filter leaves openable. A category whose every feature is
+ * experimental is disabled while those features are hidden, so it must never be
+ * opened or require opening for the expand/collapse-all state.
+ */
+const enabledCategoryIds = computed(() =>
+  pwaFeatures.flatMap(group =>
+    group.categories
+      .filter(category => !hiddenCategoryIds.value.has(category.id))
+      .map(category => category.id)
+  )
+)
+
+// A disabled category cannot be closed again by the user, so keep it out of the open set
+watch(hiddenCategoryIds, (hidden) => {
+  if (!hidden.size) return
+  openCategories.value = openCategories.value.filter(id => !hidden.has(id))
+})
+
+// Check if all groups and enabled categories are expanded
+const isAllExpanded = computed(() =>
+  pwaFeatures.every(group => openGroups.value.includes(group.id))
+  && enabledCategoryIds.value.every(id => openCategories.value.includes(id))
+)
+
+/**
+ * Expand all groups and enabled categories
  */
 function expandAll(): void {
-  const allGroupIds = pwaFeatures.map(g => g.id)
-  const allCategoryIds = pwaFeatures.flatMap(g =>
-    g.categories.map(c => c.id)
-  )
-
-  openGroups.value = [...allGroupIds]
-  openCategories.value = [...allCategoryIds]
+  openGroups.value = pwaFeatures.map(group => group.id)
+  openCategories.value = [...enabledCategoryIds.value]
   announce(t('browser.allExpanded'))
 }
 
@@ -116,40 +137,40 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 /**
- * Apply the ?hideExperimental=true URL parameter.
+ * Apply the ?showExperimental=true deep link.
  *
  * Watches the query instead of reading it once at mount: on prerendered pages the
  * router settles the initial URL's query a moment after this component mounts, so a
- * mount-time read sees an empty query and silently ignores the parameter.
+ * mount-time read sees an empty query and silently ignores the link.
  */
 watch(
-  () => route.query.hideExperimental,
+  () => route.query.showExperimental,
   (value) => {
-    hideExperimental.value = value === 'true'
+    showExperimental.value = value === 'true'
   },
   { immediate: true }
 )
 
 /**
- * Toggle hideExperimental state and update URL
+ * Toggle showExperimental state and update URL
  */
-function toggleHideExperimental(): void {
-  hideExperimental.value = !hideExperimental.value
+function toggleShowExperimental(): void {
+  showExperimental.value = !showExperimental.value
 }
 
-// Watch hideExperimental and sync to URL
-watch(hideExperimental, (newValue) => {
+// Watch showExperimental and sync to URL
+watch(showExperimental, (newValue) => {
   const query = { ...route.query }
   if (newValue) {
-    query.hideExperimental = 'true'
+    query.showExperimental = 'true'
   } else {
-    delete query.hideExperimental
+    delete query.showExperimental
   }
   router.replace({ query })
   announce(
     newValue
-      ? t('features.experimentalHidden')
-      : t('features.experimentalShown')
+      ? t('features.experimentalShown')
+      : t('features.experimentalHidden')
   )
 })
 
@@ -192,6 +213,7 @@ onMounted(async () => {
   ])
 
   // Pre-compute which features are experimental/non-standard (once, after support data loads)
+  const experimentalFeatures = new Set<string>()
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
       for (const feature of category.features) {
@@ -200,37 +222,43 @@ onMounted(async () => {
 
         // Hide if experimental OR not on standards track (non-standard)
         if (status?.experimental === true || status?.standard_track === false) {
-          experimentalFeatureIds.value.add(feature.id)
+          experimentalFeatures.add(feature.id)
         }
       }
     }
   }
 
   // Pre-compute which categories are all-experimental
+  const experimentalCategories = new Set<string>()
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
       // Check if ALL features in this category are experimental
       if (
-        category.features.every(feature =>
-          experimentalFeatureIds.value.has(feature.id)
-        )
+        category.features.every(feature => experimentalFeatures.has(feature.id))
       ) {
-        experimentalCategoryIds.value.add(category.id)
+        experimentalCategories.add(category.id)
       }
     }
   }
 
   // Pre-compute which groups are all-experimental
+  const experimentalGroups = new Set<string>()
   for (const group of pwaFeatures) {
     // Check if ALL categories in this group are experimental
     if (
       group.categories.every(category =>
-        experimentalCategoryIds.value.has(category.id)
+        experimentalCategories.has(category.id)
       )
     ) {
-      experimentalGroupIds.value.add(group.id)
+      experimentalGroups.add(group.id)
     }
   }
+
+  // Assign once, so dependent state (disabled items, previously opened categories)
+  // reacts to data that resolves after the first render
+  experimentalFeatureIds.value = experimentalFeatures
+  experimentalCategoryIds.value = experimentalCategories
+  experimentalGroupIds.value = experimentalGroups
 
   // Add keyboard shortcut listeners
   window.addEventListener('keydown', handleKeydown)
@@ -473,38 +501,16 @@ function getMdnUrl(featureId: string): string | undefined {
 }
 
 /**
- * Lightweight computed that returns pre-computed experimental feature IDs or empty set.
- * O(1) performance - just swaps Set reference based on checkbox state.
- */
-const hiddenFeatureIds = computed<Set<string>>(() =>
-  hideExperimental.value ? experimentalFeatureIds.value : new Set()
-)
-
-/**
- * Lightweight computed that returns pre-computed experimental category IDs or empty set.
- * O(1) performance - just swaps Set reference based on checkbox state.
- */
-const hiddenCategoryIds = computed<Set<string>>(() =>
-  hideExperimental.value ? experimentalCategoryIds.value : new Set()
-)
-
-/**
- * Lightweight computed that returns pre-computed experimental group IDs or empty set.
- * O(1) performance - just swaps Set reference based on checkbox state.
- */
-const hiddenGroupIds = computed<Set<string>>(() =>
-  hideExperimental.value ? experimentalGroupIds.value : new Set()
-)
-
-/**
  * Expand all categories for a given group
  */
 function expandGroupCategories(groupId: string): void {
   const group = pwaFeatures.find(g => g.id === groupId)
   if (!group) return
 
-  // Add all category IDs to openCategories array
-  const categoryIds = group.categories.map(c => c.id)
+  // Add all enabled category IDs to openCategories array
+  const categoryIds = group.categories
+    .filter(category => !hiddenCategoryIds.value.has(category.id))
+    .map(category => category.id)
   openCategories.value = [
     ...openCategories.value.filter(id => !categoryIds.includes(id)),
     ...categoryIds
@@ -545,7 +551,9 @@ const groupItems = computed(() =>
 )
 
 /**
- * Create accordion items for categories within a group with translated labels
+ * Create accordion items for categories within a group with translated labels.
+ * A category whose every feature is experimental is disabled while those features
+ * are hidden: it stays listed, closed, and not expandable.
  */
 function createCategoryItems(group: PWAFeatureGroup) {
   return group.categories.map(category => ({
@@ -553,7 +561,8 @@ function createCategoryItems(group: PWAFeatureGroup) {
     description: category.description,
     slot: category.id,
     value: category.id,
-    defaultOpen: false
+    defaultOpen: false,
+    disabled: hiddenCategoryIds.value.has(category.id)
   }))
 }
 </script>
@@ -573,11 +582,11 @@ function createCategoryItems(group: PWAFeatureGroup) {
       <!-- Options Bar -->
       <PWAFeatureBrowserOptions
         :is-all-expanded="isAllExpanded"
-        :hide-experimental="hideExperimental"
+        :show-experimental="showExperimental"
         :platform="activePlatform"
         @expand-all="expandAll"
         @collapse-all="collapseAll"
-        @toggle-hide-experimental="toggleHideExperimental"
+        @toggle-show-experimental="toggleShowExperimental"
         @update:platform="activePlatform = $event"
       />
     </div>
@@ -755,8 +764,23 @@ function createCategoryItems(group: PWAFeatureGroup) {
                     class="inline-flex items-center gap-2"
                   >
                     {{ item.label }}
+                    <!-- All-experimental group: "0" reads as missing browser support,
+                         when the truth is that nothing here counts toward the score. -->
                     <UTooltip
-                      v-if="browser.scores.groupScores[item.value]"
+                      v-if="experimentalGroupIds.has(item.value)"
+                      :text="t('features.noStableScore')"
+                    >
+                      <UBadge
+                        variant="subtle"
+                        color="neutral"
+                        :ui="{ base: 'px-[5px] py-[3px]' }"
+                      >
+                        <span aria-hidden="true">—</span>
+                        <span class="sr-only">{{ t('features.noStableScore') }}</span>
+                      </UBadge>
+                    </UTooltip>
+                    <UTooltip
+                      v-else-if="browser.scores.groupScores[item.value]"
                       :ui="{
                         content:
                           'bg-gray-900/90 dark:bg-gray-800/90 flex-col items-start h-auto'
@@ -808,10 +832,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                   #[group.id]
                 >
                   <!-- Categories within this group -->
-                  <div
-                    v-show="!hiddenGroupIds.has(group.id)"
-                    class="pl-6"
-                  >
+                  <div class="pl-6">
                     <UAccordion
                       v-model="openCategories"
                       :items="createCategoryItems(group)"
@@ -823,10 +844,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                         #[category.id]
                       >
                         <!-- Features within this category -->
-                        <div
-                          v-show="!hiddenCategoryIds.has(category.id)"
-                          class="space-y-1 pl-6 pb-3"
-                        >
+                        <div class="space-y-1 pl-6 pb-3">
                           <div
                             v-for="feature in category.features"
                             v-show="!hiddenFeatureIds.has(feature.id)"

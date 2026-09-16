@@ -58,12 +58,13 @@
     "ciuTooltip": "Voir la compatibilité navigateur sur Can I Use",
     "mdnTooltip": "Voir la documentation sur MDN Web Docs",
     "experimentalHidden": "Fonctionnalités expérimentales masquées",
-    "experimentalShown": "Fonctionnalités expérimentales affichées"
+    "experimentalShown": "Fonctionnalités expérimentales affichées",
+    "noStableScore": "Aucune fonctionnalité stable à évaluer : ce groupe est entièrement expérimental"
   },
   "options": {
     "mobile": "Mobile",
     "desktop": "Bureau",
-    "hideExperimental": "Masquer les expérimentales",
+    "showExperimental": "Afficher les expérimentales",
     "expandAll": "Tout développer",
     "collapseAll": "Tout réduire",
     "howScoresWork": "Calcul des scores"

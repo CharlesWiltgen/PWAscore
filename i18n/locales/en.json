@@ -58,12 +58,13 @@
     "ciuTooltip": "View browser compatibility on Can I Use",
     "mdnTooltip": "View documentation on MDN Web Docs",
     "experimentalHidden": "Experimental features hidden",
-    "experimentalShown": "Experimental features shown"
+    "experimentalShown": "Experimental features shown",
+    "noStableScore": "No stable features to score: this group is entirely experimental"
   },
   "options": {
     "mobile": "Mobile",
     "desktop": "Desktop",
-    "hideExperimental": "Hide Experimental",
+    "showExperimental": "Show Experimental",
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
     "howScoresWork": "How Scores Work"

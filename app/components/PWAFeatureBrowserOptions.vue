@@ -6,14 +6,14 @@ const localePath = useLocalePath()
 
 const props = defineProps<{
   isAllExpanded: boolean
-  hideExperimental: boolean
+  showExperimental: boolean
   platform: Platform
 }>()
 
 const emit = defineEmits<{
   'expandAll': []
   'collapseAll': []
-  'toggleHideExperimental': []
+  'toggleShowExperimental': []
   'update:platform': [platform: Platform]
 }>()
 
@@ -25,8 +25,8 @@ function handleToggle() {
   }
 }
 
-function handleHideExperimentalToggle() {
-  emit('toggleHideExperimental')
+function handleShowExperimentalToggle() {
+  emit('toggleShowExperimental')
 }
 
 // Disclosure panel state
@@ -36,7 +36,7 @@ const isScoresInfoOpen = ref(false)
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <!-- Left: Platform toggle + Hide Experimental -->
+      <!-- Left: Platform toggle + Show Experimental -->
       <div class="flex-1 flex items-center gap-4">
         <div class="inline-flex rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
           <button
@@ -65,9 +65,9 @@ const isScoresInfoOpen = ref(false)
           </button>
         </div>
         <UCheckbox
-          :model-value="hideExperimental"
-          :label="t('options.hideExperimental')"
-          @update:model-value="handleHideExperimentalToggle"
+          :model-value="showExperimental"
+          :label="t('options.showExperimental')"
+          @update:model-value="handleShowExperimentalToggle"
         />
       </div>
 

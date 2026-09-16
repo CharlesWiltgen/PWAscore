@@ -16,12 +16,37 @@
 
 ## Baseline (the bug this plan fixes — measured 2026-09-16, before any change)
 
-Offline probe against the current modules (`useBrowserSupport` + `manual-browser-support.json`), which the final task re-runs as the end-to-end proof:
+Offline probe against the current modules (`useBrowserSupport` + `manual-browser-support.json`) — the runnable form of the evidence above, and the exact command Final Verification step 4 re-runs:
+
+```bash
+cat > /tmp/3ek-probe.ts <<'EOF'
+import { useBrowserSupport } from '/Users/Charles/Projects/PWAscore/app/composables/useBrowserSupport'
+
+const vb = useBrowserSupport()
+await vb.loadBrowserVersions()
+
+// Before the fix every line reads `supported`: manual entries ignore the version.
+for (const version of ['10.0', '10.1', '15', '26']) {
+  await vb.loadSupportAtVersion([{ id: 'apple-pay' }], 'safari_ios', version)
+  console.log('apple-pay @ safari_ios', version, '->', vb.getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version }).safari_ios)
+}
+
+await vb.loadSupportAtVersion([{ id: 'declarative-web-push' }], 'safari_ios', '16.6')
+console.log('declarative-web-push @ safari_ios 16.6 ->', vb.getSupportAt({ browserId: 'safari_ios', featureId: 'declarative-web-push', version: '16.6' }).safari_ios)
+
+const current = vb.getSupport('apple-pay')
+console.log('apple-pay (current, sync) ->', current.safari_ios, current.safari)
+EOF
+pnpm exec jiti /tmp/3ek-probe.ts
+```
 
 ```
 apple-pay @ safari_ios 10.0 -> supported      # anchor is 10.1 → must be not-supported
+apple-pay @ safari_ios 10.1 -> supported      # at the anchor → stays supported
 apple-pay @ safari_ios 15   -> supported      # fine
+apple-pay @ safari_ios 26   -> supported      # fine
 declarative-web-push @ safari_ios 16.6 -> supported   # anchor is 18.4 → must be not-supported
+apple-pay (current, sync) -> supported supported
 ```
 
 Live production DOM (badge text read per column, "Show Experimental" on):
@@ -32,33 +57,26 @@ Live production DOM (badge text read per column, "Show Experimental" on):
 | Safari for iOS     | 18.6    | `Supported`                      | `Supported`     |
 | Chrome for Android | 153     | `Not Supported`                  | `Not Supported` |
 
-Reusable reader for the live check (scope by heading, read the row's badge):
+The badge is the row's `UBadge` (`PWAFeatureBrowser.vue:959-965`); its text comes from `getSupportLabel` → i18n `support.*` (`i18n/locales/en.json:47-50`: `Supported` / `Partial` / `Not Supported` / `Unknown`) and its Nuxt UI color from `getSupportBadgeColor` (`bg-success` / `bg-warning` / `bg-error` / `bg-neutral`). Columns render in the order Chrome, Firefox, Safari in both the mobile and desktop layouts, so the third block is the Safari column.
 
-```js
-;(() => {
-  const findRegion = (n) =>
-    [...document.querySelectorAll('section,div')].find((r) => {
-      const h = r.querySelector(':scope > h2')
-      return h && h.textContent.trim() === n
-    }) ||
-    [...document.querySelectorAll('[role=region]')].find((r) => {
-      const h = r.querySelector('h2')
-      return h && h.textContent.trim() === n
-    })
-  const read = (col, feat) => {
-    const region = findRegion(col)
-    const el = [...region.querySelectorAll('div')].find(
-      (e) => e.children.length === 0 && e.textContent.trim() === feat
-    )
-    return el
-      .closest('div.flex.items-center.justify-between')
-      .lastElementChild.textContent.trim()
-  }
-  return JSON.stringify({
-    badge: read('Safari for iOS', 'Declarative Web Push')
-  })
-})()
+Read it with the tool that already renders client state — no custom JS needed. This awk pass attributes each badge to its column (tested against the live page):
+
+```bash
+export AGENT_BROWSER_SESSION=pwa-3ek
+agent-browser read --filter "Declarative Web Push" \
+  | awk '/^## /{col=$0} /^Declarative Web Push$/{want=1; next} want && /^(Supported|Partial|Not Supported|Unknown)$/{print col" -> "$0; want=0}'
 ```
+
+Measured output, Safari for iOS at 16.6 and at 27 (2026-09-16, before any change):
+
+```
+## Chrome for Android -> Not Supported
+## Firefox for Android -> Not Supported
+## Safari for iOS -> Supported          # 16.6: anchor is 18.4 → must become Not Supported
+                                       # 27 also reads Supported today, and is correct there
+```
+
+Note the recipe's `want` flag skips the `CIU` / `MDN` link lines: path-less features (the ones this change affects) print `name → badge` directly, while BCD-backed rows print `name → CIU → MDN → badge`. Read those blocks rather than a fixed-width grep.
 
 ---
 
@@ -83,27 +101,14 @@ The composable gains a `compareVersions` import (Task 3). Both consumer test fil
 
 - [ ] **Step 1: Convert both factories to partial mocks**
 
-Change the factory signature and spread the real module. Keep every existing stub body verbatim — only the factory opening changes:
+Change **only the factory opening** in each file and spread the real module; leave every existing stub body and signature exactly as it is (the two files' stubs differ — `useBrowserSupport.test.ts` declares `getMdnBcdSupport(mdnBcdPath, _versions: BrowserVersions)`, `useVersionedBrowsers.test.ts` declares `getMdnBcdSupport(_path, versions: { safari: string })`):
 
 ```ts
 vi.mock('../utils/canIUseLoader', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../utils/canIUseLoader')>()
   return {
-    ...actual,
-    getBrowserVersions: vi.fn(async () => ({
-      chrome: '141',
-      firefox: '143',
-      safari: '18.4'
-    })),
-    getCanIUseSupport: vi.fn(
-      async (canIUseId: string, _versions: BrowserVersions) => {
-        /* unchanged */
-      }
-    ),
-    getMdnBcdSupport: vi.fn(
-      async (_path: string, versions: { safari: string }) => ({/* unchanged */})
-    ),
-    getMdnUrlFromBcd: vi.fn(async () => undefined)
+    ...actual
+    /* … each file's existing stubs, verbatim … */
   }
 })
 ```
@@ -451,12 +456,25 @@ if (manual) {
 }
 ```
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 4: Repoint the existing caching test at the cached path**
+
+The guard changes what `should cache manual support lookups` (`useBrowserSupport.test.ts:110-121`) exercises: it reads `getSupport('google-pay')` twice with no `loadBrowserVersions()` between them, so with the guard neither read writes the cache and the `toEqual` comparison passes on two independently computed objects. That test would no longer fail if manual caching broke. Update it so the cache write is actually pinned:
+
+```ts
+test('should cache manual support lookups', async () => {
+  const { getSupport, loadBrowserVersions } = useBrowserSupport()
+  await loadBrowserVersions() // required: the write only happens post-load
+  const first = getSupport('google-pay')
+  expect(getSupport('google-pay')).toBe(first) // identity, not deep equality
+})
+```
+
+- [ ] **Step 5: Verify**
 
 Run: `pnpm run test app/composables/useBrowserSupport.test.ts`
-Expected: PASS, including the existing `should cache manual support lookups` and `should return manual support for vendor-specific features` cases.
+Expected: PASS — the new case above, the updated caching case, and `should return manual support for vendor-specific features`.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add app/composables/useBrowserSupport.ts app/composables/useBrowserSupport.test.ts
@@ -471,7 +489,7 @@ No in-app caller reaches it today (`columnSupport` reads pinned versions only af
 
 **Files:** Modify `app/composables/useBrowserSupport.ts`, `app/composables/useBrowserSupport.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write the failing tests**
 
 ```ts
 test('a cold-cache pinned read honors the anchor instead of returning the raw entry', () => {
@@ -490,13 +508,35 @@ test('a cold-cache pinned read honors the anchor instead of returning the raw en
       version: '10.1'
     }).safari_ios
   ).toBe('supported')
+  // The read answers from manual data only — it must not trigger a load.
+  expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
+  expect(vi.mocked(getCanIUseSupport)).not.toHaveBeenCalled()
+})
+
+test('a pinned read does not disturb the current-version read for a path-less feature', async () => {
+  const { loadSupport, loadSupportAtVersion, getSupportAt } =
+    useBrowserSupport()
+  await loadSupport('apple-pay') // current version (defaults: safari 18.4)
+  await loadSupportAtVersion([{ id: 'apple-pay' }], 'safari_ios', '10.0')
+
+  expect(
+    getSupportAt({
+      browserId: 'safari_ios',
+      featureId: 'apple-pay',
+      version: '10.0'
+    }).safari_ios
+  ).toBe('not-supported')
+  // The unversioned key is separate and keeps the current-version answer.
+  expect(
+    getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay' }).safari_ios
+  ).toBe('supported')
 })
 ```
 
-- [ ] **Step 2: Run and confirm it fails**
+- [ ] **Step 2: Run and confirm they fail**
 
 Run: `pnpm run test app/composables/useBrowserSupport.test.ts`
-Expected: FAIL — `supported` for 10.0 (raw entry).
+Expected: FAIL — the first case reads `supported` for 10.0 (raw entry). The second case passes the versioned half (`loadSupportAtVersion` already honors via Task 3) but pins the unversioned-key separation; confirm it is green after Step 3 and report it if it fails earlier.
 
 - [ ] **Step 3: Honor the fallback**
 
@@ -539,7 +579,7 @@ git commit -m "fix(support): honor anchors on cold-cache pinned reads"
 
 ## Task 7: Dataset guards
 
-Three guards, one of which must be red first: the no-op-at-defaults invariant needs the exported constant.
+Three dataset guards. All are green on today's data by construction — they are tripwires, not behaviour tests (none can be red-first: two need `honorManualAnchors` from Task 3, and the no-op assertion holds because every anchor already clears the defaults). Their only prerequisite is exporting the constant in Step 1.
 
 **Files:** Modify `app/composables/useBrowserSupport.ts` (export), `app/data/manual-browser-support.data.test.ts`
 
@@ -568,10 +608,11 @@ const ANCHORS = [
 ] as const
 
 describe('manual-browser-support anchors', () => {
-  const entries = Object.entries(manualSupportData) as [
-    string,
-    BrowserSupport
-  ][]
+  // Cast at the source: the JSON import's inferred shape is narrower than the
+  // declared BrowserSupport fields, and this keeps the entry type usable below.
+  const entries = Object.entries(
+    manualSupportData as Record<string, BrowserSupport>
+  )
   const withAnchors = entries.flatMap(([id, entry]) =>
     ANCHORS.flatMap((anchor) => (entry[anchor] ? [{ id, entry, anchor }] : []))
   )
@@ -648,7 +689,18 @@ Expected: **no `"weighted"` lines in the diff.** `generatedAt`, `domainStart`, `
 
 - [ ] **4. Baseline probe flips**
 
-Re-run the offline probe from the Baseline section. Expected: `apple-pay @ safari_ios 10.0 -> not-supported`, `apple-pay @ safari_ios 15 -> supported`, `declarative-web-push @ safari_ios 16.6 -> not-supported`.
+Re-run the probe command from the Baseline section (`pnpm exec jiti /tmp/3ek-probe.ts`) and compare against the recorded pre-change output line by line. Expected after the fix:
+
+```
+apple-pay @ safari_ios 10.0 -> not-supported     # flipped (anchor 10.1)
+apple-pay @ safari_ios 10.1 -> supported         # unchanged (at the anchor)
+apple-pay @ safari_ios 15   -> supported         # unchanged
+apple-pay @ safari_ios 26   -> supported         # unchanged
+declarative-web-push @ safari_ios 16.6 -> not-supported   # flipped (anchor 18.4)
+apple-pay (current, sync) -> supported supported          # unchanged
+```
+
+Exactly two lines flip; a third flipped line means an anchor is being applied where it should not be.
 
 - [ ] **5. Live UI check (dev server)**
 
@@ -658,7 +710,29 @@ pnpm dev        # binds [::1]:3000 — readiness is the log banner, not a port p
 agent-browser open http://localhost:3000
 ```
 
-Then, with the "Show Experimental" checkbox checked and the Safari version selector set: the Baseline reader must return `Not Supported` at Safari iOS **17.6** and `Supported` at **18.6**; switch to Desktop and confirm `Not Supported` at **15.6** and `Supported` at **16.6**. Confirm Chrome for Android at **153** still reads `Not Supported` and that the Push API / Notification API rows are unchanged (BCD-backed). Stop the dev server when done.
+Then, with the **Show Experimental** checkbox checked and the **Notifications & Communication** group expanded (otherwise the row is not rendered):
+
+1. Set the Safari version selector to **17.6**, then read the badges with the Baseline recipe:
+
+```bash
+agent-browser read --filter "Declarative Web Push" \
+  | awk '/^## /{col=$0} /^Declarative Web Push$/{want=1; next} want && /^(Supported|Partial|Not Supported|Unknown)$/{print col" -> "$0; want=0}'
+```
+
+Expected: Chrome `Not Supported`, Firefox `Not Supported`, Safari `Not Supported`. Before the fix the Safari line reads `Supported` — that is the live red baseline measured above.
+
+2. Set the Safari selector to **18.6** and re-run. Expected Safari line: `Supported` (18.6 satisfies the 18.4 anchor).
+3. Switch to the **Desktop** layout and repeat at Safari **15.6** (`Not Supported`) and **16.6** (`Supported`). The toggle sits under the layout container, so a bare click reports `covered by <div.lg:flex-1…>` — run `agent-browser scrollintoview @<desktop-ref>` immediately before the click (the skill's overlay guidance). Switching layouts resets each column's version to its default, so re-select the version after switching. Column headings change with the layout: `Chrome for Cross-platform` / `Firefox for Cross-platform` / `Safari for macOS` (desktop) vs `Chrome for Android` / `Firefox for Android` / `Safari for iOS` (mobile); column order is Chrome, Firefox, Safari in both.
+4. Confirm the BCD-backed rows are untouched. Expectations differ per layout, measured 2026-09-16 at the same Safari version — the two layouts read different BCD keys (`safari_ios` vs `safari`):
+
+   | Layout                       | Version          | Push API    | Notification API |
+   | ---------------------------- | ---------------- | ----------- | ---------------- |
+   | Mobile (`Safari for iOS`)    | 16.6             | `Supported` | **`Partial`**    |
+   | Desktop (`Safari for macOS`) | 27 (its default) | `Supported` | `Supported`      |
+
+   `Notification API` is `Partial` on iOS because BCD's `api.Notification` for `safari_ios` carries `partial_implementation`; `Push API` has none. Both are BCD answers that manual data never reaches, so **both must be identical before and after this change** — a moved value here is a regression in resolution order, not an intended flip. Chrome for Android at **153** must still read `Not Supported` for Declarative Web Push.
+
+Screenshots are not required; the badge text is the observable. Stop the dev server when done (`hub stop dev` if it was started through hub — the repo's og-image script refuses to build while port 3000 is held).
 
 - [ ] **6. Close out**
 
@@ -679,8 +753,9 @@ Push only on explicit user authorization (repo config `no-push`).
 - "at or above the anchor → recorded level, below → not-supported" → Task 3 Step 3 (`levelAtAnchor`), asserted in Task 3 Step 1. ✓
 - "anchors only consulted for supported/partial; no anchor → version-invariant" → Task 3 Step 3 + the coherence guard in Task 7. ✓
 - "the anchor belongs to the key being read, not the brand" → Task 3 Step 1 (the `versions('11')` case splits `safari` from `safari_ios`). ✓
-- "resolution order untouched; never overrides a known BCD/CIU answer" → honored only inside `resolveSupport`'s manual branch (Task 3), with the dormant `push-api`/`notification-api` case verified in the spec. ✓
-- "current-version path unchanged" → Task 4 Step 4 (existing manual cases), Task 5 Step 4, and the no-op guard in Task 7. ✓
+- "resolution order untouched; never overrides a known BCD/CIU answer" → honored only inside `resolveSupport`'s manual branch (Task 3), with the dormant `push-api`/`notification-api` case verified in the spec — and pinned by the Final Verification step 5.4 table, which expects per-layout BCD answers (`Push API` `Supported`, `Notification API` `Partial` on iOS because `api.Notification` carries `partial_implementation`) to stay put. ✓
+- "pinned reads do not collide with current reads" → Task 6 Step 1's second case (versioned read `not-supported` while the unversioned key still answers `supported`), plus the no-load assertion on the cold-cache read. ✓
+- "current-version path unchanged" → Task 4 Step 4 (existing manual cases), Task 5 Step 4/5 (including the repointed caching test), and the no-op guard in Task 7. ✓
 - "no primary score or score-history movement" → Final Verification step 3. ✓
 - Fail-open risk → Task 2 (schema) — the finding that came out of spec review. ✓
 

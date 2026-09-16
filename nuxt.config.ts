@@ -57,10 +57,11 @@ export default defineNuxtConfig({
     baseUrl: 'https://pwascore.com',
     // Off on purpose: the module mirrors the locale of every URL it serves into
     // its cookie (server-side on /fr and its payloads, client-side on hydration),
-    // so any stray French URL load re-armed it and the next "/" visit redirected
-    // to /fr with no user action (verified from request logs, 2026-09-16). The
-    // root decision now lives in server/plugins/locale-choice.ts and honours only
-    // an explicit choice, else Accept-Language.
+    // and its client plugin then redirected root visits — so a stray French URL
+    // load changed what "/" served with no user action (verified from request
+    // logs, 2026-09-16). With detection off, "/" is English unless the visitor
+    // picked a language: server/plugins/locale-choice.ts decides that in dev,
+    // while in production "/" is a prerendered asset the Worker never sees.
     detectBrowserLanguage: false,
     locales: [
       {

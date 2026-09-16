@@ -29,7 +29,7 @@ Deltas are derived on demand from the exact machinery the feature table already 
 
 - For a release pair (v1 → v2), resolve each feature's support at **both** versions through the existing `loadSupportAtVersion` (BCD-first → CIU-fallback → manual) with the foundation's per-browser version-keyed cache.
 - Classify the transition with a pure helper (`classifyDelta(levelV1, levelV2)`), and compute Δscore via the existing `calculateBrowserScore` at each version (weighted, respects the experimental filter).
-- No new fetch: both versions resolve from the same in-memory caniuse/BCD data the page already loaded, so an expanded row costs ≤ one extra resolution pass per version, cached for subsequent rows (typical cost: ~200 features × 2 versions on first expansion, then cache hits).
+- No new fetch: both versions resolve from the same in-memory caniuse/BCD data the page already loaded, so an expanded row costs ≤ one extra resolution pass per version, cached for subsequent rows (typical cost: ~163 features × 2 versions on first expansion, then cache hits).
 
 ### Why this is consistent
 
@@ -43,7 +43,7 @@ At dated historical versions, BCD `version_added` encodes the true introduction,
 
 ## Accepted limitations (v1)
 
-- **Manual features (17 path-less, e.g. `apple-pay`, `push-api`-style overrides)** resolve to their current state at every version (per the June foundation's documented fallback). Their deltas are therefore invisible across releases — e.g. Apple Pay's true introduction in Safari 11.1 will not appear at that boundary. Honoring the `*Version` anchors in `manual-browser-support.json` is tracked separately in **`PWAscore-8ii`**; this feature is deliberately independent and documents the limitation in the UI only if a manual feature ever shows a delta (defensive copy, not expected).
+- **Manual features (17 path-less, e.g. `apple-pay`, `https-requirement`-style overrides)** resolve to their current state at every version (per the June foundation's documented fallback). Their deltas are therefore invisible across releases — e.g. Apple Pay's true introduction in Safari 11.1 will not appear at that boundary. Honoring the `*Version` anchors in `manual-browser-support.json` is tracked separately in **`PWAscore-8ii`**; this feature is deliberately independent and documents the limitation in the UI only if a manual feature ever shows a delta (defensive copy, not expected).
 - **`version_removed` is ignored** (inherited from `isVersionSupported`) — un-shipped features read as supported throughout history. Tiny set; accepted.
 - Deltas are computed for the **series in the modal** (recent majors window + current + beta, per the June design); there is no full-1970s-history browser diff.
 

@@ -44,11 +44,10 @@ function changeLocale(code: 'en' | 'fr'): void {
         >
           {{ t('nav.about') }}
         </NuxtLink>
-        <!-- prefetch={false}: Nuxt prefetches a visible link's payload, and the
-             i18n server plugin writes the i18n_redirected cookie for any
-             locale-prefixed route it serves — so prefetching /fr on an English
-             page silently re-armed French and the next load of / bounced to /fr
-             (the switch never stuck, and Chrome kept offering to translate). -->
+        <!-- :prefetch="false" is no longer load-bearing for locale correctness —
+             browser detection is off, so fetching /fr's payload cannot change the
+             remembered locale. Kept so an English page does not download the other
+             locale's payload for a link most visitors never click. -->
         <NuxtLink
           :to="switchLocalePath(otherLocale.code as 'en' | 'fr')"
           :prefetch="false"

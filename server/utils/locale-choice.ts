@@ -40,7 +40,7 @@ export function pickLocaleFromAcceptLanguage(
         index
       }
     })
-    .filter(p => p.tag && p.tag !== '*')
+    .filter(p => p.tag && p.tag !== '*' && p.quality > 0)
     .sort((a, b) => b.quality - a.quality || a.index - b.index)
 
   for (const { tag } of preferences) {

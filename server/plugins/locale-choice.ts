@@ -4,10 +4,15 @@ import { pickLocaleFromAcceptLanguage } from '../utils/locale-choice'
  * Root-path locale decision (replaces `detectBrowserLanguage.redirectOn: 'root'`).
  *
  * Only `/` is redirected, and only when the visitor has made no explicit choice:
- * the switcher records one in `public.langChoiceCookie` (see AppHeader.vue). That
- * keeps a French-language visitor landing on French, while making it impossible
- * for a stray `/fr` load (another tab, a link, a prefetched payload, a crawler) to
- * change what `/` serves — which the module's own cookie silently did.
+ * the switcher records one in `public.langChoiceCookie` (see AppHeader.vue).
+ *
+ * Deployment note: `/` is in `nitro.prerender.routes`, and Cloudflare serves
+ * `.output/public` through the assets binding before the Worker runs, so this hook
+ * only sees a production request for `/` if that routing changes (e.g.
+ * `run_worker_first = ["/"]` in wrangler.toml) or `/` stops being prerendered.
+ * Until then production serves the prerendered English `/` to everyone — French is
+ * reached via /fr URLs or the switcher, and the client no longer redirects either
+ * (detection is off), which is the part that removed the surprise redirect.
  */
 export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('request', (event) => {

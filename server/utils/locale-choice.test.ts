@@ -26,6 +26,11 @@ describe('pickLocaleFromAcceptLanguage', () => {
     expect(pickLocaleFromAcceptLanguage('*;q=1,fr;q=0.5', LOCALES, FALLBACK)).toBe('fr')
   })
 
+  test('treats q=0 as explicitly not acceptable', () => {
+    expect(pickLocaleFromAcceptLanguage('fr;q=0', LOCALES, FALLBACK)).toBe('en')
+    expect(pickLocaleFromAcceptLanguage('fr;q=0,de;q=0.9', LOCALES, FALLBACK)).toBe('en')
+  })
+
   test('is case-insensitive and tolerant of spacing and junk q-values', () => {
     expect(pickLocaleFromAcceptLanguage(' FR-FR , fr;q=nonsense', LOCALES, FALLBACK)).toBe('fr')
   })

@@ -116,17 +116,19 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 /**
- * Initialize hideExperimental from URL parameter
+ * Apply the ?hideExperimental=true URL parameter.
+ *
+ * Watches the query instead of reading it once at mount: on prerendered pages the
+ * router settles the initial URL's query a moment after this component mounts, so a
+ * mount-time read sees an empty query and silently ignores the parameter.
  */
-function initializeHideExperimental(): void {
-  const urlParam = route.query.hideExperimental
-  if (urlParam === 'true') {
-    hideExperimental.value = true
-  } else if (urlParam === 'false') {
-    hideExperimental.value = false
-  }
-  // If not specified in URL, default to false (already set)
-}
+watch(
+  () => route.query.hideExperimental,
+  (value) => {
+    hideExperimental.value = value === 'true'
+  },
+  { immediate: true }
+)
 
 /**
  * Toggle hideExperimental state and update URL
@@ -153,8 +155,6 @@ watch(hideExperimental, (newValue) => {
 
 // Load support data for all features on mount
 onMounted(async () => {
-  // Initialize hideExperimental from URL
-  initializeHideExperimental()
   const allFeatures: Array<{
     id: string
     canIUseId?: string

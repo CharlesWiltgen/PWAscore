@@ -30,7 +30,7 @@
     "update-caniuse": "node scripts/download-caniuse.mjs && pnpm run generate-score-history",
     "generate-score-history": "jiti scripts/generate-score-history.ts",
     "generate-og": "node scripts/generate-og-screenshot.mjs",
-    "deploy": "pnpm build && wrangler deploy",
+    "deploy": "pnpm build && wrangler deploy --old-asset-ttl 86400",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

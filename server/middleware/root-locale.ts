@@ -72,7 +72,17 @@ export default defineEventHandler(async (event) => {
   if (!assets) return
 
   const request = cloudflare?.request ?? new Request(url.href)
-  const response = await assets.fetch(request)
+  // A stale edge copy of the previous build's HTML references chunks that the
+  // deploy pruned (a replaced entry chunk 404s within minutes of a deploy).
+  // Delegating under a build-scoped cache key means a fresh build can never be
+  // answered from the previous build's cache entry — the query is ignored for
+  // path resolution and the visitor's URL stays `/`.
+  const buildId = String(useRuntimeConfig(event).app?.buildId ?? '')
+  const assetUrl = buildId ? new URL(request.url) : null
+  assetUrl?.searchParams.set('_b', buildId)
+  const response = await assets.fetch(
+    assetUrl ? new Request(assetUrl.toString(), request) : request
+  )
   // Fall back to the app render if the asset store cannot answer, so this can
   // never be worse than the SSR path it replaces.
   return response.ok ? response : undefined

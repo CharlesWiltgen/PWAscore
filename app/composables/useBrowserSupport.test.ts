@@ -430,6 +430,39 @@ describe('loadSupportAtVersion', () => {
         .safari_ios
     ).toBe('unknown')
   })
+
+  test('a cold-cache pinned read honors the anchor instead of returning the raw entry', () => {
+    const { getSupportAt } = useBrowserSupport()
+
+    expect(
+      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.0' })
+        .safari_ios
+    ).toBe('not-supported')
+    expect(
+      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.1' })
+        .safari_ios
+    ).toBe('supported')
+
+    // The read answers from manual data only — it must not trigger a load.
+    expect(vi.mocked(getMdnBcdSupport)).not.toHaveBeenCalled()
+    expect(vi.mocked(getCanIUseSupport)).not.toHaveBeenCalled()
+  })
+
+  test('a pinned read does not disturb the current-version read for a path-less feature', async () => {
+    const { loadSupport, loadSupportAtVersion, getSupportAt } = useBrowserSupport()
+
+    await loadSupport('apple-pay') // current version (defaults: safari 18.4)
+    await loadSupportAtVersion([{ id: 'apple-pay' }], 'safari_ios', '10.0')
+
+    expect(
+      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay', version: '10.0' })
+        .safari_ios
+    ).toBe('not-supported')
+    // The unversioned key is separate and keeps the current-version answer.
+    expect(
+      getSupportAt({ browserId: 'safari_ios', featureId: 'apple-pay' }).safari_ios
+    ).toBe('supported')
+  })
 })
 
 describe('resolveSupport — manual *Version anchors', () => {

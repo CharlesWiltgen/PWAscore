@@ -464,10 +464,17 @@ The guard changes what `should cache manual support lookups` (`useBrowserSupport
 test('should cache manual support lookups', async () => {
   const { getSupport, loadBrowserVersions } = useBrowserSupport()
   await loadBrowserVersions() // required: the write only happens post-load
+
   const first = getSupport('google-pay')
-  expect(getSupport('google-pay')).toBe(first) // identity, not deep equality
+  const second = getSupport('google-pay')
+
+  expect(first.chrome_android).toBe('supported')
+  expect(second).toStrictEqual(first)
+  expect(isReactive(second)).toBe(true) // cache hit, not a recompute
 })
 ```
+
+> **Executed correction (2026-09-16):** identity (`toBe`) does not hold here. `supportCache` is a Vue `ref`, so the first return is the raw object while a cache hit hands back its reactive proxy — measured: `toBe` failed with "serializes to the same string" while the marker check proved both reads were the same underlying entry. `isReactive(second)` is the decisive, non-mutating discriminator: a recompute returns a raw object.
 
 - [ ] **Step 5: Verify**
 

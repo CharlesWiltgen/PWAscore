@@ -374,7 +374,16 @@ export function useBrowserSupport() {
     }
     const brand = BRAND_BY_BROWSER[browserId]
     const key = versionedKey(baseKey(featureId, canIUseId, mdnBcdPath), brand, version)
-    return supportCache.value[key] ?? MANUAL_SUPPORT[featureId] ?? UNKNOWN_SUPPORT
+    const cached = supportCache.value[key]
+    if (cached) return cached
+    const manual = MANUAL_SUPPORT[featureId]
+    if (!manual) return UNKNOWN_SUPPORT
+    // Cold cache: answer for the requested version rather than the raw entry.
+    const versions = {
+      ...browserVersions.value,
+      [brand]: version
+    } as BrowserVersions
+    return honorManualAnchors(manual, versions)
   }
 
   return {

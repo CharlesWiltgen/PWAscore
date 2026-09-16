@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest'
-import { useBrowserSupport } from './useBrowserSupport'
+import { resolveSupport, useBrowserSupport } from './useBrowserSupport'
 import type { BrowserVersions } from '../utils/canIUseLoader'
 import type * as CanIUseLoader from '../utils/canIUseLoader'
 import { getMdnBcdSupport, getBrowserVersions } from '../utils/canIUseLoader'
@@ -390,5 +390,41 @@ describe('loadSupportAtVersion', () => {
       getSupportAt({ browserId: 'safari_ios', featureId: 'unloaded' })
         .safari_ios
     ).toBe('unknown')
+  })
+})
+
+describe('resolveSupport — manual *Version anchors', () => {
+  const versions = (safari: string) => ({ chrome: '141', firefox: '143', safari })
+
+  test('resolves a path-less feature against its per-browser anchor', async () => {
+    expect(
+      (await resolveSupport({ id: 'apple-pay' }, versions('10.0'), 't'))
+        .safari_ios
+    ).toBe('not-supported')
+    expect(
+      (await resolveSupport({ id: 'apple-pay' }, versions('10.1'), 't'))
+        .safari_ios
+    ).toBe('supported')
+    expect(
+      (await resolveSupport({ id: 'apple-pay' }, versions('26'), 't')).safari_ios
+    ).toBe('supported')
+  })
+
+  test('each key is compared against its own anchor, not the brand anchor', async () => {
+    // apple-pay: safari_iosVersion 10.1, safariVersion 11.1 — 11 splits them.
+    const support = await resolveSupport({ id: 'apple-pay' }, versions('11'), 't')
+    expect(support.safari).toBe('not-supported')
+    expect(support.safari_ios).toBe('supported')
+  })
+
+  test('a key without an anchor is version-invariant', async () => {
+    // viewport-control: chrome_androidVersion 18, no chromeVersion.
+    const support = await resolveSupport(
+      { id: 'viewport-control' },
+      { chrome: '10', firefox: '141', safari: '27' },
+      't'
+    )
+    expect(support.chrome).toBe('supported')
+    expect(support.chrome_android).toBe('not-supported')
   })
 })

@@ -6,6 +6,7 @@
 
 import { ref } from 'vue'
 import {
+  compareVersions,
   getCanIUseSupport,
   getMdnBcdSupport,
   getBrowserVersions,
@@ -88,6 +89,52 @@ export const BRAND_BY_BROWSER: Record<BrowserId, 'chrome' | 'firefox' | 'safari'
   firefox_android: 'firefox',
   safari: 'safari',
   safari_ios: 'safari'
+}
+
+const BROWSER_KEYS = [
+  'chrome_android',
+  'firefox_android',
+  'safari_ios',
+  'chrome',
+  'firefox',
+  'safari'
+] as const
+
+/**
+ * A recorded anchor is a hard floor, mirroring isVersionSupported's rule for a
+ * dated BCD version_added: at or above it the recorded level stands, below it
+ * the browser did not support the feature. No anchor → the level stays
+ * version-invariant. Only supported/partial carry meaning with an anchor; an
+ * anchor on any other level is data noise (guarded by a dataset test).
+ */
+export function levelAtAnchor(
+  level: SupportLevel,
+  anchor: string | undefined,
+  version: string
+): SupportLevel {
+  if (!anchor || (level !== 'supported' && level !== 'partial')) return level
+  return compareVersions(version, anchor) >= 0 ? level : 'not-supported'
+}
+
+/**
+ * Resolve a manual entry at an explicit BrowserVersions set. Each key is
+ * compared against its own anchor field (safari_iosVersion for safari_ios,
+ * safariVersion for safari) using that key's brand version — the same
+ * brand-pinning convention loadSupportAtVersion documents.
+ */
+export function honorManualAnchors(
+  entry: BrowserSupport,
+  versions: BrowserVersions
+): BrowserSupport {
+  const out = { ...entry }
+  for (const key of BROWSER_KEYS) {
+    out[key] = levelAtAnchor(
+      entry[key],
+      entry[`${key}Version`],
+      versions[BRAND_BY_BROWSER[key]]
+    )
+  }
+  return out
 }
 
 function baseKey(featureId: string, canIUseId?: string, mdnBcdPath?: string): string {
@@ -180,7 +227,8 @@ export async function resolveSupport(
     }
   }
 
-  return MANUAL_SUPPORT[feature.id] ?? UNKNOWN_SUPPORT
+  const manual = MANUAL_SUPPORT[feature.id]
+  return manual ? honorManualAnchors(manual, versions) : UNKNOWN_SUPPORT
 }
 
 /**

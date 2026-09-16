@@ -986,12 +986,21 @@ export async function getBrowserReleaseDates(
       if (Number.isNaN(majorOf(version))) continue
       const result = safeParseBcdRelease(info)
       if (!result.success || !result.data) continue
-      // Overrides make shipped-but-unpublished releases dated here too, so the
-      // build-time score history picks them up (see data/bcd-release-overrides).
-      const releaseDate
-        = releaseOverrides[browserId]?.[version]?.releaseDate
-          ?? result.data.release_date
+      // Only shipped releases belong on a timeline: BCD dates a beta/nightly
+      // entry with its *scheduled* stable date, so a date that has already passed
+      // is not evidence it shipped (Firefox 156 entered the window as a launch
+      // while getBrowserReleases still rendered it "(beta)"). The override table
+      // is the single promotion path for shipped-but-unpublished releases.
+      const override = releaseOverrides[browserId]?.[version]
+      const releaseDate = override?.releaseDate ?? result.data.release_date
       if (!releaseDate) continue
+      if (
+        !override
+        && result.data.status !== undefined
+        && UPCOMING_STATUSES.has(result.data.status)
+      ) {
+        continue
+      }
       out.push({ version, releaseDate })
     }
     return out

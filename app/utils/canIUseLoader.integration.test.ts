@@ -174,7 +174,14 @@ describe.skipIf(runIntegration !== '1')(
         for (const [browserId, versions] of Object.entries(overrides)) {
           for (const version of Object.keys(versions)) {
             const release = bcdData.browsers?.[browserId]?.releases?.[version]
-            const status = release?.status
+            if (!release) {
+              // A key upstream does not list (renamed, dropped, or typo'd here) can
+              // never match a release, so the override silently does nothing —
+              // treat it as stale rather than letting the guard pass vacuously.
+              stale.push(`${browserId} ${version} (absent from pinned BCD)`)
+              continue
+            }
+            const status = release.status
             const releasedUpstream
               = Boolean(release?.release_date)
                 && !(status !== undefined && UPCOMING_STATUS[status])

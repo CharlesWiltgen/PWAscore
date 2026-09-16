@@ -649,6 +649,12 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             browser.platformLabel
                           }}</span>
                         </span>
+                        <!-- Optical nudge on the version chip: the 24px chip is
+                             flex-centered on the name's 28px line box, but the
+                             digits have no descender (ink ~1px above the box
+                             center) and the name's perceptual mass is its
+                             x-height, ~2px below its cap center, so the chip
+                             reads high. -->
                         <USelect
                           :model-value="selectedVersion[browser.id]"
                           :items="(releasesByBrowser[browser.id] ?? []).map(r => ({
@@ -658,6 +664,7 @@ function createCategoryItems(group: PWAFeatureGroup) {
                             value: r.version
                           }))"
                           size="xs"
+                          class="relative top-[1.5px]"
                           :ui="{ content: 'w-fit min-w-(--reka-select-trigger-width) dark:ring-gray-500' }"
                           :aria-label="t('browser.versionSelect', { name: browser.name })"
                           @update:model-value="(v) => onVersionSelect(browser.id, v)"

@@ -8,12 +8,14 @@
 
 import { spawn } from 'node:child_process'
 import { writeFileSync, existsSync } from 'node:fs'
+import { createConnection } from 'node:net'
 import { join } from 'node:path'
 import puppeteer from 'puppeteer-core'
 import sharp from 'sharp'
 
 const OUTPUT_PATH = join(process.cwd(), 'public', 'og-image.png')
 const DEV_SERVER_URL = 'http://localhost:3000'
+const DEV_SERVER_PORT = 3000
 const OG_IMAGE_WIDTH = 1200
 const OG_IMAGE_HEIGHT = 630
 
@@ -35,8 +37,38 @@ function findChrome() {
   )
 }
 
+function portInUse(host) {
+  return new Promise((resolve) => {
+    const socket = createConnection({ host, port: DEV_SERVER_PORT })
+    socket.once('connect', () => {
+      socket.destroy()
+      resolve(true)
+    })
+    socket.once('error', () => resolve(false))
+    socket.setTimeout(2000, () => {
+      socket.destroy()
+      resolve(false)
+    })
+  })
+}
+
+async function assertPortFree() {
+  // Nuxt binds IPv6 localhost only, so check both stacks before trusting a miss.
+  const occupied = (await portInUse('127.0.0.1')) || (await portInUse('::1'))
+  if (occupied) {
+    throw new Error(
+      `Port ${DEV_SERVER_PORT} is already in use — stop that server first, otherwise the screenshot captures it instead of this script's own instance (its DevTools overlay ends up in og-image.png).`
+    )
+  }
+}
+
 async function startDevServer() {
   console.log('Starting dev server...')
+  // Refuse to run when something already holds the port: the script would
+  // screenshot that instance instead of its own (devtools on, different build),
+  // silently shipping a polluted og-image — seen 2026-09-16, when a running dev
+  // server left a DevTools timing pill over the Firefox card.
+  await assertPortFree()
   const server = spawn('pnpm', ['run', 'dev'], {
     detached: true,
     stdio: 'pipe',

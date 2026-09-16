@@ -1,0 +1,14 @@
+{
+  "safari": {
+    "27": {
+      "releaseDate": "2026-09-14",
+      "note": "Safari 27 shipped 2026-09-14 per BCD main (PR #30509) and its nightly artifact, but the pinned published BCD (8.1.1) still reports status beta with no release_date, so the version list renders '27 (beta)'. Remove this entry once the pinned BCD version reports 27 as released (PWAscore-4ci)."
+    }
+  },
+  "safari_ios": {
+    "27": {
+      "releaseDate": "2026-09-14",
+      "note": "Safari 27 shipped 2026-09-14 per BCD main (PR #30509) and its nightly artifact, but the pinned published BCD (8.1.1) still reports status beta with no release_date, so the version list renders '27 (beta)'. Remove this entry once the pinned BCD version reports 27 as released (PWAscore-4ci)."
+    }
+  }
+}

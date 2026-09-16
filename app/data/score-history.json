@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T15:15:21.398Z",
+  "generatedAt": "2026-09-16T15:49:34.838Z",
   "years": 5,
   "domainStart": "2021-09-16",
   "domainEnd": "2026-09-16",
@@ -677,6 +677,11 @@
       {
         "version": "26",
         "releaseDate": "2025-09-15",
+        "weighted": 87
+      },
+      {
+        "version": "27",
+        "releaseDate": "2026-09-14",
         "weighted": 87
       },
       {
@@ -1358,6 +1363,11 @@
       {
         "version": "26",
         "releaseDate": "2025-09-15",
+        "weighted": 90
+      },
+      {
+        "version": "27",
+        "releaseDate": "2026-09-14",
         "weighted": 90
       },
       {

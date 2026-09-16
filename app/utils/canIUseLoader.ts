@@ -10,6 +10,11 @@ import {
   safeParseBcdRelease,
   type CanIUseData as ValidatedCanIUseData
 } from '../schemas/canIUse'
+import bcdReleaseOverridesData from '../data/bcd-release-overrides.json'
+import {
+  validateBcdReleaseOverrides,
+  type BcdReleaseOverrides
+} from '../data/bcd-release-overrides.schema'
 
 /**
  * Features that are universally supported but not in CanIUse data-2.0.json
@@ -452,12 +457,25 @@ interface MdnBcdFeature {
   [key: string]: unknown
 }
 
-// MDN BCD CDN URL
-const MDN_BCD_URL
+// MDN BCD CDN URL. Exported as the single source of truth for the live guard in
+// canIUseLoader.integration.test.ts, so bumping the pin cannot silently leave a
+// release override behind.
+export const MDN_BCD_URL
   = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@8.1.1/data.json'
 
 // Cache version for MDN BCD
 const MDN_BCD_CACHE_VERSION = '2026-09-16'
+
+// Shipped-but-unpublished releases, applied on top of whatever BCD reports
+// (see data/bcd-release-overrides.json). A malformed file degrades to
+// upstream-only data rather than emptying every release list; the validator
+// logs the parse failure, and bcd-release-overrides.data.test.ts guards the file.
+let releaseOverrides: BcdReleaseOverrides = {}
+try {
+  releaseOverrides = validateBcdReleaseOverrides(bcdReleaseOverridesData)
+} catch {
+  // logged by the validator
+}
 
 // In-memory cache for MDN BCD data
 let mdnBcdData: unknown = null
@@ -894,10 +912,14 @@ export async function getBrowserReleases(
       if (Number.isNaN(majorOf(version))) continue // skip TP and non-numeric
       const result = safeParseBcdRelease(info)
       if (!result.success || !result.data) continue
-      const releaseDate = result.data.release_date ?? null
+      // A shipped-but-unpublished release carries its date from the override
+      // table and is never treated as upcoming (see data/bcd-release-overrides).
+      const override = releaseOverrides[browserId]?.[version]
+      const releaseDate = override?.releaseDate ?? result.data.release_date ?? null
       const upcoming
-        = releaseDate === null
-          || (result.data.status !== undefined && UPCOMING_STATUSES.has(result.data.status))
+        = !override
+          && (releaseDate === null
+            || (result.data.status !== undefined && UPCOMING_STATUSES.has(result.data.status)))
       parsed.push({ version, releaseDate, upcoming })
     }
 
@@ -963,8 +985,14 @@ export async function getBrowserReleaseDates(
     for (const [version, info] of Object.entries(rawReleases)) {
       if (Number.isNaN(majorOf(version))) continue
       const result = safeParseBcdRelease(info)
-      if (!result.success || !result.data?.release_date) continue
-      out.push({ version, releaseDate: result.data.release_date })
+      if (!result.success || !result.data) continue
+      // Overrides make shipped-but-unpublished releases dated here too, so the
+      // build-time score history picks them up (see data/bcd-release-overrides).
+      const releaseDate
+        = releaseOverrides[browserId]?.[version]?.releaseDate
+          ?? result.data.release_date
+      if (!releaseDate) continue
+      out.push({ version, releaseDate })
     }
     return out
   } catch (error) {

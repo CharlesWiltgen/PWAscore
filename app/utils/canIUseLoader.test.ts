@@ -5,6 +5,7 @@ import {
   compareVersions,
   clearCaches,
   getBrowserReleases,
+  getBrowserReleaseDates,
   windowMajorLaunchesByDate
 } from './canIUseLoader'
 import type { DatedRelease } from './canIUseLoader'
@@ -456,7 +457,7 @@ describe('getBrowserReleases', () => {
           '26.3': { release_date: '2026-02-11', status: 'retired' },
           '26.4': { release_date: '2026-03-24', status: 'current' },
           '26.5': { release_date: null, status: 'beta' },
-          '27': { release_date: null, status: 'planned' }
+          '28': { release_date: null, status: 'planned' }
         }
       }
     })
@@ -468,7 +469,7 @@ describe('getBrowserReleases', () => {
       { version: '18.5', releaseDate: '2025-05-12', channel: 'released' },
       { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
       { version: '26.5', releaseDate: null, channel: 'beta' },
-      { version: '27', releaseDate: null, channel: 'beta' }
+      { version: '28', releaseDate: null, channel: 'beta' }
     ])
 
     vi.unstubAllGlobals()
@@ -504,7 +505,7 @@ describe('getBrowserReleases', () => {
         releases: {
           26.4: { release_date: '2026-03-24', status: 'retired' },
           26.5: { release_date: '2026-05-11', status: 'current' },
-          27: { release_date: null, status: 'beta' }
+          28: { release_date: null, status: 'beta' }
         }
       }
     })
@@ -514,7 +515,7 @@ describe('getBrowserReleases', () => {
     expect(releases).toEqual([
       { version: '26.4', releaseDate: '2026-03-24', channel: 'current' },
       { version: '26.5', releaseDate: '2026-05-11', channel: 'released' },
-      { version: '27', releaseDate: null, channel: 'beta' }
+      { version: '28', releaseDate: null, channel: 'beta' }
     ])
 
     vi.unstubAllGlobals()
@@ -535,6 +536,67 @@ describe('getBrowserReleases', () => {
 
     expect(releases).toEqual([
       { version: '26.4.0', releaseDate: '2026-03-24', channel: 'current' }
+    ])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
+  test('reports a shipped-but-unpublished release as released, leaving other betas untouched', async () => {
+    // Safari 27 is still beta/undated in the pinned published BCD, so it comes
+    // from data/bcd-release-overrides.json until upstream publishes the flip.
+    stubBcd({
+      safari_ios: {
+        releases: {
+          26.6: { release_date: '2026-07-27', status: 'current' },
+          27: { release_date: null, status: 'beta' },
+          28: { release_date: null, status: 'planned' }
+        }
+      }
+    })
+
+    const releases = await getBrowserReleases('safari_ios', '26.6', 8)
+
+    expect(releases).toEqual([
+      { version: '26.6', releaseDate: '2026-07-27', channel: 'current' },
+      { version: '27', releaseDate: '2026-09-14', channel: 'released' },
+      { version: '28', releaseDate: null, channel: 'beta' }
+    ])
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+})
+
+describe('getBrowserReleaseDates', () => {
+  test('dates overridden shipped releases and skips undated ones without an override', async () => {
+    clearCaches()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          browsers: {
+            safari_ios: {
+              releases: {
+                26.6: { release_date: '2026-07-27', status: 'current' },
+                27: { release_date: null, status: 'beta' },
+                28: { release_date: null, status: 'planned' }
+              }
+            }
+          }
+        })
+      })
+    )
+
+    const dates = await getBrowserReleaseDates('safari_ios')
+
+    // Object key order puts integer-like version keys ('27', '28') before
+    // dotted ones ('26.6'), and getBrowserReleaseDates is documented unsorted,
+    // so compare by version.
+    expect([...dates].sort((a, b) => compareVersions(a.version, b.version))).toEqual([
+      { version: '26.6', releaseDate: '2026-07-27' },
+      { version: '27', releaseDate: '2026-09-14' }
     ])
 
     vi.unstubAllGlobals()

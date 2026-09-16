@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import { usePWAFeatures } from '../composables/usePWAFeatures'
+import { MDN_BCD_URL } from './canIUseLoader'
+import overridesData from '../data/bcd-release-overrides.json'
+import { validateBcdReleaseOverrides } from '../data/bcd-release-overrides.schema'
 
 const runIntegration = (globalThis as {
   process?: { env: Record<string, string | undefined> }
@@ -136,3 +139,51 @@ describe('mdnBcdPath integration (installed @mdn/browser-compat-data)', () => {
     }
   )
 })
+
+describe.skipIf(runIntegration !== '1')(
+  'BCD release overrides (live pinned BCD)',
+  () => {
+    test(
+      'no override is stale, i.e. upstream still reports every entry as unreleased',
+      { timeout: 60000 },
+      async () => {
+        // Checks the pinned BCD file itself (not the installed package) so the
+        // guard fires on the data refresh that would make an entry obsolete.
+        const response = await fetch(MDN_BCD_URL)
+        expect(response.ok).toBe(true)
+
+        const bcdData = (await response.json()) as {
+          browsers?: Record<
+            string,
+            { releases?: Record<string, { release_date?: string | null, status?: string }> }
+          >
+        }
+
+        const overrides = validateBcdReleaseOverrides(overridesData)
+        const UPCOMING_STATUS: Record<string, true> = {
+          beta: true,
+          nightly: true,
+          planned: true
+        }
+
+        // An entry exists because upstream still reports that release as
+        // beta/undated (see data/bcd-release-overrides.json). Once the pinned BCD
+        // reports it as released, the entry has done its job and must be deleted —
+        // this guard fails instead of letting the table drift from upstream.
+        const stale: string[] = []
+        for (const [browserId, versions] of Object.entries(overrides)) {
+          for (const version of Object.keys(versions)) {
+            const release = bcdData.browsers?.[browserId]?.releases?.[version]
+            const status = release?.status
+            const releasedUpstream
+              = Boolean(release?.release_date)
+                && !(status !== undefined && UPCOMING_STATUS[status])
+            if (releasedUpstream) stale.push(`${browserId} ${version}`)
+          }
+        }
+
+        expect(stale).toEqual([])
+      }
+    )
+  }
+)

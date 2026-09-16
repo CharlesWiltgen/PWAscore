@@ -160,6 +160,17 @@ Safari 27 does not yet exist as a shipping release; today both sources top out a
 
 No code change is needed when 27 arrives — it flows through the windowed-release logic automatically.
 
+### Shipped-but-unpublished releases (2026-09-16 update)
+
+The "no code change" claim above holds only once the _pinned published_ BCD carries the flip. Safari 27 shipped 2026-09-14 (BCD `main`, PR #30509) while the pinned published release (8.1.1) still reported it `beta`/undated, so the selector rendered `27 (beta)` past the ship date. BCD's nightly `next` release asset carries the flip but is unusable here: it sends no CORS headers and the version lists fetch BCD from the browser (`ClientOnly`), so pinning it empties the dropdowns (PWAscore-4ci).
+
+Accepted v1 limitation and mechanism:
+
+- `app/data/bcd-release-overrides.json` (valibot-validated, `required note` naming the removal condition) marks such releases with their ship date; `getBrowserReleases`/`getBrowserReleaseDates` apply it, so the entry shows as `released` and the build-time score history includes it.
+- An override only ever marks a release as shipped — it cannot downgrade one and does not touch feature-support data.
+- The live guard in `canIUseLoader.integration.test.ts` (`RUN_INTEGRATION=1`, weekly via `live-data.yml`) fails once the pinned BCD reports an overridden version as released, so removing the entry is part of the next pin bump rather than a silent drift.
+- The default-selected version keeps following CIU `current_version`, so Safari 27 only becomes the default once caniuse updates — unchanged from the design above.
+
 ---
 
 ## Testing

@@ -1,14 +1,17 @@
 /**
  * Download CanIUse data from GitHub
- * Saves to public/data/caniuse-data.json
+ * Saves to .cache/caniuse-data.json — deliberately outside public/, which is
+ * uploaded verbatim on deploy: this 4.7 MB snapshot is a local reference, nothing
+ * reads it at runtime, and in public/ a deploy published it at
+ * /data/caniuse-data.json (200, 2026-09-16).
  */
 
-import { writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 
 const CANIUSE_DATA_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
-const OUTPUT_PATH = join(process.cwd(), 'public', 'data', 'caniuse-data.json')
+const OUTPUT_PATH = join(process.cwd(), '.cache', 'caniuse-data.json')
 
 async function downloadCanIUseData() {
   console.log('Downloading CanIUse data from GitHub...')
@@ -27,6 +30,7 @@ async function downloadCanIUseData() {
     console.log(`Downloaded ${sizeInMB} MB`)
     console.log(`Saving to: ${OUTPUT_PATH}`)
 
+    mkdirSync(dirname(OUTPUT_PATH), { recursive: true })
     writeFileSync(OUTPUT_PATH, data, 'utf-8')
 
     console.log('✓ CanIUse data downloaded successfully')

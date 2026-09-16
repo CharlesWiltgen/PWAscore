@@ -106,6 +106,17 @@ export const FeatureStatusSchema = v.object({
   deprecated: v.boolean()
 })
 
+/**
+ * A `<browser>Version` anchor is the introduction version of a manual-data
+ * feature. It must be numeric: compareVersions coerces operator-prefixed
+ * ('≤16.4') and wildcard ('x') strings to 0, which would make every version
+ * compare above the anchor and silently disable anchor honoring.
+ */
+export const VersionAnchorSchema = v.pipe(
+  v.string(),
+  v.regex(/^\d+(\.\d+)*$/, 'must be a numeric version such as "16.4"')
+)
+
 export const BrowserSupportSchema = v.object({
   chrome_android: SupportLevelSchema,
   firefox_android: SupportLevelSchema,
@@ -114,12 +125,12 @@ export const BrowserSupportSchema = v.object({
   firefox: v.optional(SupportLevelSchema),
   safari: v.optional(SupportLevelSchema),
   status: v.optional(FeatureStatusSchema),
-  chrome_androidVersion: v.optional(v.string()),
-  firefox_androidVersion: v.optional(v.string()),
-  safari_iosVersion: v.optional(v.string()),
-  chromeVersion: v.optional(v.string()),
-  firefoxVersion: v.optional(v.string()),
-  safariVersion: v.optional(v.string())
+  chrome_androidVersion: v.optional(VersionAnchorSchema),
+  firefox_androidVersion: v.optional(VersionAnchorSchema),
+  safari_iosVersion: v.optional(VersionAnchorSchema),
+  chromeVersion: v.optional(VersionAnchorSchema),
+  firefoxVersion: v.optional(VersionAnchorSchema),
+  safariVersion: v.optional(VersionAnchorSchema)
 })
 
 export type BrowserSupportInput = v.InferOutput<typeof BrowserSupportSchema>

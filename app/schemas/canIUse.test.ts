@@ -228,6 +228,29 @@ describe('CanIUse schema validation', () => {
       expect(result.data?.chrome_androidVersion).toBe('83')
     })
 
+    test('should reject operator-prefixed and wildcard version anchors', () => {
+      const base = {
+        chrome_android: 'supported' as const,
+        firefox_android: 'supported' as const,
+        safari_ios: 'supported' as const
+      }
+
+      // compareVersions coerces '≤16.4' and 'x' to 0, which would make every
+      // version compare above the anchor and silently disable honoring.
+      expect(
+        safeParseBrowserSupport({ ...base, safari_iosVersion: '16.4' }).success
+      ).toBe(true)
+      expect(
+        safeParseBrowserSupport({ ...base, safari_iosVersion: '≤16.4' }).success
+      ).toBe(false)
+      expect(
+        safeParseBrowserSupport({ ...base, safari_iosVersion: '≥16.4' }).success
+      ).toBe(false)
+      expect(
+        safeParseBrowserSupport({ ...base, safari_iosVersion: 'x' }).success
+      ).toBe(false)
+    })
+
     test('should reject browser support with invalid support level', () => {
       const invalidSupport = {
         chrome_android: 'maybe-supported', // Invalid level

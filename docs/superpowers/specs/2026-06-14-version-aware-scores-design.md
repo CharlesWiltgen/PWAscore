@@ -47,7 +47,7 @@ This is safe because of the feature catalog's composition (verified against `app
 
 Because the loader tries BCD first and no feature depends on CIU alone, BCD's version-aware resolution covers every BCD-backed feature for every browser, including mobile Chrome/Firefox. CIU remains a fallback that only decides a value when BCD returns all-unknown. Only the 17 path-less features carry no version history (handled per Unit 2).
 
-**`current_version` reconciliation:** CIU reports Safari `current_version` = 26.4; BCD marks `safari_ios` 26.5 as `current`. We keep today's behavior — the default _selected_ version is CIU's `current_version` (via the existing `getBrowserVersions()`) — and use BCD only for the list and release dates. Any release newer than the default-selected version is badged `beta`/`preview`.
+**`current_version` reconciliation (revised 2026-09-16):** CIU's _mobile_ agents lag the vendors badly — measured `and_chr` 151 while Chrome 153 had shipped, `and_ff` 153 vs Firefox 155, `ios_saf` 26.6 while Safari 27 shipped on 2026-09-14 — so `getBrowserVersions()` now treats CIU as a floor and prefers the newest release BCD dates as shipped (the `bcd-release-overrides` table included, betas excluded). That is also what the version list offers, so the default selection is a version the app itself renders as shipped: any release still badged `beta`/`preview` is never selected by default.
 
 ---
 
@@ -169,7 +169,7 @@ Accepted v1 limitation and mechanism:
 - `app/data/bcd-release-overrides.json` (valibot-validated, `required note` naming the removal condition) marks such releases with their ship date; `getBrowserReleases`/`getBrowserReleaseDates` apply it, so the entry shows as `released` and the build-time score history includes it.
 - An override only ever marks a release as shipped — it cannot downgrade one and does not touch feature-support data.
 - The live guard in `canIUseLoader.integration.test.ts` (`RUN_INTEGRATION=1`, weekly via `live-data.yml`) fails once the pinned BCD reports an overridden version as released, so removing the entry is part of the next pin bump rather than a silent drift.
-- The default-selected version keeps following CIU `current_version`, so Safari 27 only becomes the default once caniuse updates — unchanged from the design above.
+- The default-selected version follows the shipped-release rule above, so Safari 27 became the default as soon as the override dated it (CIU's `current_version` is only a floor) — verified live 2026-09-16.
 
 ---
 

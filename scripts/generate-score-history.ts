@@ -133,7 +133,16 @@ async function main(): Promise<void> {
 
   const releaseDates = new Map<BrowserId, DatedRelease[]>()
   for (const browserId of BROWSERS) {
-    releaseDates.set(browserId, await getBrowserReleaseDates(browserId))
+    const releases = await getBrowserReleaseDates(browserId)
+    // getBrowserReleaseDates swallows fetch errors and returns [], which would
+    // otherwise collapse the series to its trailing point and be committed as
+    // data (seen 2026-09-16: a flaky jsDelivr fetch wrote 1-point series).
+    if (releases.length === 0) {
+      throw new Error(
+        `No release data for ${browserId} (likely a BCD fetch failure) — aborting without writing.`
+      )
+    }
+    releaseDates.set(browserId, releases)
   }
 
   // Anchor the window at "now" (not the newest release, which can be a future
@@ -172,11 +181,12 @@ async function main(): Promise<void> {
     console.log(
       `${browserId}: ${pts.length} points, score ${pts[0]?.weighted ?? '-'} -> ${pts.at(-1)?.weighted ?? '-'}`
     )
-    // Fail loudly: a transient fetch failure makes getBrowserReleaseDates return
-    // [] -> an empty series. Never write a silently-broken data file.
-    if (pts.length === 0) {
+    // Fail loudly: a transient fetch failure (or a window with no launches)
+    // leaves nothing but the trailing/anchor points. Never write a
+    // silently-broken data file.
+    if (pts.length <= 1) {
       throw new Error(
-        `No score-history points for ${browserId} (likely a data-fetch failure) — aborting without writing.`
+        `Score history for ${browserId} has ${pts.length} point(s) (likely a data-fetch failure) — aborting without writing.`
       )
     }
   }

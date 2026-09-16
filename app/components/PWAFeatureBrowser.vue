@@ -657,12 +657,14 @@ function createCategoryItems(group: PWAFeatureGroup) {
                              reads high. -->
                         <USelect
                           :model-value="selectedVersion[browser.id]"
-                          :items="(releasesByBrowser[browser.id] ?? []).map(r => ({
-                            label: r.channel === 'released' || r.channel === 'current'
-                              ? r.version
-                              : `${r.version} (${t('browser.channel.' + r.channel)})`,
-                            value: r.version
-                          }))"
+                          :items="[...(releasesByBrowser[browser.id] ?? [])]
+                            .reverse()
+                            .map(r => ({
+                              label: r.channel === 'released' || r.channel === 'current'
+                                ? r.version
+                                : `${r.version} (${t('browser.channel.' + r.channel)})`,
+                              value: r.version
+                            }))"
                           size="xs"
                           class="relative top-[1.5px]"
                           :ui="{ content: 'w-fit min-w-(--reka-select-trigger-width) dark:ring-gray-500' }"

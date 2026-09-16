@@ -108,6 +108,60 @@ describe('getBrowserVersions', () => {
     expect(versions.safari.length).toBeGreaterThan(0)
   })
 
+  test('prefers the newest shipped BCD release over the lagging CIU agent version', async () => {
+    clearCaches()
+    // CIU's mobile agents lag (the fixture carries and_chr 151, and_ff 153,
+    // ios_saf 26.6 while Chrome 153 / Firefox 155 had shipped and Safari 27
+    // shipped on 2026-09-14), so a dated, non-upcoming BCD release wins; a beta
+    // without a date does not.
+    const caniuseFixture = JSON.parse(loadFixture('caniuse-data.fixture.json'))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: unknown) => {
+        const url = String(input)
+        if (url.includes('Fyrd/caniuse')) {
+          return { ok: true, json: async () => caniuseFixture }
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            browsers: {
+              chrome_android: {
+                releases: {
+                  151: { release_date: '2026-08-18', status: 'retired' },
+                  153: { release_date: '2026-09-08', status: 'current' }
+                }
+              },
+              firefox_android: {
+                releases: {
+                  153: { release_date: '2026-08-04', status: 'retired' },
+                  155: { release_date: '2026-09-01', status: 'current' },
+                  158: { release_date: null, status: 'beta' }
+                }
+              },
+              safari_ios: {
+                releases: {
+                  26.6: { release_date: '2026-07-27', status: 'current' },
+                  27: { release_date: null, status: 'beta' },
+                  28: { release_date: null, status: 'planned' }
+                }
+              }
+            }
+          })
+        }
+      })
+    )
+
+    const versions = await getBrowserVersions()
+
+    // Chrome/Firefox take the newest dated release; Safari 27 comes from the
+    // shipped-but-unpublished override table, not from its beta status upstream.
+    expect(versions).toEqual({ chrome: '153', firefox: '155', safari: '27' })
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
   test('should return fallback versions on error', async () => {
     // Clear cache to ensure we test the error path
     clearCaches()

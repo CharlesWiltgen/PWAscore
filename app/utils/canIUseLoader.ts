@@ -168,48 +168,40 @@ async function loadCanIUseData(): Promise<CanIUseData> {
 }
 
 /**
- * Extract current browser versions from CanIUse data
- * Returns the latest version for each mobile browser
+ * Current (shipping) version per brand.
+ *
+ * CIU supplies a `current_version` per agent, but its mobile agents lag badly
+ * (measured 2026-09-16: `and_chr` 151 while Chrome 153 had shipped, `and_ff` 153
+ * vs Firefox 155, `ios_saf` 26.6 while Safari 27 shipped on 2026-09-14), so CIU is
+ * only a floor. The newest release BCD dates as shipped — the override table
+ * included, betas excluded (see getBrowserReleaseDates) — wins, which is also what
+ * the version list shows as selectable.
  */
 export async function getBrowserVersions(): Promise<BrowserVersions> {
   try {
     const data = await loadCanIUseData()
 
-    // Get Chrome and Firefox versions directly from agents
-    const chromeVersion = data.agents.and_chr?.current_version || '146'
-    const firefoxVersion = data.agents.and_ff?.current_version || '148'
+    const versions: BrowserVersions = {
+      chrome: data.agents.and_chr?.current_version || '146',
+      firefox: data.agents.and_ff?.current_version || '148',
+      safari: data.agents.ios_saf?.current_version || '26.3'
+    }
 
-    // For iOS Safari, use current_version directly if available (most reliable)
-    // iOS Safari uses iOS version numbers (18.x, 26.x) matching the iOS release version
-    let safariVersion = '26.3' // Fallback
-    const safariAgent = data.agents.ios_saf
-
-    if (safariAgent?.current_version) {
-      // Use the explicitly provided current version (future-proof, no hardcoded limits)
-      safariVersion = safariAgent.current_version
-    } else if (safariAgent?.version_list) {
-      // Fallback: find the highest released version
-      // Exclude ranges (containing '-') and unreleased versions (release_date === null)
-      const versions = safariAgent.version_list
-        .filter((v) => {
-          if (v.version.includes('-')) return false // Skip ranges like "18.5-18.6"
-          if (!v.release_date) return false // Skip unreleased versions (TP, future releases)
-          return true
-        })
-        .map(v => Number.parseFloat(v.version))
-        .filter(num => !Number.isNaN(num))
-
-      if (versions.length > 0) {
-        const maxVersion = Math.max(...versions)
-        safariVersion = maxVersion.toString()
+    const BRAND_BY_BROWSER_ID: Array<[keyof BrowserVersions, BrowserId]> = [
+      ['chrome', 'chrome_android'],
+      ['firefox', 'firefox_android'],
+      ['safari', 'safari_ios']
+    ]
+    for (const [brand, browserId] of BRAND_BY_BROWSER_ID) {
+      const releases = await getBrowserReleaseDates(browserId)
+      for (const release of releases) {
+        if (compareVersions(release.version, versions[brand]) > 0) {
+          versions[brand] = release.version
+        }
       }
     }
 
-    return {
-      chrome: chromeVersion,
-      firefox: firefoxVersion,
-      safari: safariVersion
-    }
+    return versions
   } catch (error) {
     console.error('[CanIUse] Error getting browser versions:', error)
     // Return fallback versions

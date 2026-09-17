@@ -6,6 +6,7 @@ import {
   clearCaches,
   getBrowserReleases,
   getBrowserReleaseDates,
+  getMdnBcdSupport,
   windowMajorLaunchesByDate
 } from './canIUseLoader'
 import type { DatedRelease } from './canIUseLoader'
@@ -343,6 +344,103 @@ describe('getMdnBcdSupport', () => {
     expect(['supported', 'partial']).toContain(support.chrome_android)
     expect(['supported', 'partial']).toContain(support.firefox_android)
     expect(['supported', 'partial']).toContain(support.safari_ios)
+  })
+})
+
+describe('getMdnBcdSupport - array support statements', () => {
+  // BCD lists per-range statements newest-first (schema: "entries applying to
+  // the most recent browser releases first"); only the statement whose range
+  // covers the queried version describes it (PWAscore-5q3).
+  function stubApi(support: Record<string, unknown>) {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          api: {
+            RangedThing: {
+              __compat: {
+                support,
+                status: {
+                  experimental: true,
+                  standard_track: false,
+                  deprecated: false
+                }
+              }
+            }
+          }
+        })
+      })
+    )
+  }
+
+  const versionsAt = (chrome: string) => ({
+    chrome,
+    firefox: '148',
+    safari: '26.3'
+  })
+
+  test('resolves from the statement whose range covers the queried version', async () => {
+    // api.Serial's shape: full since 148, partial 138-146, removed in 147.
+    stubApi({
+      chrome: [
+        { version_added: '148' },
+        {
+          version_added: '138',
+          version_removed: '147',
+          partial_implementation: true
+        }
+      ]
+    })
+
+    const at146 = await getMdnBcdSupport('api.RangedThing', versionsAt('146'))
+    expect(at146.chrome).toBe('partial')
+
+    const at148 = await getMdnBcdSupport('api.RangedThing', versionsAt('148'))
+    expect(at148.chrome).toBe('supported')
+  })
+
+  test('falls back to the newest statement when no range covers the version', async () => {
+    stubApi({
+      chrome: [
+        { version_added: '148' },
+        { version_added: '138', version_removed: '147' }
+      ]
+    })
+
+    // 130 predates every statement, so the newest entry still answers.
+    const support = await getMdnBcdSupport(
+      'api.RangedThing',
+      versionsAt('130')
+    )
+    expect(support.chrome).toBe('not-supported')
+
+    // The shape that separates the newest entry from the oldest: a newest
+    // statement with no version to range against answers 'unknown' below every
+    // statement, where the oldest would answer 'not-supported'.
+    clearCaches()
+    stubApi({ chrome: [{ version_added: null }, { version_added: '50' }] })
+    const atFive = await getMdnBcdSupport('api.RangedThing', versionsAt('5'))
+    expect(atFive.chrome).toBe('unknown')
+  })
+
+  test('does not promote prefixed or alternative-name statements into support', async () => {
+    // api.AudioContext's shape: unprefixed since 35, webkit-prefixed 14-56.
+    stubApi({
+      chrome: [
+        { version_added: '35' },
+        { prefix: 'webkit', version_added: '14', version_removed: '57' },
+        { alternative_name: 'mozRangedThing', version_added: '20' }
+      ]
+    })
+
+    // 30 is covered only by the prefixed and renamed spellings, which are not
+    // the feature itself; eligibility for those would be a separate decision.
+    const at30 = await getMdnBcdSupport('api.RangedThing', versionsAt('30'))
+    expect(at30.chrome).toBe('not-supported')
+
+    const at40 = await getMdnBcdSupport('api.RangedThing', versionsAt('40'))
+    expect(at40.chrome).toBe('supported')
   })
 })
 

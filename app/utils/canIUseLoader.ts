@@ -432,6 +432,8 @@ interface MdnBcdSupport {
     type: string
     value_to_set?: string
   }>
+  prefix?: string
+  alternative_name?: string
 }
 
 interface MdnBcdStatus {
@@ -671,12 +673,43 @@ function isVersionSupported(
   support: MdnBcdSupport | MdnBcdSupport[],
   currentVersion: string
 ): { level: SupportLevel, partial: boolean } {
-  // Handle array of support objects (multiple implementation attempts)
-  // MDN BCD can return empty arrays when no support information is available
+  // A support statement can be an array of per-range statements, newest first
+  // (BCD schema: "entries applying to the most recent browser releases first"),
+  // each possibly carrying its own version_removed. Reading the first entry
+  // alone answers for a browser's newest releases only: a statement covering
+  // the queried version can sit later in the array — api.Serial carries
+  // "since 148" then "partial 138-146" — and discarding it reported
+  // not-supported for versions BCD documents as supported (PWAscore-5q3).
+  //
+  // Statements with prefix/alternative_name describe a different spelling of
+  // the feature, so they never become newly eligible here (that would turn,
+  // say, Chrome's webkitAudioContext era into support). When no statement
+  // qualifies the newest entry still answers, preserving the prior behavior.
+  //
+  // version_removed disqualifies a statement from *selection* only: the answer
+  // itself still ignores removals, as the release-deltas spec's accepted
+  // limitations record.
   const supportData = Array.isArray(support)
-    ? support.length > 0
-      ? support[0]
-      : null
+    ? (support.find((statement) => {
+        if (
+          statement.prefix !== undefined
+          || statement.alternative_name !== undefined
+        ) {
+          return false
+        }
+        if (typeof statement.version_added !== 'string') {
+          return false
+        }
+        if (compareVersions(currentVersion, statement.version_added) < 0) {
+          return false
+        }
+        return !(
+          typeof statement.version_removed === 'string'
+          && compareVersions(currentVersion, statement.version_removed) >= 0
+        )
+      })
+      ?? support[0]
+      ?? null)
     : support
 
   // Empty arrays or null indicate no known support information

@@ -49,7 +49,12 @@ const MdnBcdSupportSchema = v.object({
   version_added: v.union([v.string(), v.boolean(), v.null()]),
   version_removed: v.optional(v.string()),
   partial_implementation: v.optional(v.boolean()),
-  flags: v.optional(v.array(MdnBcdFlagSchema))
+  flags: v.optional(v.array(MdnBcdFlagSchema)),
+  // A statement carrying either of these describes a prefixed or renamed
+  // spelling of the feature, not the feature itself; the resolver uses them to
+  // keep such statements out of version-range selection (PWAscore-5q3).
+  prefix: v.optional(v.string()),
+  alternative_name: v.optional(v.string())
 })
 
 const MdnBcdStatusSchema = v.object({

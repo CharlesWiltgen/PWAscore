@@ -40,9 +40,33 @@ logs
 # .output/public, so the repo does not carry it.
 public/og-image.png
 
-# Local harness config (omp context-file discovery). Kept out of the repo by
-# request: harness/agent configuration is machine-local, not project source.
+# LLM infra — local only, never part of the project. Rule files, harness config,
+# tool indexes and MCP servers stay out of the repo regardless of which tool
+# writes them. If one slips in tracked, `git rm --cached` it and add a line here.
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+*.local.md
 .omp/
+.claude/
+.ck/
+.ckignore
+.cursor/
+.cursorrules
+.codex/
+.gemini/
+.opencode/
+.windsurf/
+.cline/
+.agent/
+.agents/
+.continue/
+.aider.conf.yml
+.specstory/
+mcp.json
+.mcp.json
+.vscode/mcp.json
+.github/copilot-instructions.md
 
 # Task tracking files (personal notes, not part of project)
 /*.md

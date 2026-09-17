@@ -12,6 +12,22 @@ import type { DatedRelease } from './canIUseLoader'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+// The release-override table ships EMPTY (PWAscore-4ci deleted its last entry
+// once the pinned BCD began reporting Safari 27 as released). The loader reads
+// the table once at module load, so these tests — which cover the override
+// mechanism — pin a frozen table instead of depending on whatever the live file
+// happens to contain.
+vi.mock('../data/bcd-release-overrides.json', () => ({
+  default: {
+    safari_ios: {
+      27: {
+        releaseDate: '2026-09-14',
+        note: 'test fixture for the override mechanism; remove this entry when this file stops covering it'
+      }
+    }
+  }
+}))
+
 // Deterministic fixtures: frozen snapshots of caniuse data-2.0.json (2026-08-24)
 // and MDN BCD 8.1.0, so tests never depend on live upstream data (PWAscore-3o4).
 function loadFixture(name: string): string {
@@ -157,8 +173,9 @@ describe('getBrowserVersions', () => {
 
     const versions = await getBrowserVersions()
 
-    // Chrome/Firefox take the newest dated release; Safari 27 comes from the
-    // shipped-but-unpublished override table, not from its beta status upstream.
+    // Chrome/Firefox take the newest dated release; Safari 27 is dated by the
+    // override-table fixture at the top of this file, not by its beta status
+    // upstream.
     expect(versions).toEqual({ chrome: '153', firefox: '155', safari: '27' })
 
     vi.unstubAllGlobals()
@@ -600,8 +617,8 @@ describe('getBrowserReleases', () => {
   })
 
   test('reports a shipped-but-unpublished release as released, leaving other betas untouched', async () => {
-    // Safari 27 is still beta/undated in the pinned published BCD, so it comes
-    // from data/bcd-release-overrides.json until upstream publishes the flip.
+    // Safari 27 is beta/undated in this stub, so it comes from the
+    // override-table fixture at the top of this file.
     stubBcd({
       safari_ios: {
         releases: {

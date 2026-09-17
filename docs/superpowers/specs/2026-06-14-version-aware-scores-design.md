@@ -160,7 +160,7 @@ Safari 27 does not yet exist as a shipping release; today both sources top out a
 
 No code change is needed when 27 arrives — it flows through the windowed-release logic automatically.
 
-### Shipped-but-unpublished releases (2026-09-16 update)
+### Shipped-but-unpublished releases (2026-09-16, resolved 2026-09-17)
 
 The "no code change" claim above holds only once the _pinned published_ BCD carries the flip. Safari 27 shipped 2026-09-14 (BCD `main`, PR #30509) while the pinned published release (8.1.1) still reported it `beta`/undated, so the selector rendered `27 (beta)` past the ship date. BCD's nightly `next` release asset carries the flip but is unusable here: it sends no CORS headers and the version lists fetch BCD from the browser (`ClientOnly`), so pinning it empties the dropdowns (PWAscore-4ci).
 
@@ -170,6 +170,8 @@ Accepted v1 limitation and mechanism:
 - An override only ever marks a release as shipped — it cannot downgrade one and does not touch feature-support data.
 - The live guard in `canIUseLoader.integration.test.ts` (`RUN_INTEGRATION=1`, weekly via `live-data.yml`) fails once the pinned BCD reports an overridden version as released, so removing the entry is part of the next pin bump rather than a silent drift.
 - The default-selected version follows the shipped-release rule above, so Safari 27 became the default as soon as the override dated it (CIU's `current_version` is only a floor) — verified live 2026-09-16.
+
+**Resolution (2026-09-17, PWAscore-4ci):** the next published BCD (8.1.2) carries both flips, so the CDN pin moved to 8.1.2, the cache-version keys to 2026-09-17, and `bcd-release-overrides.json` is empty again. 8.1.2 reports `safari`/`safari_ios` 27 as `current` dated 2026-09-14 and Firefox 156 as `current` dated 2026-09-15 (155 retired), so the pin alone now drives what the table used to. The regenerated score history ends `firefox`/`firefox_android` at 156 and keeps `safari`/`safari_ios` 27 at the same trailing scores as the override produced (87 iOS, 90 desktop) — the override and upstream agreed on support data. The mechanism stays: it is the single promotion path for the next shipped-but-unpublished release. Its tests now mock the table with a frozen fixture, because the live file is empty and the loader reads it once at module load.
 
 ---
 

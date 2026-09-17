@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-09-16T16:56:50.974Z",
+  "generatedAt": "2026-09-17T16:26:39.134Z",
   "years": 5,
-  "domainStart": "2021-09-16",
-  "domainEnd": "2026-09-16",
+  "domainStart": "2021-09-17",
+  "domainEnd": "2026-09-17",
   "series": {
     "chrome_android": [
       {
         "version": "93",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 94
       },
       {
@@ -307,14 +307,14 @@
       },
       {
         "version": "153",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-17",
         "weighted": 96
       }
     ],
     "firefox_android": [
       {
         "version": "92",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 84
       },
       {
@@ -629,14 +629,19 @@
       },
       {
         "version": "155",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-01",
+        "weighted": 89
+      },
+      {
+        "version": "156",
+        "releaseDate": "2026-09-17",
         "weighted": 89
       }
     ],
     "safari_ios": [
       {
         "version": "14.5",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 70
       },
       {
@@ -666,14 +671,14 @@
       },
       {
         "version": "27",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-17",
         "weighted": 87
       }
     ],
     "chrome": [
       {
         "version": "93",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 97
       },
       {
@@ -973,14 +978,14 @@
       },
       {
         "version": "153",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-17",
         "weighted": 100
       }
     ],
     "firefox": [
       {
         "version": "92",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 73
       },
       {
@@ -1295,14 +1300,19 @@
       },
       {
         "version": "155",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-01",
+        "weighted": 79
+      },
+      {
+        "version": "156",
+        "releaseDate": "2026-09-17",
         "weighted": 79
       }
     ],
     "safari": [
       {
         "version": "14.1",
-        "releaseDate": "2021-09-16",
+        "releaseDate": "2021-09-17",
         "weighted": 64
       },
       {
@@ -1332,7 +1342,7 @@
       },
       {
         "version": "27",
-        "releaseDate": "2026-09-16",
+        "releaseDate": "2026-09-17",
         "weighted": 90
       }
     ]

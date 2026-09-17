@@ -81,7 +81,7 @@ Of the 19 anchors in `manual-browser-support.json`, four intersect a selectable 
 | `push-api`             | `safari_ios` | 16.4   | 13.4, 14.5, 15.6                     | yes (w2)          | none — BCD answers first            |
 | `notification-api`     | `safari_ios` | 16.4   | 13.4, 14.5, 15.6                     | yes (w2)          | none — BCD answers first            |
 
-The two BCD-backed rows are dormant by measurement, not assumption: the pinned `@mdn/browser-compat-data@8.1.1` reports `api.PushManager.__compat.support.safari_ios.version_added = "16.4"` (and `api.Notification` the same), so `resolveSupport` returns the BCD answer before the manual branch is reached. The manual anchors mirror BCD's own introduction versions — corroborating the anchor semantics above.
+The two BCD-backed rows are dormant by measurement, not assumption: the pinned `@mdn/browser-compat-data@8.1.2` reports `api.PushManager.__compat.support.safari_ios.version_added = "16.4"` (and `api.Notification` the same), so `resolveSupport` returns the BCD answer before the manual branch is reached. The manual anchors mirror BCD's own introduction versions — corroborating the anchor semantics above.
 
 Every other anchor (Chrome/Firefox 4–84, Safari 3.1–11.1) sits below the last-8-majors floor (Chrome ≥ 146, Firefox ≥ 148), so it changes nothing today; anchors become load-bearing the moment a path-less feature records a recent one.
 
@@ -90,7 +90,7 @@ Consequences, all verifiable:
 - **Row levels:** Declarative Web Push in the Safari columns at the versions above — visible only with "Show Experimental" checked.
 - **"Full" scores** (`weightedFull`/`unweightedFull`, the tooltip numbers): shift for Safari at those versions by the feature's 0.5 weight, since the full accumulator includes experimental features. The **primary** `weighted`/`unweighted` scores, group badges, and headline numbers are untouched.
 - **Score history:** `pnpm generate-score-history` must reproduce `app/data/score-history.json` with no value changes (only `generatedAt`) — the series uses `.weighted`, and the only in-window anchors belong to an experimental feature or are BCD-covered. If a value moves, the anchor set changed and the diff belongs in the commit.
-- **Release deltas (post-`PWAscore-vbd`):** the modal's release rows step by selector version, so Safari iOS **17.6 → 18.6** and desktop Safari **15.6 → 16.6** gain an "added Declarative Web Push" row — the first genuine manual-feature delta, and exactly the case the deltas spec's accepted-limitation copy currently suppresses.
+- **Release deltas (post-`PWAscore-vbd`):** the modal's release rows are the precomputed series majors, so Safari iOS **18 → 26** and desktop Safari **15 → 16** gain an "added Declarative Web Push" row — the first genuine manual-feature delta, and exactly the case the deltas spec's accepted-limitation copy currently suppresses. (The selector's patch list would put the same flip at 17.6 → 18.6 / 15.6 → 16.6; that is the contingency if the deltas work switches the modal to the selector list — see the measured note in the deltas spec.)
 
 ---
 

@@ -40,6 +40,10 @@ logs
 # .output/public, so the repo does not carry it.
 public/og-image.png
 
+# Local harness config (omp context-file discovery). Kept out of the repo by
+# request: harness/agent configuration is machine-local, not project source.
+.omp/
+
 # Task tracking files (personal notes, not part of project)
 /*.md
 !README.md

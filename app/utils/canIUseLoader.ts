@@ -195,7 +195,11 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
     for (const [brand, browserId] of BRAND_BY_BROWSER_ID) {
       const releases = await getBrowserReleaseDates(browserId)
       for (const release of releases) {
-        if (compareVersions(release.version, versions[brand]) > 0) {
+        // `>=` (not `>`): on a semantic tie prefer the release's label. caniuse
+        // names iOS Safari releases x.y (`27.0`) while BCD names the same
+        // release `27`, and the selector marks its option selected by value
+        // equality against the BCD-built option list (PWAscore-mud).
+        if (compareVersions(release.version, versions[brand]) >= 0) {
           versions[brand] = release.version
         }
       }
@@ -265,6 +269,17 @@ function findBrowserVersion(
   const exactMatch = stats[targetVersion]
   if (exactMatch) {
     return exactMatch
+  }
+
+  // A major-only target may live under an x.y key: caniuse names iOS Safari
+  // releases `27.0` while BCD names the same release `27`. Probe the `.0` form
+  // before the fallbacks below, which only run for dotted targets
+  // (PWAscore-mud).
+  if (!targetVersion.includes('.')) {
+    const dottedMatch = stats[`${targetVersion}.0`]
+    if (dottedMatch) {
+      return dottedMatch
+    }
   }
 
   // For Safari fractional versions (18.4), try major version (18)

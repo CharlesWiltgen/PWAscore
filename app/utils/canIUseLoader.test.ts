@@ -183,6 +183,79 @@ describe('getBrowserVersions', () => {
     clearCaches()
   })
 
+  test('prefers the BCD release label when the CIU version is the same release in x.y form', async () => {
+    clearCaches()
+    // Regression (PWAscore-mud): caniuse names iOS Safari `27.0` while BCD
+    // names it `27`. The selector model must match the option values (BCD
+    // labels), or the trigger prints a label no option carries and no option
+    // is marked selected; the tie must resolve to `27`.
+    const caniuse27 = JSON.parse(loadFixture('caniuse-data.fixture.json'))
+    caniuse27.agents.ios_saf.current_version = '27.0'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: unknown) => {
+        const url = String(input)
+        if (url.includes('Fyrd/caniuse')) {
+          return { ok: true, json: async () => caniuse27 }
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            browsers: {
+              safari_ios: {
+                releases: {
+                  26.6: { release_date: '2026-07-27', status: 'current' },
+                  27: { release_date: '2026-09-14', status: 'current' }
+                }
+              }
+            }
+          })
+        }
+      })
+    )
+
+    const versions = await getBrowserVersions()
+    expect(versions.safari).toBe('27')
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
+  test('keeps a CIU version that is ahead of every dated BCD release', async () => {
+    clearCaches()
+    // Only exact ties are relabelled: when caniuse is genuinely ahead of the
+    // pinned BCD, its version is the newest shipped one and its label wins.
+    const caniuse28 = JSON.parse(loadFixture('caniuse-data.fixture.json'))
+    caniuse28.agents.ios_saf.current_version = '28.0'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: unknown) => {
+        const url = String(input)
+        if (url.includes('Fyrd/caniuse')) {
+          return { ok: true, json: async () => caniuse28 }
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            browsers: {
+              safari_ios: {
+                releases: {
+                  27: { release_date: '2026-09-14', status: 'current' }
+                }
+              }
+            }
+          })
+        }
+      })
+    )
+
+    const versions = await getBrowserVersions()
+    expect(versions.safari).toBe('28.0')
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
+
   test('should return fallback versions on error', async () => {
     // Clear cache to ensure we test the error path
     clearCaches()
@@ -260,6 +333,37 @@ describe('getCanIUseSupport', () => {
     expect(support.chrome_android).toBe('supported')
     expect(support.firefox_android).toBe('supported')
     expect(support.safari_ios).toBe('supported')
+  })
+
+  test('resolves a major-only target through the x.y key (iOS Safari 27 -> 27.0)', async () => {
+    clearCaches()
+    // Regression (PWAscore-mud): after the label tie resolution the loader
+    // passes BCD's `27`, but caniuse's ios_saf stats key the release `27.0`
+    // (and carry no TP key), so without the probe every caniuse-resolved iOS
+    // feature read Unknown when the major-only option was selected. Desktop
+    // safari keys `27` directly — assert both paths.
+    const caniuseWithDotted = JSON.parse(
+      loadFixture('caniuse-data.fixture.json')
+    )
+    caniuseWithDotted.data['mud-probe'] = {
+      stats: { ios_saf: { '27.0': 'y' }, safari: { 27: 'a #1' } }
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, json: async () => caniuseWithDotted }))
+    )
+
+    const support = await getCanIUseSupport('mud-probe', {
+      chrome: '155',
+      firefox: '157',
+      safari: '27'
+    })
+
+    expect(support.safari_ios).toBe('supported')
+    expect(support.safari).toBe('partial')
+
+    vi.unstubAllGlobals()
+    clearCaches()
   })
 })
 

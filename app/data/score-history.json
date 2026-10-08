@@ -1,18 +1,13 @@
 {
-  "generatedAt": "2026-09-17T16:47:31.521Z",
+  "generatedAt": "2026-10-08T16:02:59.743Z",
   "years": 5,
-  "domainStart": "2021-09-17",
-  "domainEnd": "2026-09-17",
+  "domainStart": "2021-10-08",
+  "domainEnd": "2026-10-08",
   "series": {
     "chrome_android": [
       {
-        "version": "93",
-        "releaseDate": "2021-09-17",
-        "weighted": 94
-      },
-      {
         "version": "94",
-        "releaseDate": "2021-09-21",
+        "releaseDate": "2021-10-08",
         "weighted": 94
       },
       {
@@ -307,19 +302,24 @@
       },
       {
         "version": "153",
-        "releaseDate": "2026-09-17",
+        "releaseDate": "2026-09-08",
+        "weighted": 96
+      },
+      {
+        "version": "154",
+        "releaseDate": "2026-09-22",
+        "weighted": 96
+      },
+      {
+        "version": "155",
+        "releaseDate": "2026-10-08",
         "weighted": 96
       }
     ],
     "firefox_android": [
       {
-        "version": "92",
-        "releaseDate": "2021-09-17",
-        "weighted": 84
-      },
-      {
         "version": "93",
-        "releaseDate": "2021-10-05",
+        "releaseDate": "2021-10-08",
         "weighted": 84
       },
       {
@@ -634,19 +634,19 @@
       },
       {
         "version": "156",
-        "releaseDate": "2026-09-17",
+        "releaseDate": "2026-09-15",
+        "weighted": 89
+      },
+      {
+        "version": "157",
+        "releaseDate": "2026-10-08",
         "weighted": 89
       }
     ],
     "safari_ios": [
       {
-        "version": "14.5",
-        "releaseDate": "2021-09-17",
-        "weighted": 71
-      },
-      {
         "version": "15",
-        "releaseDate": "2021-09-20",
+        "releaseDate": "2021-10-08",
         "weighted": 72
       },
       {
@@ -671,19 +671,19 @@
       },
       {
         "version": "27",
-        "releaseDate": "2026-09-17",
+        "releaseDate": "2026-09-14",
+        "weighted": 87
+      },
+      {
+        "version": "27.0",
+        "releaseDate": "2026-10-08",
         "weighted": 87
       }
     ],
     "chrome": [
       {
-        "version": "93",
-        "releaseDate": "2021-09-17",
-        "weighted": 98
-      },
-      {
         "version": "94",
-        "releaseDate": "2021-09-21",
+        "releaseDate": "2021-10-08",
         "weighted": 98
       },
       {
@@ -978,346 +978,351 @@
       },
       {
         "version": "153",
-        "releaseDate": "2026-09-17",
+        "releaseDate": "2026-09-08",
+        "weighted": 100
+      },
+      {
+        "version": "154",
+        "releaseDate": "2026-09-22",
+        "weighted": 100
+      },
+      {
+        "version": "155",
+        "releaseDate": "2026-10-08",
         "weighted": 100
       }
     ],
     "firefox": [
       {
-        "version": "92",
-        "releaseDate": "2021-09-17",
-        "weighted": 73
-      },
-      {
         "version": "93",
-        "releaseDate": "2021-10-05",
-        "weighted": 73
+        "releaseDate": "2021-10-08",
+        "weighted": 74
       },
       {
         "version": "94",
         "releaseDate": "2021-11-02",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "95",
         "releaseDate": "2021-12-07",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "96",
         "releaseDate": "2022-01-11",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "97",
         "releaseDate": "2022-02-08",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "98",
         "releaseDate": "2022-03-08",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "99",
         "releaseDate": "2022-04-05",
-        "weighted": 73
+        "weighted": 74
       },
       {
         "version": "100",
         "releaseDate": "2022-05-03",
-        "weighted": 74
+        "weighted": 75
       },
       {
         "version": "101",
         "releaseDate": "2022-05-31",
-        "weighted": 74
+        "weighted": 75
       },
       {
         "version": "102",
         "releaseDate": "2022-06-28",
-        "weighted": 75
+        "weighted": 76
       },
       {
         "version": "103",
         "releaseDate": "2022-07-26",
-        "weighted": 75
+        "weighted": 76
       },
       {
         "version": "104",
         "releaseDate": "2022-08-23",
-        "weighted": 75
+        "weighted": 76
       },
       {
         "version": "105",
         "releaseDate": "2022-09-20",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "106",
         "releaseDate": "2022-10-18",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "107",
         "releaseDate": "2022-11-15",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "108",
         "releaseDate": "2022-12-13",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "109",
         "releaseDate": "2023-01-17",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "110",
         "releaseDate": "2023-02-14",
-        "weighted": 75
+        "weighted": 77
       },
       {
         "version": "111",
         "releaseDate": "2023-03-14",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "112",
         "releaseDate": "2023-04-11",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "113",
         "releaseDate": "2023-05-09",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "114",
         "releaseDate": "2023-06-06",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "115",
         "releaseDate": "2023-07-04",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "116",
         "releaseDate": "2023-08-01",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "117",
         "releaseDate": "2023-08-29",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "118",
         "releaseDate": "2023-09-26",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "119",
         "releaseDate": "2023-10-24",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "120",
         "releaseDate": "2023-11-21",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "121",
         "releaseDate": "2023-12-19",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "122",
         "releaseDate": "2024-01-23",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "123",
         "releaseDate": "2024-02-20",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "124",
         "releaseDate": "2024-03-19",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "125",
         "releaseDate": "2024-04-16",
-        "weighted": 76
+        "weighted": 77
       },
       {
         "version": "126",
         "releaseDate": "2024-05-14",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "127",
         "releaseDate": "2024-06-11",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "128",
         "releaseDate": "2024-07-09",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "129",
         "releaseDate": "2024-08-06",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "130",
         "releaseDate": "2024-09-03",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "131",
         "releaseDate": "2024-10-01",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "132",
         "releaseDate": "2024-10-29",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "133",
         "releaseDate": "2024-11-26",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "134",
         "releaseDate": "2025-01-07",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "135",
         "releaseDate": "2025-02-04",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "136",
         "releaseDate": "2025-03-04",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "137",
         "releaseDate": "2025-04-01",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "138",
         "releaseDate": "2025-04-29",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "139",
         "releaseDate": "2025-05-27",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "140",
         "releaseDate": "2025-06-24",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "141",
         "releaseDate": "2025-07-22",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "142",
         "releaseDate": "2025-08-19",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "143",
         "releaseDate": "2025-09-16",
-        "weighted": 77
+        "weighted": 78
       },
       {
         "version": "144",
         "releaseDate": "2025-10-14",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "145",
         "releaseDate": "2025-11-11",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "146",
         "releaseDate": "2025-12-09",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "147",
         "releaseDate": "2026-01-13",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "148",
         "releaseDate": "2026-02-24",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "149",
         "releaseDate": "2026-03-24",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "150",
         "releaseDate": "2026-04-21",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "151",
         "releaseDate": "2026-05-19",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "152",
         "releaseDate": "2026-06-16",
-        "weighted": 78
+        "weighted": 79
       },
       {
         "version": "153",
         "releaseDate": "2026-07-21",
-        "weighted": 79
+        "weighted": 80
       },
       {
         "version": "154",
         "releaseDate": "2026-08-18",
-        "weighted": 79
+        "weighted": 80
       },
       {
         "version": "155",
         "releaseDate": "2026-09-01",
-        "weighted": 79
+        "weighted": 80
       },
       {
         "version": "156",
-        "releaseDate": "2026-09-17",
-        "weighted": 79
+        "releaseDate": "2026-09-15",
+        "weighted": 80
+      },
+      {
+        "version": "157",
+        "releaseDate": "2026-10-08",
+        "weighted": 80
       }
     ],
     "safari": [
       {
-        "version": "14.1",
-        "releaseDate": "2021-09-17",
-        "weighted": 64
-      },
-      {
         "version": "15",
-        "releaseDate": "2021-09-20",
+        "releaseDate": "2021-10-08",
         "weighted": 64
       },
       {
@@ -1342,7 +1347,12 @@
       },
       {
         "version": "27",
-        "releaseDate": "2026-09-17",
+        "releaseDate": "2026-09-14",
+        "weighted": 90
+      },
+      {
+        "version": "27.0",
+        "releaseDate": "2026-10-08",
         "weighted": 90
       }
     ]

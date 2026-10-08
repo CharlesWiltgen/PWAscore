@@ -449,6 +449,50 @@ describe('getMdnBcdSupport', () => {
     expect(['supported', 'partial']).toContain(support.firefox_android)
     expect(['supported', 'partial']).toContain(support.safari_ios)
   })
+
+  test('treats a preview version_added as not supported at any version', async () => {
+    clearCaches()
+    // Regression (PWAscore-tbl): BCD 8.1.5 dropped the pref flags from the
+    // firefox SpeechRecognition entries, leaving a bare
+    // {version_added: 'preview'}. compareVersions coerces 'preview' to 0, which
+    // reported support at every version; preview builds are not stable
+    // releases, so the answer must be not-supported.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          api: {
+            PreviewThing: {
+              __compat: {
+                support: {
+                  firefox: { version_added: 'preview' },
+                  safari: { version_added: true }
+                },
+                status: {
+                  experimental: false,
+                  standard_track: true,
+                  deprecated: false
+                }
+              }
+            }
+          }
+        })
+      })
+    )
+
+    const support = await getMdnBcdSupport('api.PreviewThing', {
+      chrome: '155',
+      firefox: '157',
+      safari: '27'
+    })
+
+    expect(support.firefox).toBe('not-supported')
+    expect(support.safari).toBe('supported')
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
 })
 
 describe('getMdnBcdSupport - array support statements', () => {

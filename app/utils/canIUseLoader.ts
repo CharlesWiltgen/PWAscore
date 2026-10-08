@@ -753,6 +753,14 @@ function isVersionSupported(
     return { level: 'unknown', partial: false }
   }
 
+  // BCD's `preview` marks a feature that ships only in preview builds (Safari
+  // TP, Firefox preview builds) — no stable release has it, so it must not
+  // score. compareVersions coerces the non-numeric string to 0, which would
+  // report support at every version (PWAscore-tbl).
+  if (supportData.version_added === 'preview') {
+    return { level: 'not-supported', partial: false }
+  }
+
   // Compare versions (simple string comparison works for most cases)
   // Safari uses iOS versions like "16.4", Chrome uses "83", etc.
   const requiredVersion = supportData.version_added as string

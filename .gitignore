@@ -6,6 +6,10 @@
 .cache
 dist
 
+# SonarQube local scan artifacts
+coverage/
+.scannerwork/
+
 # Wrangler/Cloudflare Workers
 .wrangler
 

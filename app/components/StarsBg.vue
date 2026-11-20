@@ -73,6 +73,7 @@ const starLayers = computed(() => [
       viewBox="0 0 1017 181"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <g opacity="0.5">
         <mask

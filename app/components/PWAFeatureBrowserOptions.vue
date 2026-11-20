@@ -122,9 +122,8 @@ const isScoresInfoOpen = ref(false)
       class="mb-6"
     >
       <template #content>
-        <div
+        <section
           id="scores-info-content"
-          role="region"
           aria-labelledby="scores-info-button"
           class="px-4 py-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800"
         >
@@ -152,7 +151,7 @@ const isScoresInfoOpen = ref(false)
             >
               {{ t('scoresInfo.aboutPage') }} </NuxtLink>.
           </p>
-        </div>
+        </section>
       </template>
     </UCollapsible>
   </div>

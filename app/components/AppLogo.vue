@@ -1,11 +1,13 @@
 <template>
   <svg
+    role="img"
     width="1020"
     height="200"
     viewBox="0 0 1020 200"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
+    <title>PWAscore</title>
     <path
       d="M377 200C379.16 200 381 198.209 381 196V103C381 103 386 112 395 127L434 194C435.785 197.74 439.744 200 443 200H470V50H443C441.202 50 439 51.4941 439 54V148L421 116L385 55C383.248 51.8912 379.479 50 376 50H350V200H377Z"
       fill="currentColor"

@@ -192,8 +192,13 @@ export async function getBrowserVersions(): Promise<BrowserVersions> {
       ['firefox', 'firefox_android'],
       ['safari', 'safari_ios']
     ]
-    for (const [brand, browserId] of BRAND_BY_BROWSER_ID) {
-      const releases = await getBrowserReleaseDates(browserId)
+    const releasesByBrand = await Promise.all(
+      BRAND_BY_BROWSER_ID.map(async ([brand, browserId]) => ({
+        brand,
+        releases: await getBrowserReleaseDates(browserId)
+      }))
+    )
+    for (const { brand, releases } of releasesByBrand) {
       for (const release of releases) {
         // `>=` (not `>`): on a semantic tie prefer the release's label. caniuse
         // names iOS Safari releases x.y (`27.0`) while BCD names the same
@@ -253,6 +258,30 @@ function parseStatus(status: string | undefined): SupportLevel {
   }
 }
 
+function findRangeMatch(
+  stats: Record<string, string>,
+  targetMajor: number
+): string | undefined {
+  for (const [versionKey, support] of Object.entries(stats)) {
+    if (!versionKey.includes('-')) continue
+    const [rangeStart, rangeEnd] = versionKey
+      .split('-')
+      .map(v => Number.parseFloat(v))
+    if (
+      rangeStart === undefined
+      || rangeEnd === undefined
+      || Number.isNaN(rangeStart)
+      || Number.isNaN(rangeEnd)
+    ) {
+      continue
+    }
+    if (targetMajor >= rangeStart && targetMajor <= rangeEnd) {
+      return support
+    }
+  }
+  return undefined
+}
+
 /**
  * Find best matching browser version
  * For Safari 18.4, try: 18.4, then 18, then version ranges (18.5-18.6), then TP (tech preview)
@@ -293,23 +322,9 @@ function findBrowserVersion(
     // Try to find a version range that contains the target version
     // iOS Safari uses ranges like "18.5-18.6"
     const targetMajor = Number.parseFloat(targetVersion)
-    for (const [versionKey, support] of Object.entries(stats)) {
-      if (versionKey.includes('-')) {
-        const [rangeStart, rangeEnd] = versionKey
-          .split('-')
-          .map(v => Number.parseFloat(v))
-        if (
-          rangeStart !== undefined
-          && rangeEnd !== undefined
-          && !Number.isNaN(rangeStart)
-          && !Number.isNaN(rangeEnd)
-        ) {
-          // Check if target version is within the range (exact match required)
-          if (targetMajor >= rangeStart && targetMajor <= rangeEnd) {
-            return support
-          }
-        }
-      }
+    const rangeMatch = findRangeMatch(stats, targetMajor)
+    if (rangeMatch) {
+      return rangeMatch
     }
   }
 
@@ -825,7 +840,7 @@ export async function getMdnBcdSupport(
     const bcdData = await loadMdnBcdData()
     const feature = navigateMdnBcdPath(bcdData, mdnBcdPath)
 
-    if (!feature || !feature.__compat?.support) {
+    if (!feature?.__compat?.support) {
       console.log(`MDN BCD feature not found: ${mdnBcdPath}`)
       return {
         chrome_android: 'unknown',
@@ -935,6 +950,18 @@ function majorOf(version: string): number {
   return Number.parseInt(version.split('.')[0] ?? '', 10)
 }
 
+function releaseChannel(
+  version: string,
+  currentVersion: string,
+  upcoming: boolean
+): 'current' | 'beta' | 'released' {
+  // Use compareVersions (not ===) so a semantically-equal version in a
+  // different format (e.g. '26.4.0' vs '26.4') still gets the current badge.
+  if (compareVersions(version, currentVersion) === 0) return 'current'
+  if (upcoming) return 'beta'
+  return 'released'
+}
+
 /**
  * Get a windowed, channel-classified release list for a browser from MDN BCD.
  * Sourced from bcd.browsers[browserId].releases (CIU lacks mobile evergreen history).
@@ -995,13 +1022,7 @@ export async function getBrowserReleases(
     return combined.map(r => ({
       version: r.version,
       releaseDate: r.releaseDate,
-      // Use compareVersions (not ===) so a semantically-equal version in a
-      // different format (e.g. '26.4.0' vs '26.4') still gets the current badge.
-      channel: compareVersions(r.version, currentVersion) === 0
-        ? 'current'
-        : r.upcoming
-          ? 'beta'
-          : 'released'
+      channel: releaseChannel(r.version, currentVersion, r.upcoming)
     }))
   } catch (error) {
     console.error(`[BCD] Error getting releases for ${browserId}:`, error)

@@ -1,5 +1,22 @@
 import { pickLocaleFromAcceptLanguage } from '../utils/locale-choice'
 
+function localeCodesFrom(
+  i18nConfig: { locales?: unknown[] } | undefined
+): string[] {
+  const codes: string[] = []
+  for (const locale of i18nConfig?.locales ?? []) {
+    if (
+      locale
+      && typeof locale === 'object'
+      && 'code' in locale
+      && typeof locale.code === 'string'
+    ) {
+      codes.push(locale.code)
+    }
+  }
+  return codes
+}
+
 /**
  * Root-path locale decision (replaces `detectBrowserLanguage.redirectOn: 'root'`).
  *
@@ -33,17 +50,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event).public
   const i18nConfig = config.i18n
   // Runtime-config values are untyped JSON, so narrow instead of asserting.
-  const localeCodes: string[] = []
-  for (const locale of i18nConfig?.locales ?? []) {
-    if (
-      locale
-      && typeof locale === 'object'
-      && 'code' in locale
-      && typeof locale.code === 'string'
-    ) {
-      localeCodes.push(locale.code)
-    }
-  }
+  const localeCodes = localeCodesFrom(i18nConfig)
   const defaultLocale = i18nConfig?.defaultLocale || 'en'
 
   const choice = getCookie(event, String(config.langChoiceCookie))

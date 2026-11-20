@@ -182,31 +182,88 @@ watch(showExperimental, (newValue) => {
   )
 })
 
-// Load support data for all features on mount
-onMounted(async () => {
-  const allFeatures: Array<{
-    id: string
-    canIUseId?: string
-    mdnBcdPath?: string
-    status?: {
-      experimental: boolean
-      standard_track: boolean
-      deprecated: boolean
-    }
-  }> = []
+type BrowserFeature = {
+  id: string
+  canIUseId?: string
+  mdnBcdPath?: string
+  status?: {
+    experimental: boolean
+    standard_track: boolean
+    deprecated: boolean
+  }
+}
 
+function collectBrowserFeatures(): BrowserFeature[] {
+  return pwaFeatures.flatMap(group =>
+    group.categories.flatMap(category =>
+      category.features.map(feature => ({
+        id: feature.id,
+        canIUseId: feature.canIUseId,
+        mdnBcdPath: feature.mdnBcdPath,
+        status: feature.status
+      }))
+    )
+  )
+}
+
+function collectExperimentalFeatureIds(): Set<string> {
+  const ids = new Set<string>()
   for (const group of pwaFeatures) {
     for (const category of group.categories) {
       for (const feature of category.features) {
-        allFeatures.push({
-          id: feature.id,
-          canIUseId: feature.canIUseId,
-          mdnBcdPath: feature.mdnBcdPath,
-          status: feature.status
-        })
+        const status = columnSupport(
+          'chrome_android',
+          feature.id,
+          feature.canIUseId,
+          feature.mdnBcdPath
+        ).status
+        // Hide if experimental OR not on standards track (non-standard)
+        if (status?.experimental === true || status?.standard_track === false) {
+          ids.add(feature.id)
+        }
       }
     }
   }
+  return ids
+}
+
+function collectExperimentalCategoryIds(
+  experimentalFeatures: Set<string>
+): Set<string> {
+  const ids = new Set<string>()
+  for (const group of pwaFeatures) {
+    for (const category of group.categories) {
+      // Check if ALL features in this category are experimental
+      if (
+        category.features.every(feature => experimentalFeatures.has(feature.id))
+      ) {
+        ids.add(category.id)
+      }
+    }
+  }
+  return ids
+}
+
+function collectExperimentalGroupIds(
+  experimentalCategories: Set<string>
+): Set<string> {
+  const ids = new Set<string>()
+  for (const group of pwaFeatures) {
+    // Check if ALL categories in this group are experimental
+    if (
+      group.categories.every(category =>
+        experimentalCategories.has(category.id)
+      )
+    ) {
+      ids.add(group.id)
+    }
+  }
+  return ids
+}
+
+// Load support data for all features on mount
+onMounted(async () => {
+  const allFeatures = collectBrowserFeatures()
 
   // Load support data and MDN URLs for all features in parallel
   const allBrowserIds = [...mobileBrowserConfig, ...desktopBrowserConfig].map(b => b.id)
@@ -221,46 +278,13 @@ onMounted(async () => {
   ])
 
   // Pre-compute which features are experimental/non-standard (once, after support data loads)
-  const experimentalFeatures = new Set<string>()
-  for (const group of pwaFeatures) {
-    for (const category of group.categories) {
-      for (const feature of category.features) {
-        const support = columnSupport('chrome_android', feature.id, feature.canIUseId, feature.mdnBcdPath)
-        const status = support.status
-
-        // Hide if experimental OR not on standards track (non-standard)
-        if (status?.experimental === true || status?.standard_track === false) {
-          experimentalFeatures.add(feature.id)
-        }
-      }
-    }
-  }
+  const experimentalFeatures = collectExperimentalFeatureIds()
 
   // Pre-compute which categories are all-experimental
-  const experimentalCategories = new Set<string>()
-  for (const group of pwaFeatures) {
-    for (const category of group.categories) {
-      // Check if ALL features in this category are experimental
-      if (
-        category.features.every(feature => experimentalFeatures.has(feature.id))
-      ) {
-        experimentalCategories.add(category.id)
-      }
-    }
-  }
+  const experimentalCategories = collectExperimentalCategoryIds(experimentalFeatures)
 
   // Pre-compute which groups are all-experimental
-  const experimentalGroups = new Set<string>()
-  for (const group of pwaFeatures) {
-    // Check if ALL categories in this group are experimental
-    if (
-      group.categories.every(category =>
-        experimentalCategories.has(category.id)
-      )
-    ) {
-      experimentalGroups.add(group.id)
-    }
-  }
+  const experimentalGroups = collectExperimentalGroupIds(experimentalCategories)
 
   // Assign once, so dependent state (disabled items, previously opened categories)
   // reacts to data that resolves after the first render
@@ -529,16 +553,17 @@ function expandGroupCategories(groupId: string): void {
  * Handle Meta-click (⌘ on Mac, ⊞ on Windows) on group accordions
  * to expand group + all its categories
  */
-function handleGroupMetaClick(event: MouseEvent): void {
+function handleGroupMetaClick(event: MouseEvent | KeyboardEvent): void {
   if (!event.metaKey) return
+  if ('key' in event && event.key !== 'Enter' && event.key !== ' ') return
 
   const target = event.target as HTMLElement
   const groupEl
-    = target.closest('[data-group-id]')
-      || target.closest('button')?.querySelector('[data-group-id]')
+    = target.closest<HTMLElement>('[data-group-id]')
+      || target.closest('button')?.querySelector<HTMLElement>('[data-group-id]')
   if (!groupEl) return
 
-  const groupId = groupEl.getAttribute('data-group-id')
+  const groupId = groupEl.dataset.groupId
   if (!groupId) return
 
   expandGroupCategories(groupId)
@@ -577,14 +602,13 @@ function createCategoryItems(group: PWAFeatureGroup) {
 
 <template>
   <div>
-    <div
-      role="status"
+    <output
       aria-live="polite"
       aria-atomic="true"
       class="sr-only"
     >
       {{ liveAnnouncement }}
-    </div>
+    </output>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Options Bar -->
@@ -760,7 +784,10 @@ function createCategoryItems(group: PWAFeatureGroup) {
             </UCard>
 
             <!-- Feature Groups Accordion -->
-            <div @click.capture="handleGroupMetaClick">
+            <div
+              @click.capture="handleGroupMetaClick"
+              @keydown.capture="handleGroupMetaClick"
+            >
               <UAccordion
                 v-model="openGroups"
                 :items="groupItems"

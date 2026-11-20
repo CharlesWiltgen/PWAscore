@@ -27,6 +27,7 @@ onMounted(() => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="pointer-events-none"
+      aria-hidden="true"
     >
       <mask
         id="path-1-inside-1_414_5526"

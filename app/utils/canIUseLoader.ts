@@ -36,7 +36,7 @@ const CANIUSE_URL
   = 'https://raw.githubusercontent.com/Fyrd/caniuse/refs/heads/main/fulldata-json/data-2.0.json'
 
 // Cache version - update this to force cache refresh
-const CACHE_VERSION = '2026-10-08'
+const CACHE_VERSION = '2026-11-20'
 
 // In-memory cache
 let canIUseData: CanIUseData | null = null
@@ -470,10 +470,10 @@ interface MdnBcdFeature {
 // canIUseLoader.integration.test.ts, so bumping the pin cannot silently leave a
 // release override behind.
 export const MDN_BCD_URL
-  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@8.1.5/data.json'
+  = 'https://cdn.jsdelivr.net/npm/@mdn/browser-compat-data@8.1.10/data.json'
 
 // Cache version for MDN BCD
-const MDN_BCD_CACHE_VERSION = '2026-10-08'
+const MDN_BCD_CACHE_VERSION = '2026-11-20'
 
 // Shipped-but-unpublished releases, applied on top of whatever BCD reports
 // (see data/bcd-release-overrides.json). A malformed file degrades to

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { pickLocaleFromAcceptLanguage } from './locale-choice'
+import { localeCodesFrom, pickLocaleFromAcceptLanguage } from './locale-choice'
 
 const LOCALES = ['en', 'fr']
 const FALLBACK = 'en'
@@ -37,5 +37,27 @@ describe('pickLocaleFromAcceptLanguage', () => {
 
   test('prefers an earlier header entry when q-values tie', () => {
     expect(pickLocaleFromAcceptLanguage('fr-FR,fr;q=0.9,en-US,en;q=0.9', LOCALES, FALLBACK)).toBe('fr')
+  })
+})
+
+describe('localeCodesFrom', () => {
+  test('extracts string codes and ignores malformed entries', () => {
+    expect(
+      localeCodesFrom({
+        locales: [
+          { code: 'en' },
+          { code: 'fr' },
+          'de',
+          null,
+          { code: 42 },
+          { name: 'no-code' }
+        ]
+      })
+    ).toEqual(['en', 'fr'])
+  })
+
+  test('returns an empty list when locales are absent', () => {
+    expect(localeCodesFrom(undefined)).toEqual([])
+    expect(localeCodesFrom({})).toEqual([])
   })
 })

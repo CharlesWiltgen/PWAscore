@@ -365,6 +365,32 @@ describe('getCanIUseSupport', () => {
     vi.unstubAllGlobals()
     clearCaches()
   })
+
+  test('resolves a dotted target through a version range key', async () => {
+    clearCaches()
+    const caniuseWithRange = JSON.parse(
+      loadFixture('caniuse-data.fixture.json')
+    )
+    caniuseWithRange.data['range-probe'] = {
+      stats: { ios_saf: { '18.5-18.6': 'y' }, safari: { 18: 'a #1' } }
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, json: async () => caniuseWithRange }))
+    )
+
+    const support = await getCanIUseSupport('range-probe', {
+      chrome: '146',
+      firefox: '148',
+      safari: '18.6'
+    })
+
+    expect(support.safari_ios).toBe('supported')
+    expect(support.safari).toBe('partial')
+
+    vi.unstubAllGlobals()
+    clearCaches()
+  })
 })
 
 describe('getMdnBcdSupport', () => {

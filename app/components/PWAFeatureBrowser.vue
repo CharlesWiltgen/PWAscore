@@ -8,6 +8,13 @@ import type {
   Platform
 } from '../composables/useBrowserSupport'
 import { getMdnUrlFromBcd } from '../utils/canIUseLoader'
+import {
+  collectBrowserFeatures,
+  collectExperimentalCategoryIds,
+  collectExperimentalFeatureIds,
+  collectExperimentalGroupIds,
+  activateGroupFromMetaEvent
+} from '../utils/experimental-features'
 import { useVersionedBrowsers } from '../composables/useVersionedBrowsers'
 
 const { t } = useI18n()
@@ -182,88 +189,9 @@ watch(showExperimental, (newValue) => {
   )
 })
 
-type BrowserFeature = {
-  id: string
-  canIUseId?: string
-  mdnBcdPath?: string
-  status?: {
-    experimental: boolean
-    standard_track: boolean
-    deprecated: boolean
-  }
-}
-
-function collectBrowserFeatures(): BrowserFeature[] {
-  return pwaFeatures.flatMap(group =>
-    group.categories.flatMap(category =>
-      category.features.map(feature => ({
-        id: feature.id,
-        canIUseId: feature.canIUseId,
-        mdnBcdPath: feature.mdnBcdPath,
-        status: feature.status
-      }))
-    )
-  )
-}
-
-function collectExperimentalFeatureIds(): Set<string> {
-  const ids = new Set<string>()
-  for (const group of pwaFeatures) {
-    for (const category of group.categories) {
-      for (const feature of category.features) {
-        const status = columnSupport(
-          'chrome_android',
-          feature.id,
-          feature.canIUseId,
-          feature.mdnBcdPath
-        ).status
-        // Hide if experimental OR not on standards track (non-standard)
-        if (status?.experimental === true || status?.standard_track === false) {
-          ids.add(feature.id)
-        }
-      }
-    }
-  }
-  return ids
-}
-
-function collectExperimentalCategoryIds(
-  experimentalFeatures: Set<string>
-): Set<string> {
-  const ids = new Set<string>()
-  for (const group of pwaFeatures) {
-    for (const category of group.categories) {
-      // Check if ALL features in this category are experimental
-      if (
-        category.features.every(feature => experimentalFeatures.has(feature.id))
-      ) {
-        ids.add(category.id)
-      }
-    }
-  }
-  return ids
-}
-
-function collectExperimentalGroupIds(
-  experimentalCategories: Set<string>
-): Set<string> {
-  const ids = new Set<string>()
-  for (const group of pwaFeatures) {
-    // Check if ALL categories in this group are experimental
-    if (
-      group.categories.every(category =>
-        experimentalCategories.has(category.id)
-      )
-    ) {
-      ids.add(group.id)
-    }
-  }
-  return ids
-}
-
 // Load support data for all features on mount
 onMounted(async () => {
-  const allFeatures = collectBrowserFeatures()
+  const allFeatures = collectBrowserFeatures(pwaFeatures)
 
   // Load support data and MDN URLs for all features in parallel
   const allBrowserIds = [...mobileBrowserConfig, ...desktopBrowserConfig].map(b => b.id)
@@ -278,13 +206,28 @@ onMounted(async () => {
   ])
 
   // Pre-compute which features are experimental/non-standard (once, after support data loads)
-  const experimentalFeatures = collectExperimentalFeatureIds()
+  const experimentalFeatures = collectExperimentalFeatureIds(
+    pwaFeatures,
+    feature =>
+      columnSupport(
+        'chrome_android',
+        feature.id,
+        feature.canIUseId,
+        feature.mdnBcdPath
+      ).status
+  )
 
   // Pre-compute which categories are all-experimental
-  const experimentalCategories = collectExperimentalCategoryIds(experimentalFeatures)
+  const experimentalCategories = collectExperimentalCategoryIds(
+    pwaFeatures,
+    experimentalFeatures
+  )
 
   // Pre-compute which groups are all-experimental
-  const experimentalGroups = collectExperimentalGroupIds(experimentalCategories)
+  const experimentalGroups = collectExperimentalGroupIds(
+    pwaFeatures,
+    experimentalCategories
+  )
 
   // Assign once, so dependent state (disabled items, previously opened categories)
   // reacts to data that resolves after the first render
@@ -554,19 +497,7 @@ function expandGroupCategories(groupId: string): void {
  * to expand group + all its categories
  */
 function handleGroupMetaClick(event: MouseEvent | KeyboardEvent): void {
-  if (!event.metaKey) return
-  if ('key' in event && event.key !== 'Enter' && event.key !== ' ') return
-
-  const target = event.target as HTMLElement
-  const groupEl
-    = target.closest<HTMLElement>('[data-group-id]')
-      || target.closest('button')?.querySelector<HTMLElement>('[data-group-id]')
-  if (!groupEl) return
-
-  const groupId = groupEl.dataset.groupId
-  if (!groupId) return
-
-  expandGroupCategories(groupId)
+  activateGroupFromMetaEvent(event, expandGroupCategories)
 }
 
 /**

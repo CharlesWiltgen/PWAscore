@@ -1,21 +1,7 @@
-import { pickLocaleFromAcceptLanguage } from '../utils/locale-choice'
-
-function localeCodesFrom(
-  i18nConfig: { locales?: unknown[] } | undefined
-): string[] {
-  const codes: string[] = []
-  for (const locale of i18nConfig?.locales ?? []) {
-    if (
-      locale
-      && typeof locale === 'object'
-      && 'code' in locale
-      && typeof locale.code === 'string'
-    ) {
-      codes.push(locale.code)
-    }
-  }
-  return codes
-}
+import {
+  localeCodesFrom,
+  pickLocaleFromAcceptLanguage
+} from '../utils/locale-choice'
 
 /**
  * Root-path locale decision (replaces `detectBrowserLanguage.redirectOn: 'root'`).

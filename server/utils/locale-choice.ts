@@ -14,6 +14,27 @@
  */
 
 /**
+ * Extract locale codes from Nuxt i18n runtime config. Runtime values are
+ * untyped JSON, so narrow rather than asserting.
+ */
+export function localeCodesFrom(
+  i18nConfig: { locales?: unknown[] } | undefined
+): string[] {
+  const codes: string[] = []
+  for (const locale of i18nConfig?.locales ?? []) {
+    if (
+      locale
+      && typeof locale === 'object'
+      && 'code' in locale
+      && typeof locale.code === 'string'
+    ) {
+      codes.push(locale.code)
+    }
+  }
+  return codes
+}
+
+/**
  * Locale for a first visit: the highest-q `Accept-Language` entry whose primary
  * subtag matches a site locale (so `fr-CA` counts as `fr`), else the default.
  * Unparseable or unmatched headers fall back rather than guessing.

@@ -7,7 +7,8 @@ import {
   getBrowserReleases,
   getBrowserReleaseDates,
   getMdnBcdSupport,
-  windowMajorLaunchesByDate
+  windowMajorLaunchesByDate,
+  MDN_BCD_URL
 } from './canIUseLoader'
 import type { DatedRelease } from './canIUseLoader'
 import { readFileSync } from 'node:fs'
@@ -106,6 +107,20 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals()
   clearCaches()
+})
+
+describe('BCD pin', () => {
+  test('matches the installed @mdn/browser-compat-data devDependency', () => {
+    const pkg = JSON.parse(
+      readFileSync(join(process.cwd(), 'package.json'), 'utf8')
+    ) as { devDependencies?: Record<string, string> }
+    const version = pkg.devDependencies?.['@mdn/browser-compat-data']
+
+    expect(version).toBeTruthy()
+    expect(MDN_BCD_URL).toContain(
+      `@mdn/browser-compat-data@${version}/data.json`
+    )
+  })
 })
 
 describe('getBrowserVersions', () => {

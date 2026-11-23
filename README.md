@@ -22,7 +22,7 @@ app/
 │   ├── useBrowserSupport.ts     # Browser support data fetching
 │   └── useBrowserScore.ts       # Score calculation logic
 ├── data/
-│   └── pwa-features.ts          # 200+ PWA features catalog
+│   └── pwa-features.json        # PWA features catalog
 ├── pages/
 │   └── index.vue                # Homepage
 └── utils/
@@ -33,7 +33,7 @@ app/
 
 **Data Flow:**
 
-1. PWA features defined in `app/data/pwa-features.ts`
+1. PWA features defined in `app/data/pwa-features.json`
 2. CanIUse IDs mapped to each feature
 3. Data fetched from GitHub and cached at Cloudflare edge
 4. `useBrowserSupport` composable manages caching and lookup
@@ -98,26 +98,26 @@ Status data sourced from [MDN Browser Compatibility Data](https://github.com/mdn
 
 ### Current Browser Versions
 
-**Dynamically derived from CanIUse data** in `app/utils/canIUseLoader.ts`
+**Derived from the newest dated MDN BCD release** in `app/utils/canIUseLoader.ts`, with CanIUse's `current_version` as a floor. Beta and preview releases are listed but never selected by default.
 
-- Chrome for Android: Uses `agents.and_chr.current_version`
-- Firefox for Android: Uses `agents.and_ff.current_version`
-- Safari for iOS: Finds highest iOS version from `agents.ios_saf.version_list`
+- Chrome / Chrome for Android: newest shipped BCD release
+- Firefox / Firefox for Android: newest shipped BCD release
+- Safari / Safari for iOS: newest shipped BCD release
 
-Versions automatically stay current with CanIUse data (no manual updates needed).
+Versions stay current through the pinned BCD release and the live CanIUse feed.
 
 ## Features
 
 ### Expand all
 
-Meta-click (⌘ on Mac, Windows key on Windows) on any feature group to see all sub-categories and their features.
+Meta-click (⌘ on Mac, Windows key on Windows) on any feature group to see all sub-categories and their features. From the keyboard, Cmd/Ctrl+Enter or Cmd/Ctrl+Space on a focused group header does the same.
 
 ## Deployment
 
 Deploys to Cloudflare Workers via Wrangler:
 
 ```bash
-pnpm deploy
+pnpm run deploy
 ```
 
 ## Performance
@@ -134,20 +134,25 @@ pnpm deploy
 pnpm install
 
 # Start dev server (localhost:3000)
-pnpm dev
+pnpm run dev
 
 # Type check
-pnpm typecheck
+pnpm run typecheck
 
 # Lint code
-pnpm lint
+pnpm run lint
 
 # Format code
-pnpm prettier:fix
+pnpm run format
+
+# Run the local SonarQube gate (requires sonar-scanner; SONAR_TOKEN from env or fnox)
+pnpm run sonar:scan
 
 # Build for production
-pnpm build
+pnpm run build
 
 # Deploy to Cloudflare Workers
-pnpm deploy
+pnpm run deploy
 ```
+
+The SonarQube gate is local-only (`plumbus.local:9001`); GitHub runners cannot reach it.

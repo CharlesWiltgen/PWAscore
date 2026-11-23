@@ -29,6 +29,8 @@ const GROUPS: PWAFeatureGroup[] = [
             id: 'normal',
             name: 'Normal',
             description: 'Normal',
+            canIUseId: 'normal-ciu',
+            mdnBcdPath: 'api.Normal',
             status: status(false)
           },
           {
@@ -104,7 +106,8 @@ const GROUPS: PWAFeatureGroup[] = [
 
 describe('experimental feature helpers', () => {
   test('flattens every feature in group/category order', () => {
-    expect(collectBrowserFeatures(GROUPS).map(feature => feature.id)).toEqual([
+    const features = collectBrowserFeatures(GROUPS)
+    expect(features.map(feature => feature.id)).toEqual([
       'normal',
       'experimental',
       'nonstandard',
@@ -112,6 +115,11 @@ describe('experimental feature helpers', () => {
       'exp3',
       'normal2'
     ])
+    expect(features.find(feature => feature.id === 'normal')).toMatchObject({
+      canIUseId: 'normal-ciu',
+      mdnBcdPath: 'api.Normal',
+      status: { experimental: false, standard_track: true, deprecated: false }
+    })
   })
 
   test('collects experimental and non-standard features', () => {
@@ -166,6 +174,23 @@ describe('experimental feature helpers', () => {
     expect(groupIdForMetaActivation(span, { metaKey: true, key: 'a' })).toBe(
       undefined
     )
+    expect(
+      groupIdForMetaActivation(span, {
+        metaKey: false,
+        ctrlKey: true,
+        key: 'Enter'
+      })
+    ).toBe('group-1')
+    expect(
+      groupIdForMetaActivation(span, {
+        metaKey: false,
+        ctrlKey: true,
+        key: ' '
+      })
+    ).toBe('group-1')
+    expect(
+      groupIdForMetaActivation(span, { metaKey: false, ctrlKey: true })
+    ).toBe(undefined)
     expect(groupIdForMetaActivation(span, { metaKey: false })).toBe(undefined)
     expect(groupIdForMetaActivation(null, { metaKey: true })).toBe(undefined)
   })
@@ -182,8 +207,12 @@ describe('experimental feature helpers', () => {
       { metaKey: true, key: 'Enter', target: span },
       expand
     )
+    activateGroupFromMetaEvent(
+      { metaKey: false, ctrlKey: true, key: 'Enter', target: span },
+      expand
+    )
     activateGroupFromMetaEvent({ metaKey: false, target: span }, expand)
 
-    expect(expanded).toEqual(['group-2'])
+    expect(expanded).toEqual(['group-2', 'group-2'])
   })
 })

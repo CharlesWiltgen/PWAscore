@@ -80,16 +80,21 @@ export function collectExperimentalGroupIds(
 }
 
 /**
- * Find the group id a Cmd/Ctrl+Enter on an accordion header should expand.
- * Returns undefined for an ordinary click/keypress, or when the target is not
- * inside a group header.
+ * Find the group id a keyboard Cmd/Ctrl+Enter or Cmd/Ctrl+Space on an
+ * accordion header should expand. Keyboard activation accepts Meta or Ctrl;
+ * mouse activation stays Meta-only, so Ctrl+click remains a context-menu
+ * gesture. Returns undefined for an ordinary click/keypress, or when the
+ * target is not inside a group header.
  */
 export function groupIdForMetaActivation(
   target: Element | null,
-  event: { metaKey: boolean, key?: string }
+  event: { metaKey: boolean, ctrlKey?: boolean, key?: string }
 ): string | undefined {
-  if (!event.metaKey) return undefined
-  if (event.key !== undefined && event.key !== 'Enter' && event.key !== ' ') {
+  const key = event.key
+  if (!event.metaKey && !(key !== undefined && event.ctrlKey)) {
+    return undefined
+  }
+  if (key !== undefined && key !== 'Enter' && key !== ' ') {
     return undefined
   }
 
@@ -99,7 +104,12 @@ export function groupIdForMetaActivation(
 }
 
 export function activateGroupFromMetaEvent(
-  event: { metaKey: boolean, key?: string, target: EventTarget | null },
+  event: {
+    metaKey: boolean
+    ctrlKey?: boolean
+    key?: string
+    target: EventTarget | null
+  },
   expand: (groupId: string) => void
 ): void {
   const groupId = groupIdForMetaActivation(
